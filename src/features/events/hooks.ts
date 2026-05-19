@@ -7,6 +7,7 @@ import type {
   EventListParams,
   JoinFreeEventParams
 } from "@/features/events/types";
+import { participantsKeys } from "@/features/participants/hooks";
 
 export const eventsKeys = {
   all: ["events"] as const,
@@ -57,6 +58,7 @@ export function useJoinFreeEvent() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: eventsKeys.details() });
       void queryClient.invalidateQueries({ queryKey: eventsKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: participantsKeys.all });
     }
   });
 }

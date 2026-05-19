@@ -8,7 +8,11 @@ type AppLayoutProps = {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/account", label: "Conta" }
+  { href: "/account", label: "Conta" },
+  { href: "/account/bookings", label: "Inscrições" },
+  { href: "/account/payments", label: "Pagamentos" },
+  { href: "/account/notifications", label: "Notificações" },
+  { href: "/events", label: "Eventos" }
 ] as const;
 
 export function AppLayout({ children }: AppLayoutProps) {
@@ -25,9 +29,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/">Site público</Link>
-            </Button>
             <LogoutButton />
           </nav>
         </div>

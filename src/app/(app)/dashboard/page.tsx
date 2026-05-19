@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useMe } from "@/features/auth/hooks";
+import { useMyBookings } from "@/features/bookings/hooks";
+import { useMyNotifications } from "@/features/notifications/hooks";
+import { useMyParticipants } from "@/features/participants/hooks";
+import { useMyPayments } from "@/features/payments/hooks";
 
 const ROLE_LABELS: Record<string, string> = {
   user: "Participante",
@@ -12,6 +16,10 @@ const ROLE_LABELS: Record<string, string> = {
 
 export default function DashboardPage() {
   const { data: user } = useMe();
+  const participantsQuery = useMyParticipants();
+  const bookingsQuery = useMyBookings({ page: 1, limit: 3 });
+  const paymentsQuery = useMyPayments({ page: 1, limit: 3 });
+  const notificationsQuery = useMyNotifications({ page: 1, limit: 3 });
 
   return (
     <div className="space-y-6">
@@ -39,6 +47,29 @@ export default function DashboardPage() {
         </dl>
       ) : null}
 
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <DashboardCard
+          title="Inscrições gratuitas"
+          value={participantsQuery.data?.length ?? 0}
+          href="/account/bookings"
+        />
+        <DashboardCard
+          title="Reservas pagas"
+          value={bookingsQuery.data?.meta.total ?? 0}
+          href="/account/bookings"
+        />
+        <DashboardCard
+          title="Pagamentos"
+          value={paymentsQuery.data?.meta.total ?? 0}
+          href="/account/payments"
+        />
+        <DashboardCard
+          title="Notificações"
+          value={notificationsQuery.data?.meta.total ?? 0}
+          href="/account/notifications"
+        />
+      </section>
+
       <div className="grid gap-3 sm:flex sm:flex-wrap">
         <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
           <Link href="/account">Minha conta</Link>
@@ -53,5 +84,14 @@ export default function DashboardPage() {
         ) : null}
       </div>
     </div>
+  );
+}
+
+function DashboardCard({ title, value, href }: { title: string; value: number; href: string }) {
+  return (
+    <Link href={href} className="hover:bg-muted/40 rounded-xl border p-4 transition-colors">
+      <p className="text-muted-foreground text-sm">{title}</p>
+      <p className="mt-2 text-3xl font-bold">{value}</p>
+    </Link>
   );
 }
