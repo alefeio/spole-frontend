@@ -4,12 +4,12 @@ Documentação do projeto web do Spolê. O backend vive em `/api`; esta pasta co
 
 ## Estrutura
 
-| Pasta | Conteúdo |
-|-------|----------|
-| [`00-product/`](./00-product/) | Visão do produto web, stack, princípios de arquitetura e integração com a API |
-| [`01-sprints/`](./01-sprints/) | Planejamento de sprints do frontend (sempre **1 sprint atrás** do backend) |
-| [`02-features/`](./02-features/) | Especificações por feature e mapas de integração |
-| [`03-prompts/`](./03-prompts/) | Templates de prompts para implementação e análise no Cursor |
+| Pasta                            | Conteúdo                                                                      |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| [`00-product/`](./00-product/)   | Visão do produto web, stack, princípios de arquitetura e integração com a API |
+| [`01-sprints/`](./01-sprints/)   | Planejamento de sprints do frontend (sempre **1 sprint atrás** do backend)    |
+| [`02-features/`](./02-features/) | Especificações por feature e mapas de integração                              |
+| [`03-prompts/`](./03-prompts/)   | Templates de prompts para implementação e análise no Cursor                   |
 
 ## Documentos principais
 

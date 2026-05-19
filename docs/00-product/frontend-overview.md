@@ -6,14 +6,14 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 
 ## 2. Stack planejada (não implementada ainda)
 
-| Camada | Tecnologia |
-|--------|------------|
-| Framework | Next.js (App Router) |
-| Linguagem | TypeScript |
-| Estilo | Tailwind CSS |
-| Componentes | shadcn/ui |
-| Dados remotos | TanStack Query |
-| API | Cliente centralizado (wrapper sobre `fetch`) |
+| Camada        | Tecnologia                                   |
+| ------------- | -------------------------------------------- |
+| Framework     | Next.js (App Router)                         |
+| Linguagem     | TypeScript                                   |
+| Estilo        | Tailwind CSS                                 |
+| Componentes   | shadcn/ui                                    |
+| Dados remotos | TanStack Query                               |
+| API           | Cliente centralizado (wrapper sobre `fetch`) |
 
 ## 3. Princípios de arquitetura
 
@@ -25,12 +25,12 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 
 ## 4. Perfis e áreas da UI (planejamento)
 
-| Perfil | Áreas principais |
-|--------|------------------|
-| Participante | Descoberta, detalhe do evento, inscrição gratuita, compra paga, conta |
-| Organizador | Criar/editar eventos, reservar arena, minhas reservas |
-| Dono de arena | Cadastro de arena, espaços, slots, reservas recebidas |
-| Admin | Categorias (quando houver painel); demais rotas admin ainda **não existem** na API |
+| Perfil        | Áreas principais                                                                   |
+| ------------- | ---------------------------------------------------------------------------------- |
+| Participante  | Descoberta, detalhe do evento, inscrição gratuita, compra paga, conta              |
+| Organizador   | Criar/editar eventos, reservar arena, minhas reservas                              |
+| Dono de arena | Cadastro de arena, espaços, slots, reservas recebidas                              |
+| Admin         | Categorias (quando houver painel); demais rotas admin ainda **não existem** na API |
 
 ## 5. Integração com a API
 

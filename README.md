@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Spolê — Frontend (`/web`)
 
-## Getting Started
+Cliente web do Spolê (Next.js App Router), consumindo a API em `/api`.
 
-First, run the development server:
+## Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Next.js 16 (App Router) + TypeScript
+- Tailwind CSS v4 + shadcn/ui
+- TanStack Query + Zod
+- ESLint + Prettier
+
+## Pré-requisitos
+
+- Node.js 20+
+- [pnpm](https://pnpm.io/) 9+
+
+## Configuração
+
+Na pasta **`Projetos/web`** (não rode `cd web` de novo se o prompt já estiver em `...\web>`).
+
+**PowerShell (Windows):**
+
+```powershell
+Copy-Item .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Git Bash / macOS / Linux:**
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Ajuste `NEXT_PUBLIC_API_URL` se necessário. O backend usa **porta 3000** por padrão (`/api/.env.example`).
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+Se o PowerShell bloquear `pnpm` (_execution of scripts is disabled_), use **`pnpm.cmd`** em vez de `pnpm`, ou libere scripts para o seu usuário (uma vez):
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**PowerShell:**
 
-## Deploy on Vercel
+```powershell
+pnpm.cmd install
+pnpm.cmd dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Se a API já ocupa a porta 3000, rode o frontend em outra porta:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```powershell
+pnpm.cmd dev -- -p 3001
+```
+
+**Git Bash / macOS / Linux:**
+
+```bash
+pnpm install
+pnpm dev
+pnpm dev -- -p 3001
+```
+
+Outros comandos: `pnpm build`, `pnpm lint`, `pnpm format`.
+
+## Estrutura
+
+```
+src/
+  app/           # Rotas (grupos: public, auth, app, admin)
+  components/    # UI compartilhada (layout, feedback, shadcn)
+  features/      # Domínios (api.ts por feature → lib/api/client)
+  lib/api/       # Cliente HTTP centralizado (único uso de fetch para API)
+  lib/auth/      # Token storage (stubs)
+  providers/     # QueryProvider, AppProviders
+  styles/        # globals.css
+docs/            # Documentação do frontend
+```
+
+## Regras
+
+1. **Não** chamar `fetch` em páginas ou componentes — usar `src/lib/api/client.ts` via `src/features/*/api.ts`.
+2. Contrato HTTP: [`docs/02-features/api-contract-map.md`](./docs/02-features/api-contract-map.md).
+3. Frontend **1 sprint atrás** do backend.
+4. Fora de escopo imediato: pagamento de reserva de arena, recorrência, módulo `/search`, admin avançado.
+
+## Documentação
+
+- [Visão do produto web](./docs/00-product/frontend-overview.md)
+- [Sprint 00 — Foundation](./docs/01-sprints/sprint-00-frontend-foundation.md)

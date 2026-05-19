@@ -8,23 +8,23 @@
 
 ## 1. Módulos existentes no backend
 
-| Módulo | Pasta (`/api/src/modules/`) | Rotas registradas em `app.ts` | Observação |
-|--------|------------------------------|-------------------------------|------------|
-| Health | `http/routes/health.ts` | Sim | Operação / deploy |
-| Auth | `auth/` | Sim | Register, login |
-| Users | `users/` | Sim | Perfil e listagens autenticadas |
-| Categories | `categories/` | Sim | Catálogo público + CRUD admin |
-| Events | `events/` | Sim | CRUD + listagem pública (inclui busca MVP) |
-| Event participants | `event-participants/` | Sim | Inscrição gratuita + lista |
-| Bookings | `bookings/` | Sim | Reserva temporária em evento pago |
-| Payments | `payments/` | Sim | Pagamento de booking, reserva e ocorrência |
-| Reservations | `reservations/` | Sim | Reserva de slot de arena |
-| Spaces | `spaces/` | Sim | Espaços internos da arena |
-| Slots | `slots/` | Sim | Horários por espaço |
-| Arenas | `arenas/` | Sim | Arena, slots agregados, reservas da arena |
-| Notifications | `notifications/` | Sim | Marcar como lida (listagem via users) |
-| Search | — | **Não** (módulo separado) | Busca via `GET /events?q=...` |
-| Admin | — | **Não** | Sem rotas `/admin/*`; admin usa roles em rotas existentes |
+| Módulo             | Pasta (`/api/src/modules/`) | Rotas registradas em `app.ts` | Observação                                                |
+| ------------------ | --------------------------- | ----------------------------- | --------------------------------------------------------- |
+| Health             | `http/routes/health.ts`     | Sim                           | Operação / deploy                                         |
+| Auth               | `auth/`                     | Sim                           | Register, login                                           |
+| Users              | `users/`                    | Sim                           | Perfil e listagens autenticadas                           |
+| Categories         | `categories/`               | Sim                           | Catálogo público + CRUD admin                             |
+| Events             | `events/`                   | Sim                           | CRUD + listagem pública (inclui busca MVP)                |
+| Event participants | `event-participants/`       | Sim                           | Inscrição gratuita + lista                                |
+| Bookings           | `bookings/`                 | Sim                           | Reserva temporária em evento pago                         |
+| Payments           | `payments/`                 | Sim                           | Pagamento de booking, reserva e ocorrência                |
+| Reservations       | `reservations/`             | Sim                           | Reserva de slot de arena                                  |
+| Spaces             | `spaces/`                   | Sim                           | Espaços internos da arena                                 |
+| Slots              | `slots/`                    | Sim                           | Horários por espaço                                       |
+| Arenas             | `arenas/`                   | Sim                           | Arena, slots agregados, reservas da arena                 |
+| Notifications      | `notifications/`            | Sim                           | Marcar como lida (listagem via users)                     |
+| Search             | —                           | **Não** (módulo separado)     | Busca via `GET /events?q=...`                             |
+| Admin              | —                           | **Não**                       | Sem rotas `/admin/*`; admin usa roles em rotas existentes |
 
 ---
 
@@ -61,24 +61,24 @@
 
 ### 2.3 Autenticação (JWT)
 
-| Item | Valor |
-|------|--------|
-| Header | `Authorization: Bearer <accessToken>` |
-| Emissão | `POST /auth/login` → campo `data.token` |
-| Claims no token | `sub` (user id), `role`, `status` |
-| Roles | `user`, `arena_owner`, `admin` |
-| Status de usuário | `ACTIVE`, `SUSPENDED`, `INACTIVE` |
-| Usuário suspenso | Login: **403** `USER_SUSPENDED`; rotas protegidas: **403** `USER_SUSPENDED` |
-| Token ausente/inválido | **401** `UNAUTHORIZED` |
-| Role insuficiente | **403** `FORBIDDEN` (middleware `requireRoles`) |
+| Item                   | Valor                                                                       |
+| ---------------------- | --------------------------------------------------------------------------- |
+| Header                 | `Authorization: Bearer <accessToken>`                                       |
+| Emissão                | `POST /auth/login` → campo `data.token`                                     |
+| Claims no token        | `sub` (user id), `role`, `status`                                           |
+| Roles                  | `user`, `arena_owner`, `admin`                                              |
+| Status de usuário      | `ACTIVE`, `SUSPENDED`, `INACTIVE`                                           |
+| Usuário suspenso       | Login: **403** `USER_SUSPENDED`; rotas protegidas: **403** `USER_SUSPENDED` |
+| Token ausente/inválido | **401** `UNAUTHORIZED`                                                      |
+| Role insuficiente      | **403** `FORBIDDEN` (middleware `requireRoles`)                             |
 
 **`optionalAuth`:** usado em `GET /events/:id` — token válido preenche `req.auth` (organizador vê campos extras); token inválido ou ausente não bloqueia a rota.
 
 ### 2.4 Paginação
 
-| Query | Regra |
-|-------|--------|
-| `page` | Inteiro ≥ 1, default `1` |
+| Query   | Regra                                             |
+| ------- | ------------------------------------------------- |
+| `page`  | Inteiro ≥ 1, default `1`                          |
 | `limit` | Inteiro 1–100, default `10` (slots: default `50`) |
 
 **Meta padrão** (`PaginationMeta` + extras em eventos):
@@ -101,16 +101,16 @@ Listagens **sem** paginação na API atual: `GET /categories`, `GET /reservation
 
 Implementada em **`GET /events`** (não existe `GET /search`).
 
-| Query | Tipo | Descrição |
-|-------|------|-----------|
-| `q` | string | Busca textual em `title` e `description` (ILIKE) |
-| `category` | uuid | Filtro por `categoryId` |
-| `city` | string | Filtro por cidade |
-| `dateFrom`, `dateTo` | ISO 8601 com offset | Intervalo em `startAt` |
-| `type` | `FREE` \| `PAID` | Tipo do evento |
-| `sort` | `startAt` | Default `startAt` |
-| `order` | `asc` \| `desc` | Default `asc` |
-| `page`, `limit` | ver §2.4 | Paginação |
+| Query                | Tipo                | Descrição                                        |
+| -------------------- | ------------------- | ------------------------------------------------ |
+| `q`                  | string              | Busca textual em `title` e `description` (ILIKE) |
+| `category`           | uuid                | Filtro por `categoryId`                          |
+| `city`               | string              | Filtro por cidade                                |
+| `dateFrom`, `dateTo` | ISO 8601 com offset | Intervalo em `startAt`                           |
+| `type`               | `FREE` \| `PAID`    | Tipo do evento                                   |
+| `sort`               | `startAt`           | Default `startAt`                                |
+| `order`              | `asc` \| `desc`     | Default `asc`                                    |
+| `page`, `limit`      | ver §2.4            | Paginação                                        |
 
 Somente eventos `PUBLIC` + `PUBLISHED` + categoria `ACTIVE`.
 
@@ -124,9 +124,9 @@ Legenda de auth: **Público** | **JWT** (qualquer role autenticada salvo indica�
 
 ### 3.1 Health
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| GET | `/health` | Público | Saúde da aplicação |
+| Método | Rota      | Auth    | Descrição          |
+| ------ | --------- | ------- | ------------------ |
+| GET    | `/health` | Público | Saúde da aplicação |
 
 **Resposta 200:** `data: { "status": "ok" }`  
 **Resposta 500:** `DEPENDENCY_INCONSISTENT` + `details` com snapshot.
@@ -135,10 +135,10 @@ Legenda de auth: **Público** | **JWT** (qualquer role autenticada salvo indica�
 
 ### 3.2 Auth
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| POST | `/auth/register` | Público | Cadastro |
-| POST | `/auth/login` | Público | Login |
+| Método | Rota             | Auth    | Descrição |
+| ------ | ---------------- | ------- | --------- |
+| POST   | `/auth/register` | Público | Cadastro  |
+| POST   | `/auth/login`    | Público | Login     |
 
 #### `POST /auth/register`
 
@@ -190,13 +190,13 @@ Legenda de auth: **Público** | **JWT** (qualquer role autenticada salvo indica�
 
 ### 3.3 Users
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| GET | `/users/me` | JWT | Perfil autenticado |
-| GET | `/users/me/participants` | JWT | Minhas inscrições em eventos |
-| GET | `/users/me/notifications` | JWT + `page`, `limit` | Notificações |
-| GET | `/users/me/bookings` | JWT + `page`, `limit` | Meus bookings |
-| GET | `/users/me/payments` | JWT + `page`, `limit` | Meus pagamentos |
+| Método | Rota                      | Auth                  | Descrição                    |
+| ------ | ------------------------- | --------------------- | ---------------------------- |
+| GET    | `/users/me`               | JWT                   | Perfil autenticado           |
+| GET    | `/users/me/participants`  | JWT                   | Minhas inscrições em eventos |
+| GET    | `/users/me/notifications` | JWT + `page`, `limit` | Notificações                 |
+| GET    | `/users/me/bookings`      | JWT + `page`, `limit` | Meus bookings                |
+| GET    | `/users/me/payments`      | JWT + `page`, `limit` | Meus pagamentos              |
 
 > **`PATCH /users/me` não existe** na API atual (spec de produto prevê atualização futura).
 
@@ -232,12 +232,12 @@ Lista paginada de pagamentos do usuário.
 
 ### 3.4 Categories
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| GET | `/categories` | Público | Lista categorias ativas (cache) |
-| POST | `/categories` | JWT **admin** | Criar |
-| PATCH | `/categories/:id` | JWT **admin** | Atualizar |
-| DELETE | `/categories/:id` | JWT **admin** | Remover |
+| Método | Rota              | Auth          | Descrição                       |
+| ------ | ----------------- | ------------- | ------------------------------- |
+| GET    | `/categories`     | Público       | Lista categorias ativas (cache) |
+| POST   | `/categories`     | JWT **admin** | Criar                           |
+| PATCH  | `/categories/:id` | JWT **admin** | Atualizar                       |
+| DELETE | `/categories/:id` | JWT **admin** | Remover                         |
 
 #### `POST /categories` — body
 
@@ -266,18 +266,18 @@ Lista paginada de pagamentos do usuário.
 
 ### 3.5 Events
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| GET | `/events` | Público | Listagem + busca/filtros |
-| GET | `/events/:id` | Público + **optionalAuth** | Detalhe |
-| POST | `/events` | JWT `user` \| `arena_owner` \| `admin` | Criar |
-| PATCH | `/events/:id` | JWT (dono ou admin) | Atualizar |
-| DELETE | `/events/:id` | JWT (dono ou admin) | Cancelar logicamente |
+| Método | Rota          | Auth                                   | Descrição                |
+| ------ | ------------- | -------------------------------------- | ------------------------ |
+| GET    | `/events`     | Público                                | Listagem + busca/filtros |
+| GET    | `/events/:id` | Público + **optionalAuth**             | Detalhe                  |
+| POST   | `/events`     | JWT `user` \| `arena_owner` \| `admin` | Criar                    |
+| PATCH  | `/events/:id` | JWT (dono ou admin)                    | Atualizar                |
+| DELETE | `/events/:id` | JWT (dono ou admin)                    | Cancelar logicamente     |
 
 #### `GET /events/:id` — query
 
-| Param | Uso |
-|-------|-----|
+| Param         | Uso                                                          |
+| ------------- | ------------------------------------------------------------ |
 | `privateCode` | Obrigatório para acesso a evento `PRIVATE` (não organizador) |
 
 #### `POST /events` — body (discriminado por `sourceType`)
@@ -315,10 +315,10 @@ Campos completos do evento; organizador autenticado pode receber `privateCode` e
 
 ### 3.6 Event participants
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| POST | `/events/:eventId/participants/free` | JWT | Inscrição em evento gratuito |
-| GET | `/events/:eventId/participants` | JWT | Lista participantes (organizador/admin) |
+| Método | Rota                                 | Auth | Descrição                               |
+| ------ | ------------------------------------ | ---- | --------------------------------------- |
+| POST   | `/events/:eventId/participants/free` | JWT  | Inscrição em evento gratuito            |
+| GET    | `/events/:eventId/participants`      | JWT  | Lista participantes (organizador/admin) |
 
 #### `POST .../free` — query
 
@@ -332,10 +332,10 @@ Campos completos do evento; organizador autenticado pode receber `privateCode` e
 
 ### 3.7 Bookings (evento pago)
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| POST | `/events/:eventId/bookings` | JWT | Inicia reserva temporária (30 min) |
-| PATCH | `/bookings/:id/cancel` | JWT | Cancela booking reservável |
+| Método | Rota                        | Auth | Descrição                          |
+| ------ | --------------------------- | ---- | ---------------------------------- |
+| POST   | `/events/:eventId/bookings` | JWT  | Inicia reserva temporária (30 min) |
+| PATCH  | `/bookings/:id/cancel`      | JWT  | Cancela booking reservável         |
 
 #### `POST /events/:eventId/bookings` — query
 
@@ -365,20 +365,20 @@ Booking atualizado (`CANCELLED` quando aplicável).
 
 ### 3.8 Payments
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| POST | `/payments/webhook` | Webhook | Confirma pagamento de **booking** |
-| POST | `/reservation-payments/webhook` | Webhook | Confirma pagamento de **reserva/ocorrência** |
-| POST | `/bookings/:bookingId/payments` | JWT | Cria pagamento pendente (ingresso) |
-| POST | `/reservations/:reservationId/payments` | JWT | Cria pagamento pendente (reserva arena) |
-| POST | `/reservation-occurrences/:occurrenceId/payments` | JWT | Pagamento de ocorrência recorrente |
-| GET | `/payments/:id` | JWT | Detalhe do pagamento |
+| Método | Rota                                              | Auth    | Descrição                                    |
+| ------ | ------------------------------------------------- | ------- | -------------------------------------------- |
+| POST   | `/payments/webhook`                               | Webhook | Confirma pagamento de **booking**            |
+| POST   | `/reservation-payments/webhook`                   | Webhook | Confirma pagamento de **reserva/ocorrência** |
+| POST   | `/bookings/:bookingId/payments`                   | JWT     | Cria pagamento pendente (ingresso)           |
+| POST   | `/reservations/:reservationId/payments`           | JWT     | Cria pagamento pendente (reserva arena)      |
+| POST   | `/reservation-occurrences/:occurrenceId/payments` | JWT     | Pagamento de ocorrência recorrente           |
+| GET    | `/payments/:id`                                   | JWT     | Detalhe do pagamento                         |
 
 #### Webhooks (somente servidor / integração — não chamar do browser)
 
-| Rota | Header |
-|------|--------|
-| `POST /payments/webhook` | `X-Spole-Payment-Webhook-Secret` |
+| Rota                                 | Header                                       |
+| ------------------------------------ | -------------------------------------------- |
+| `POST /payments/webhook`             | `X-Spole-Payment-Webhook-Secret`             |
 | `POST /reservation-payments/webhook` | `X-Spole-Reservation-Payment-Webhook-Secret` |
 
 **Body webhook:**
@@ -421,12 +421,12 @@ Apenas `status: PAID` é aceito para concluir fluxo.
 
 ### 3.9 Reservations (arena)
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| POST | `/reservations` | JWT | Criar reserva |
-| GET | `/reservations/me` | JWT | Minhas reservas |
-| GET | `/reservations/:id` | JWT | Detalhe |
-| PATCH | `/reservations/:id/cancel` | JWT | Cancelar |
+| Método | Rota                       | Auth | Descrição       |
+| ------ | -------------------------- | ---- | --------------- |
+| POST   | `/reservations`            | JWT  | Criar reserva   |
+| GET    | `/reservations/me`         | JWT  | Minhas reservas |
+| GET    | `/reservations/:id`        | JWT  | Detalhe         |
+| PATCH  | `/reservations/:id/cancel` | JWT  | Cancelar        |
 
 #### `POST /reservations` — body
 
@@ -455,14 +455,14 @@ Apenas `status: PAID` é aceito para concluir fluxo.
 
 #### Arenas
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| POST | `/arenas` | JWT `arena_owner` \| `admin` | Criar arena |
-| GET | `/arenas/:id` | Público | Detalhe |
-| PATCH | `/arenas/:id` | JWT dono da arena ou admin | Atualizar |
-| GET | `/arenas/:arenaId/slots` | Público | Slots da arena (paginado) |
-| GET | `/arenas/:arenaId/reservations` | JWT dono da arena ou admin | Reservas da arena |
-| GET | `/arenas/:arenaId/spaces` | Público | Espaços (via módulo spaces) |
+| Método | Rota                            | Auth                         | Descrição                   |
+| ------ | ------------------------------- | ---------------------------- | --------------------------- |
+| POST   | `/arenas`                       | JWT `arena_owner` \| `admin` | Criar arena                 |
+| GET    | `/arenas/:id`                   | Público                      | Detalhe                     |
+| PATCH  | `/arenas/:id`                   | JWT dono da arena ou admin   | Atualizar                   |
+| GET    | `/arenas/:arenaId/slots`        | Público                      | Slots da arena (paginado)   |
+| GET    | `/arenas/:arenaId/reservations` | JWT dono da arena ou admin   | Reservas da arena           |
+| GET    | `/arenas/:arenaId/spaces`       | Público                      | Espaços (via módulo spaces) |
 
 > **`GET /arenas` (listagem global) não existe.**
 
@@ -482,19 +482,19 @@ Apenas `status: PAID` é aceito para concluir fluxo.
 
 #### Spaces
 
-| Método | Rota | Auth |
-|--------|------|------|
-| GET | `/arenas/:arenaId/spaces` | Público |
-| POST | `/arenas/:arenaId/spaces` | JWT dono arena / admin |
+| Método | Rota                      | Auth                   |
+| ------ | ------------------------- | ---------------------- |
+| GET    | `/arenas/:arenaId/spaces` | Público                |
+| POST   | `/arenas/:arenaId/spaces` | JWT dono arena / admin |
 
 **POST body:** `name`, `type`, `description?`, `capacitySuggestion?`, `status?`.
 
 #### Slots
 
-| Método | Rota | Auth |
-|--------|------|------|
-| GET | `/spaces/:spaceId/slots` | Público + `page`, `limit`, `dateFrom?`, `dateTo?` |
-| POST | `/spaces/:spaceId/slots` | JWT gestão do espaço |
+| Método | Rota                     | Auth                                              |
+| ------ | ------------------------ | ------------------------------------------------- |
+| GET    | `/spaces/:spaceId/slots` | Público + `page`, `limit`, `dateFrom?`, `dateTo?` |
+| POST   | `/spaces/:spaceId/slots` | JWT gestão do espaço                              |
 
 **POST body:** `startAt`, `endAt` (ISO), `price` (≥ 0), `allowsRecurring`, `notes?`.
 
@@ -502,9 +502,9 @@ Apenas `status: PAID` é aceito para concluir fluxo.
 
 ### 3.11 Notifications
 
-| Método | Rota | Auth | Descrição |
-|--------|------|------|-----------|
-| PATCH | `/notifications/:id/read` | JWT | Marca como lida |
+| Método | Rota                      | Auth | Descrição       |
+| ------ | ------------------------- | ---- | --------------- |
+| PATCH  | `/notifications/:id/read` | JWT  | Marca como lida |
 
 Listagem: `GET /users/me/notifications`.
 
@@ -514,15 +514,15 @@ Listagem: `GET /users/me/notifications`.
 
 ## 4. Regras de autenticação e autorização (resumo)
 
-| Padrão | Comportamento |
-|--------|----------------|
-| Rotas públicas | Sem header; falha de validação só em query/body |
-| `requireAuth` | Bearer obrigatório; usuário `ACTIVE` |
-| `requireRoles([...])` | Role deve estar na lista |
-| `requireArenaOwnerOrAdmin` | Param `arenaId` / `id` — dono da arena ou `admin` |
-| `requireSpaceManageAccess` | Dono da arena do espaço ou `admin` |
-| Ownership em eventos | Organizador do evento ou `admin` para PATCH/DELETE |
-| Webhooks | Segredo compartilhado no header; sem JWT |
+| Padrão                     | Comportamento                                      |
+| -------------------------- | -------------------------------------------------- |
+| Rotas públicas             | Sem header; falha de validação só em query/body    |
+| `requireAuth`              | Bearer obrigatório; usuário `ACTIVE`               |
+| `requireRoles([...])`      | Role deve estar na lista                           |
+| `requireArenaOwnerOrAdmin` | Param `arenaId` / `id` — dono da arena ou `admin`  |
+| `requireSpaceManageAccess` | Dono da arena do espaço ou `admin`                 |
+| Ownership em eventos       | Organizador do evento ou `admin` para PATCH/DELETE |
+| Webhooks                   | Segredo compartilhado no header; sem JWT           |
 
 ---
 
@@ -530,15 +530,15 @@ Listagem: `GET /users/me/notifications`.
 
 ### 5.1 HTTP × código
 
-| HTTP | Origem típica |
-|------|----------------|
-| 400 | `VALIDATION_ERROR`, `INVALID_WEBHOOK_PAYLOAD` |
-| 401 | `UNAUTHORIZED`, `INVALID_CREDENTIALS` |
-| 403 | `FORBIDDEN`, `USER_SUSPENDED`, `WEBHOOK_FORBIDDEN` |
-| 404 | `RESOURCE_NOT_FOUND` (catch-all), `*_NOT_FOUND` |
-| 409 | Conflitos (`EMAIL_ALREADY_EXISTS`, `EVENT_FULL`, `BOOKING_*`, `PAYMENT_ALREADY_EXISTS`, …) |
-| 422 | Regras de domínio (`EVENT_NOT_PAID`, `UNSUPPORTED_WEBHOOK_STATUS`, …) |
-| 500 | `INTERNAL_SERVER_ERROR`, falhas operacionais (`REDIS_UNAVAILABLE`, `*_CREATE_FAILED`) |
+| HTTP | Origem típica                                                                              |
+| ---- | ------------------------------------------------------------------------------------------ |
+| 400  | `VALIDATION_ERROR`, `INVALID_WEBHOOK_PAYLOAD`                                              |
+| 401  | `UNAUTHORIZED`, `INVALID_CREDENTIALS`                                                      |
+| 403  | `FORBIDDEN`, `USER_SUSPENDED`, `WEBHOOK_FORBIDDEN`                                         |
+| 404  | `RESOURCE_NOT_FOUND` (catch-all), `*_NOT_FOUND`                                            |
+| 409  | Conflitos (`EMAIL_ALREADY_EXISTS`, `EVENT_FULL`, `BOOKING_*`, `PAYMENT_ALREADY_EXISTS`, …) |
+| 422  | Regras de domínio (`EVENT_NOT_PAID`, `UNSUPPORTED_WEBHOOK_STATUS`, …)                      |
+| 500  | `INTERNAL_SERVER_ERROR`, falhas operacionais (`REDIS_UNAVAILABLE`, `*_CREATE_FAILED`)      |
 
 ### 5.2 Códigos de domínio (inventário principal)
 
@@ -558,46 +558,46 @@ Listagem: `GET /users/me/notifications`.
 
 Mapeamento sugerido (App Router) — rotas de UI a definir na implementação.
 
-| Área / tela | Endpoints principais | Perfis |
-|-------------|---------------------|--------|
-| Landing / home | `GET /events`, `GET /categories` | Todos |
-| Busca e filtros | `GET /events?q&category&city&dateFrom&dateTo&type` | Todos |
-| Detalhe do evento | `GET /events/:id`, `privateCode` | Todos |
-| Login / cadastro | `POST /auth/login`, `POST /auth/register` | Todos |
-| Minha conta | `GET /users/me` | Autenticado |
-| Criar / editar evento | `POST /events`, `PATCH /events/:id`, `DELETE /events/:id` | Organizador |
-| Inscrição gratuita | `POST /events/:id/participants/free` | Autenticado |
-| Compra de vaga (pago) | `POST /events/:id/bookings` → `POST /bookings/:id/payments` → polling `GET /payments/:id` | Autenticado |
-| Minhas inscrições | `GET /users/me/participants` | Autenticado |
-| Meus bookings | `GET /users/me/bookings`, `PATCH /bookings/:id/cancel` | Autenticado |
-| Meus pagamentos | `GET /users/me/payments`, `GET /payments/:id` | Autenticado |
-| Notificações | `GET /users/me/notifications`, `PATCH /notifications/:id/read` | Autenticado |
-| Participantes do evento | `GET /events/:eventId/participants` | Organizador |
-| Explorar arena | `GET /arenas/:id`, `GET /arenas/:id/spaces`, `GET /arenas/:id/slots` | Todos / organizador |
-| Cadastro de arena | `POST /arenas`, `PATCH /arenas/:id` | `arena_owner` |
-| Espaços e slots | `POST /arenas/:id/spaces`, `POST /spaces/:id/slots` | Dono arena |
-| Reservar horário | `POST /reservations`, `GET /reservations/me`, `GET /reservations/:id` | Organizador |
-| Pagar reserva de arena | `POST /reservations/:id/payments`, ocorrências | Organizador — **pendente UI** |
-| Painel arena — reservas | `GET /arenas/:arenaId/reservations` | Dono arena |
-| Admin — categorias | `POST/PATCH/DELETE /categories` | `admin` |
-| Health (ops) | `GET /health` | Interno |
+| Área / tela             | Endpoints principais                                                                      | Perfis                        |
+| ----------------------- | ----------------------------------------------------------------------------------------- | ----------------------------- |
+| Landing / home          | `GET /events`, `GET /categories`                                                          | Todos                         |
+| Busca e filtros         | `GET /events?q&category&city&dateFrom&dateTo&type`                                        | Todos                         |
+| Detalhe do evento       | `GET /events/:id`, `privateCode`                                                          | Todos                         |
+| Login / cadastro        | `POST /auth/login`, `POST /auth/register`                                                 | Todos                         |
+| Minha conta             | `GET /users/me`                                                                           | Autenticado                   |
+| Criar / editar evento   | `POST /events`, `PATCH /events/:id`, `DELETE /events/:id`                                 | Organizador                   |
+| Inscrição gratuita      | `POST /events/:id/participants/free`                                                      | Autenticado                   |
+| Compra de vaga (pago)   | `POST /events/:id/bookings` → `POST /bookings/:id/payments` → polling `GET /payments/:id` | Autenticado                   |
+| Minhas inscrições       | `GET /users/me/participants`                                                              | Autenticado                   |
+| Meus bookings           | `GET /users/me/bookings`, `PATCH /bookings/:id/cancel`                                    | Autenticado                   |
+| Meus pagamentos         | `GET /users/me/payments`, `GET /payments/:id`                                             | Autenticado                   |
+| Notificações            | `GET /users/me/notifications`, `PATCH /notifications/:id/read`                            | Autenticado                   |
+| Participantes do evento | `GET /events/:eventId/participants`                                                       | Organizador                   |
+| Explorar arena          | `GET /arenas/:id`, `GET /arenas/:id/spaces`, `GET /arenas/:id/slots`                      | Todos / organizador           |
+| Cadastro de arena       | `POST /arenas`, `PATCH /arenas/:id`                                                       | `arena_owner`                 |
+| Espaços e slots         | `POST /arenas/:id/spaces`, `POST /spaces/:id/slots`                                       | Dono arena                    |
+| Reservar horário        | `POST /reservations`, `GET /reservations/me`, `GET /reservations/:id`                     | Organizador                   |
+| Pagar reserva de arena  | `POST /reservations/:id/payments`, ocorrências                                            | Organizador — **pendente UI** |
+| Painel arena — reservas | `GET /arenas/:arenaId/reservations`                                                       | Dono arena                    |
+| Admin — categorias      | `POST/PATCH/DELETE /categories`                                                           | `admin`                       |
+| Health (ops)            | `GET /health`                                                                             | Interno                       |
 
 ---
 
 ## 8. Pontos pendentes ou instáveis
 
-| Item | Situação | Impacto no frontend |
-|------|----------|---------------------|
-| Pagamento de reserva de arena | Implementado na API (Sprint 10) com **mock-provider**; sem gateway real | **Não** construir checkout completo; apenas placeholders ou fluxo dev controlado |
-| Recorrência semanal | Mínima (`RECURRING` + ocorrências + liberação 24h) | UI de recorrência **adiada**; documentar estados antes de desenhar wizard |
-| Webhooks de pagamento | Apenas backend / simulação manual | Frontend **não** chama webhooks; confirmação via polling `GET /payments/:id` ou ambiente de testes |
-| `PATCH /users/me` | Não existe | Sem tela de edição de perfil até o backend expor rota |
-| `GET /arenas` (lista) | Não existe | Descoberta de arenas só por ID/link direto |
-| Módulo admin | Sem rotas dedicadas | Painel admin limitado a categorias (JWT admin) |
-| Atualização de perfil / avatar | Spec em `/api/docs/02-features/users.md`, sem rota | Fora do escopo imediato |
-| Search dedicado | Spec futura; hoje = `GET /events` | Não criar cliente para `/search` |
-| Reembolso, split, antifraude | Fora do MVP | Não modelar na UI |
-| Edição de slots / cancelamento de slot | Sem `PATCH`/`DELETE` em slots na API | Gestão de agenda parcial no frontend |
+| Item                                   | Situação                                                                | Impacto no frontend                                                                                |
+| -------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Pagamento de reserva de arena          | Implementado na API (Sprint 10) com **mock-provider**; sem gateway real | **Não** construir checkout completo; apenas placeholders ou fluxo dev controlado                   |
+| Recorrência semanal                    | Mínima (`RECURRING` + ocorrências + liberação 24h)                      | UI de recorrência **adiada**; documentar estados antes de desenhar wizard                          |
+| Webhooks de pagamento                  | Apenas backend / simulação manual                                       | Frontend **não** chama webhooks; confirmação via polling `GET /payments/:id` ou ambiente de testes |
+| `PATCH /users/me`                      | Não existe                                                              | Sem tela de edição de perfil até o backend expor rota                                              |
+| `GET /arenas` (lista)                  | Não existe                                                              | Descoberta de arenas só por ID/link direto                                                         |
+| Módulo admin                           | Sem rotas dedicadas                                                     | Painel admin limitado a categorias (JWT admin)                                                     |
+| Atualização de perfil / avatar         | Spec em `/api/docs/02-features/users.md`, sem rota                      | Fora do escopo imediato                                                                            |
+| Search dedicado                        | Spec futura; hoje = `GET /events`                                       | Não criar cliente para `/search`                                                                   |
+| Reembolso, split, antifraude           | Fora do MVP                                                             | Não modelar na UI                                                                                  |
+| Edição de slots / cancelamento de slot | Sem `PATCH`/`DELETE` em slots na API                                    | Gestão de agenda parcial no frontend                                                               |
 
 ### Estabilidade recomendada para a 1ª sprint frontend
 
@@ -612,18 +612,18 @@ Priorizar recorte equivalente à **sprint 9 do backend** (estável):
 
 ## 9. Referências no repositório
 
-| Recurso | Caminho |
-|---------|---------|
-| Registro de rotas | `/api/src/app.ts` |
-| Padrões REST | `/api/docs/00-product/api-standards.md` |
-| Specs por domínio | `/api/docs/02-features/*.md` |
-| Sprints backend | `/api/docs/01-sprints/sprint-*.md` |
-| Dívida técnica | `/api/docs/99-tech-debt.md` |
+| Recurso           | Caminho                                 |
+| ----------------- | --------------------------------------- |
+| Registro de rotas | `/api/src/app.ts`                       |
+| Padrões REST      | `/api/docs/00-product/api-standards.md` |
+| Specs por domínio | `/api/docs/02-features/*.md`            |
+| Sprints backend   | `/api/docs/01-sprints/sprint-*.md`      |
+| Dívida técnica    | `/api/docs/99-tech-debt.md`             |
 
 ---
 
 ## 10. Changelog deste documento
 
-| Data | Alteração |
-|------|-----------|
+| Data    | Alteração                                                                     |
+| ------- | ----------------------------------------------------------------------------- |
 | 2026-05 | Criação inicial a partir do inventário de rotas em `/api/src` (até sprint 10) |
