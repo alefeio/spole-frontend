@@ -1,13 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { listCategories, listEvents } from "@/features/events/api";
-import type { EventListParams } from "@/features/events/types";
+import { getEventById, listCategories, listEvents } from "@/features/events/api";
+import type { EventDetailsParams, EventListParams } from "@/features/events/types";
 
 export const eventsKeys = {
   all: ["events"] as const,
   lists: () => [...eventsKeys.all, "list"] as const,
   list: (params: EventListParams) => [...eventsKeys.lists(), params] as const,
+  details: () => [...eventsKeys.all, "detail"] as const,
+  detail: (eventId: string, params?: EventDetailsParams) =>
+    [...eventsKeys.details(), eventId, params] as const,
   categories: () => [...eventsKeys.all, "categories"] as const
 };
 
@@ -24,5 +27,20 @@ export function useEventCategories() {
     queryKey: eventsKeys.categories(),
     queryFn: listCategories,
     staleTime: 5 * 60 * 1000
+  });
+}
+
+export function useEvent(eventId: string, params: EventDetailsParams = {}) {
+  return useQuery({
+    queryKey: eventsKeys.detail(eventId, params),
+    queryFn: () => getEventById(eventId, params),
+    enabled: Boolean(eventId),
+    retry: (failureCount, error) => {
+      if (error instanceof Error && "status" in error) {
+        const status = (error as { status?: number }).status;
+        if (status === 404 || status === 403) return false;
+      }
+      return failureCount < 1;
+    }
   });
 }

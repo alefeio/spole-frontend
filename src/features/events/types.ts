@@ -2,6 +2,10 @@ export type EventType = "FREE" | "PAID";
 
 export type EventVisibility = "PUBLIC" | "PRIVATE";
 
+export type EventStatus = "DRAFT" | "PUBLISHED" | "CANCELLED" | "FINISHED";
+
+export type EventSourceType = "FREE_LOCATION" | "ARENA_RESERVATION";
+
 export type Event = {
   id: string;
   title: string;
@@ -12,6 +16,16 @@ export type Event = {
   startAt: string;
   capacity: number;
   pricePerPerson: number | null;
+};
+
+export type EventDetails = Event & {
+  description: string | null;
+  status: EventStatus;
+  sourceType: EventSourceType;
+  endAt: string;
+  addressName: string;
+  privateCode?: string;
+  reservationId?: string;
 };
 
 export type EventCategory = {
@@ -40,4 +54,8 @@ export type EventListParams = {
 export type EventListResponse = {
   data: Event[];
   meta: PaginationMeta;
+};
+
+export type EventDetailsParams = {
+  privateCode?: string;
 };

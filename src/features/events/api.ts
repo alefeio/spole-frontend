@@ -3,6 +3,8 @@ import { endpoints } from "@/lib/api/endpoints";
 import type {
   Event,
   EventCategory,
+  EventDetails,
+  EventDetailsParams,
   EventListParams,
   EventListResponse
 } from "@/features/events/types";
@@ -33,6 +35,19 @@ export async function listEvents(params: EventListParams = {}): Promise<EventLis
 export async function listCategories(): Promise<EventCategory[]> {
   const { data } = await apiClient<EventCategory[]>(endpoints.categories.list, {
     token: null
+  });
+
+  return data;
+}
+
+export async function getEventById(
+  eventId: string,
+  params: EventDetailsParams = {}
+): Promise<EventDetails> {
+  const { data } = await apiClient<EventDetails>(endpoints.events.byId(eventId), {
+    query: {
+      privateCode: params.privateCode
+    }
   });
 
   return data;
