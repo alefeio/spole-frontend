@@ -32,7 +32,7 @@ export function EventFilters({
           <label className="text-sm font-medium" htmlFor="event-search">
             Busca
           </label>
-          <EventSearchInput defaultValue={q} onSearch={onSearch} />
+          <EventSearchInput id="event-search" defaultValue={q} onSearch={onSearch} />
         </div>
 
         <div className="space-y-2">
@@ -44,7 +44,7 @@ export function EventFilters({
             value={category ?? ""}
             disabled={isLoadingCategories}
             onChange={(event) => onCategoryChange(event.target.value)}
-            className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs focus-visible:ring-[3px] focus-visible:outline-none disabled:opacity-50"
+            className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-11 w-full rounded-md border px-3 py-1 text-sm shadow-xs focus-visible:ring-[3px] focus-visible:outline-none disabled:opacity-50 lg:h-9"
           >
             <option value="">Todas</option>
             {categories.map((item) => (
@@ -55,7 +55,13 @@ export function EventFilters({
           </select>
         </div>
 
-        <Button type="button" variant="outline" onClick={onClear} disabled={!hasFilters}>
+        <Button
+          type="button"
+          variant="outline"
+          className="min-h-11 lg:min-h-9"
+          onClick={onClear}
+          disabled={!hasFilters}
+        >
           Limpar
         </Button>
       </div>

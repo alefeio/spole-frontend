@@ -9,7 +9,7 @@ export function PublicAuthLink() {
 
   if (user) {
     return (
-      <Button variant="ghost" asChild>
+      <Button variant="ghost" size="sm" asChild>
         <Link href="/dashboard">Dashboard</Link>
       </Button>
     );
@@ -17,10 +17,10 @@ export function PublicAuthLink() {
 
   return (
     <>
-      <Button variant="ghost" asChild>
+      <Button variant="ghost" size="sm" asChild>
         <Link href="/login">Entrar</Link>
       </Button>
-      <Button asChild>
+      <Button size="sm" asChild>
         <Link href="/register">Cadastrar</Link>
       </Button>
     </>

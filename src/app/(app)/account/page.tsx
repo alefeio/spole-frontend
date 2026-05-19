@@ -24,7 +24,7 @@ export default function AccountPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">Minha conta</h1>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Minha conta</h1>
         <p className="text-muted-foreground text-sm">
           Dados da sua conta (somente leitura). Edição de perfil aguarda suporte no backend.
         </p>
@@ -52,7 +52,9 @@ export default function AccountPage() {
           </div>
           <div className="grid gap-1 px-4 py-3 sm:grid-cols-3">
             <dt className="text-muted-foreground text-sm">ID</dt>
-            <dd className="text-muted-foreground font-mono text-xs sm:col-span-2">{user.id}</dd>
+            <dd className="text-muted-foreground font-mono text-xs break-all sm:col-span-2">
+              {user.id}
+            </dd>
           </div>
         </dl>
       </section>

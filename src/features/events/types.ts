@@ -59,3 +59,15 @@ export type EventListResponse = {
 export type EventDetailsParams = {
   privateCode?: string;
 };
+
+export type FreeEventParticipation = {
+  id: string;
+  eventId: string;
+  userId: string;
+  status: "CONFIRMED" | string;
+};
+
+export type JoinFreeEventParams = {
+  eventId: string;
+  privateCode?: string;
+};

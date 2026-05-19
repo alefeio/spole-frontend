@@ -6,7 +6,9 @@ import type {
   EventDetails,
   EventDetailsParams,
   EventListParams,
-  EventListResponse
+  EventListResponse,
+  FreeEventParticipation,
+  JoinFreeEventParams
 } from "@/features/events/types";
 
 export async function listEvents(params: EventListParams = {}): Promise<EventListResponse> {
@@ -47,6 +49,20 @@ export async function getEventById(
   const { data } = await apiClient<EventDetails>(endpoints.events.byId(eventId), {
     query: {
       privateCode: params.privateCode
+    }
+  });
+
+  return data;
+}
+
+export async function joinFreeEvent({
+  eventId,
+  privateCode
+}: JoinFreeEventParams): Promise<FreeEventParticipation> {
+  const { data } = await apiClient<FreeEventParticipation>(endpoints.events.joinFree(eventId), {
+    method: "POST",
+    query: {
+      privateCode
     }
   });
 

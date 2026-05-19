@@ -12,7 +12,7 @@ export function LogoutButton({ variant = "outline", size = "sm" }: LogoutButtonP
   const logout = useLogout();
 
   return (
-    <Button type="button" variant={variant} size={size} onClick={logout}>
+    <Button type="button" variant={variant} size={size} className="min-h-9" onClick={logout}>
       Sair
     </Button>
   );

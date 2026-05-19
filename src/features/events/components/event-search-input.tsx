@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 type EventSearchInputProps = {
+  id?: string;
   defaultValue?: string;
   onSearch: (value: string) => void;
 };
 
-export function EventSearchInput({ defaultValue = "", onSearch }: EventSearchInputProps) {
+export function EventSearchInput({ id, defaultValue = "", onSearch }: EventSearchInputProps) {
   const [value, setValue] = useState(defaultValue);
 
   return (
@@ -21,13 +22,16 @@ export function EventSearchInput({ defaultValue = "", onSearch }: EventSearchInp
       }}
     >
       <Input
+        id={id}
         type="search"
         value={value}
         onChange={(event) => setValue(event.target.value)}
         placeholder="Buscar por nome ou descrição"
         aria-label="Buscar eventos"
       />
-      <Button type="submit">Buscar</Button>
+      <Button type="submit" className="min-h-11 sm:min-h-9">
+        Buscar
+      </Button>
     </form>
   );
 }

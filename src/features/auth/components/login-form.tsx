@@ -13,12 +13,14 @@ import { getApiErrorMessage } from "@/lib/api/error-messages";
 export function LoginForm() {
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered") === "1";
+  const redirect = searchParams.get("redirect");
+  const redirectTo = redirect?.startsWith("/") ? redirect : "/dashboard";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const loginMutation = useLogin();
+  const loginMutation = useLogin(redirectTo);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -94,7 +96,11 @@ export function LoginForm() {
           ) : null}
         </div>
 
-        <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
+        <Button
+          type="submit"
+          className="min-h-11 w-full sm:min-h-9"
+          disabled={loginMutation.isPending}
+        >
           {loginMutation.isPending ? "Entrando…" : "Entrar"}
         </Button>
       </form>

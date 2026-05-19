@@ -1,8 +1,12 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { getEventById, listCategories, listEvents } from "@/features/events/api";
-import type { EventDetailsParams, EventListParams } from "@/features/events/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getEventById, joinFreeEvent, listCategories, listEvents } from "@/features/events/api";
+import type {
+  EventDetailsParams,
+  EventListParams,
+  JoinFreeEventParams
+} from "@/features/events/types";
 
 export const eventsKeys = {
   all: ["events"] as const,
@@ -41,6 +45,18 @@ export function useEvent(eventId: string, params: EventDetailsParams = {}) {
         if (status === 404 || status === 403) return false;
       }
       return failureCount < 1;
+    }
+  });
+}
+
+export function useJoinFreeEvent() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: JoinFreeEventParams) => joinFreeEvent(params),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: eventsKeys.details() });
+      void queryClient.invalidateQueries({ queryKey: eventsKeys.lists() });
     }
   });
 }

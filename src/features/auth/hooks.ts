@@ -22,7 +22,7 @@ export function useMe() {
   });
 }
 
-export function useLogin() {
+export function useLogin(redirectTo = "/dashboard") {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -31,7 +31,7 @@ export function useLogin() {
     onSuccess: (data) => {
       setToken(data.token);
       void queryClient.invalidateQueries({ queryKey: authKeys.me() });
-      router.replace("/dashboard");
+      router.replace(redirectTo);
     }
   });
 }

@@ -118,7 +118,11 @@ export function RegisterForm() {
           </p>
         </div>
 
-        <Button type="submit" className="w-full" disabled={registerMutation.isPending}>
+        <Button
+          type="submit"
+          className="min-h-11 w-full sm:min-h-9"
+          disabled={registerMutation.isPending}
+        >
           {registerMutation.isPending ? "Cadastrando…" : "Cadastrar"}
         </Button>
       </form>

@@ -40,7 +40,7 @@ export function EventDetails({ eventId, privateCode }: EventDetailsProps) {
 
   return (
     <div className="space-y-6">
-      <Button asChild variant="ghost" className="px-0">
+      <Button asChild variant="ghost" className="min-h-11 px-0 sm:min-h-9">
         <Link href="/events">← Voltar ao catálogo</Link>
       </Button>
 
@@ -52,7 +52,9 @@ export function EventDetails({ eventId, privateCode }: EventDetailsProps) {
           </span>
         </div>
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{event.title}</h1>
+          <h1 className="text-2xl font-bold tracking-tight break-words sm:text-4xl">
+            {event.title}
+          </h1>
           <p className="text-muted-foreground">
             {event.description || "Este evento ainda não possui descrição detalhada."}
           </p>
@@ -72,7 +74,7 @@ export function EventDetails({ eventId, privateCode }: EventDetailsProps) {
         </main>
 
         <aside className="space-y-4">
-          <EventParticipationCta event={event} />
+          <EventParticipationCta event={event} privateCode={privateCode} />
           <EventInfoCard event={event} />
         </aside>
       </div>

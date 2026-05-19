@@ -15,24 +15,24 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <>
       <header className="border-b">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <Link href="/dashboard" className="text-lg font-semibold tracking-tight">
             Spolê
           </Link>
-          <nav className="flex items-center gap-1">
+          <nav className="flex flex-wrap items-center gap-2">
             {navItems.map((item) => (
-              <Button key={item.href} variant="ghost" asChild>
+              <Button key={item.href} variant="ghost" size="sm" asChild>
                 <Link href={item.href}>{item.label}</Link>
               </Button>
             ))}
-            <Button variant="outline" asChild>
+            <Button variant="outline" size="sm" asChild>
               <Link href="/">Site público</Link>
             </Button>
             <LogoutButton />
           </nav>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">{children}</main>
     </>
   );
 }
