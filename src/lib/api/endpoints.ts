@@ -13,6 +13,7 @@ export const endpoints = {
   },
   users: {
     me: "/users/me",
+    myEvents: "/users/me/events",
     myParticipants: "/users/me/participants",
     myNotifications: "/users/me/notifications",
     myBookings: "/users/me/bookings",

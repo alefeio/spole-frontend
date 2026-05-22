@@ -13,6 +13,10 @@ import type {
   EventParticipant,
   FreeEventParticipation,
   JoinFreeEventParams,
+  OrganizerEventDetail,
+  OrganizerEventListItem,
+  OrganizerEventsListParams,
+  OrganizerEventsListResponse,
   UpdateEventPayload,
   UpdateEventResponse
 } from "@/features/events/types";
@@ -51,14 +55,53 @@ export async function listCategories(): Promise<EventCategory[]> {
 export async function getEventById(
   eventId: string,
   params: EventDetailsParams = {}
-): Promise<EventDetails> {
-  const { data } = await apiClient<EventDetails>(endpoints.events.byId(eventId), {
+): Promise<EventDetails | OrganizerEventDetail> {
+  const { data } = await apiClient<EventDetails | OrganizerEventDetail>(
+    endpoints.events.byId(eventId),
+    {
+      query: {
+        privateCode: params.privateCode
+      }
+    }
+  );
+
+  return data;
+}
+
+export async function listMyEvents(
+  params: OrganizerEventsListParams = {}
+): Promise<OrganizerEventsListResponse> {
+  const { data, meta } = await apiClient<OrganizerEventListItem[]>(endpoints.users.myEvents, {
     query: {
-      privateCode: params.privateCode
+      page: params.page,
+      limit: params.limit,
+      q: params.q,
+      status: params.status,
+      visibility: params.visibility,
+      type: params.type,
+      sourceType: params.sourceType,
+      categoryId: params.categoryId,
+      dateFrom: params.dateFrom,
+      dateTo: params.dateTo,
+      sort: params.sort,
+      order: params.order
     }
   });
 
-  return data;
+  const sort = meta?.sort;
+  const validSort =
+    sort === "startAt" || sort === "createdAt" || sort === "updatedAt" ? sort : undefined;
+
+  return {
+    data,
+    meta: {
+      page: Number(meta?.page ?? params.page ?? 1),
+      limit: Number(meta?.limit ?? params.limit ?? 10),
+      total: Number(meta?.total ?? data.length),
+      sort: validSort,
+      order: meta?.order === "desc" ? "desc" : meta?.order === "asc" ? "asc" : undefined
+    }
+  };
 }
 
 export async function joinFreeEvent({

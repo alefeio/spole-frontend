@@ -75,7 +75,7 @@ export default function AccountPage() {
         <SummaryCard
           title="Eventos"
           value={0}
-          description="Criar e gerenciar eventos"
+          description="Listar, criar e gerenciar"
           href="/account/events"
         />
         <SummaryCard

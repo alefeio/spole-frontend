@@ -18,6 +18,7 @@ export type Event = {
   pricePerPerson: number | null;
 };
 
+/** Detalhe público ou reduzido (visitante / catálogo). */
 export type EventDetails = Event & {
   description: string | null;
   status: EventStatus;
@@ -28,20 +29,73 @@ export type EventDetails = Event & {
   reservationId?: string;
 };
 
-export type EventCategory = {
+/** Detalhe completo para organizador/admin (GET /events/:id autenticado como dono). */
+export type OrganizerEventDetail = EventDetails & {
+  categoryId: string;
+  street: string;
+  number: string;
+  district: string;
+  locationReadOnly: boolean;
+};
+
+export function isOrganizerEventDetail(
+  event: EventDetails | OrganizerEventDetail
+): event is OrganizerEventDetail {
+  return "categoryId" in event && typeof event.categoryId === "string";
+}
+
+export type OrganizerEventListItem = {
   id: string;
-  name: string;
-  slug: string;
-  icon?: string | null;
-  status?: "ACTIVE" | "INACTIVE";
+  title: string;
+  status: EventStatus;
+  visibility: EventVisibility;
+  type: EventType;
+  sourceType: EventSourceType;
+  categoryId: string;
+  startAt: string;
+  endAt: string;
+  city: string;
+  state: string;
+  capacity: number;
+  pricePerPerson: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OrganizerEventsListParams = {
+  page?: number;
+  limit?: number;
+  q?: string;
+  status?: EventStatus;
+  visibility?: EventVisibility;
+  type?: EventType;
+  sourceType?: EventSourceType;
+  categoryId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sort?: "startAt" | "createdAt" | "updatedAt";
+  order?: "asc" | "desc";
 };
 
 export type PaginationMeta = {
   page: number;
   limit: number;
   total: number;
-  sort?: "startAt";
+  sort?: "startAt" | "createdAt" | "updatedAt";
   order?: "asc" | "desc";
+};
+
+export type OrganizerEventsListResponse = {
+  data: OrganizerEventListItem[];
+  meta: PaginationMeta;
+};
+
+export type EventCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  icon?: string | null;
+  status?: "ACTIVE" | "INACTIVE";
 };
 
 export type EventListParams = {

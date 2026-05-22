@@ -55,7 +55,7 @@ export default function DashboardPage() {
           title="Meus eventos"
           value={0}
           href="/account/events"
-          hint="Criar e gerenciar"
+          hint="Listar e gerenciar"
         />
         <DashboardCard
           title="Criar evento"

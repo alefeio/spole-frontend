@@ -15,8 +15,12 @@ import {
   buildParticipantEventUrl,
   canCopyPublicCatalogLink
 } from "@/features/events/event-links";
-import { useCancelEvent, useUpdateEvent } from "@/features/events/hooks";
-import type { EventDetails } from "@/features/events/types";
+import { useCancelEvent, useEventCategories, useUpdateEvent } from "@/features/events/hooks";
+import {
+  isOrganizerEventDetail,
+  type EventDetails,
+  type OrganizerEventDetail
+} from "@/features/events/types";
 import { ApiError } from "@/lib/api/errors";
 import { getApiErrorMessage, isNotFoundError } from "@/lib/api/error-messages";
 
@@ -79,7 +83,19 @@ function OrganizerEventDetailError({
   );
 }
 
+function formatLocation(event: EventDetails, full?: OrganizerEventDetail) {
+  if (full && !full.locationReadOnly) {
+    return `${full.addressName}, ${full.street}, ${full.number} – ${full.district}, ${full.city}/${full.state}`;
+  }
+  return `${event.addressName}, ${event.city} – ${event.state}`;
+}
+
 function OrganizerEventDetailContent({ event }: { event: EventDetails }) {
+  const categoriesQuery = useEventCategories();
+  const organizerDetail = isOrganizerEventDetail(event) ? event : null;
+  const categoryName =
+    organizerDetail && categoriesQuery.data?.find((c) => c.id === organizerDetail.categoryId)?.name;
+
   const router = useRouter();
   const [isConfirmingCancel, setIsConfirmingCancel] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -148,12 +164,24 @@ function OrganizerEventDetailContent({ event }: { event: EventDetails }) {
             <dt className="text-muted-foreground">Término</dt>
             <dd className="font-medium">{formatDateTime(event.endAt)}</dd>
           </div>
-          <div>
+          {categoryName ? (
+            <div>
+              <dt className="text-muted-foreground">Categoria</dt>
+              <dd className="font-medium">{categoryName}</dd>
+            </div>
+          ) : null}
+          <div className="sm:col-span-2">
             <dt className="text-muted-foreground">Local</dt>
-            <dd className="font-medium">
-              {event.addressName}, {event.city} – {event.state}
-            </dd>
+            <dd className="font-medium">{formatLocation(event, organizerDetail ?? undefined)}</dd>
           </div>
+          {organizerDetail?.locationReadOnly ? (
+            <div className="sm:col-span-2">
+              <dt className="text-muted-foreground">Data e local</dt>
+              <dd className="text-muted-foreground text-sm">
+                Definidos pela reserva de arena (somente leitura).
+              </dd>
+            </div>
+          ) : null}
           <div>
             <dt className="text-muted-foreground">Capacidade</dt>
             <dd className="font-medium">{event.capacity}</dd>
@@ -169,7 +197,12 @@ function OrganizerEventDetailContent({ event }: { event: EventDetails }) {
           {event.reservationId ? (
             <div className="sm:col-span-2">
               <dt className="text-muted-foreground">Reserva vinculada</dt>
-              <dd className="font-mono text-xs break-all">{event.reservationId}</dd>
+              <dd className="space-y-2">
+                <p className="font-mono text-xs break-all">{event.reservationId}</p>
+                <Button asChild variant="outline" size="sm" className="min-h-9">
+                  <Link href={`/account/reservations/${event.reservationId}`}>Ver reserva</Link>
+                </Button>
+              </dd>
             </div>
           ) : null}
           <div className="sm:col-span-2">
@@ -228,6 +261,13 @@ function OrganizerEventDetailContent({ event }: { event: EventDetails }) {
       ) : (
         <EventParticipantsPanel eventId={event.id} />
       )}
+
+      {organizerDetail?.locationReadOnly ? (
+        <p className="border-primary/30 bg-primary/5 rounded-lg border p-3 text-sm">
+          Este evento está vinculado a uma reserva de arena. Data, horário e endereço vêm da reserva
+          e não podem ser alterados aqui.
+        </p>
+      ) : null}
 
       {event.sourceType === "ARENA_RESERVATION" && canCancel ? (
         <p className="text-muted-foreground text-sm">

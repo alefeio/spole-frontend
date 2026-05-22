@@ -16,13 +16,13 @@ import {
   parseUpdateFormToPayload,
   updateEventFormSchema
 } from "@/features/events/schemas";
-import type { EventCategory, EventDetails } from "@/features/events/types";
+import type { EventCategory, OrganizerEventDetail } from "@/features/events/types";
 import { getApiErrorMessage } from "@/lib/api/error-messages";
 
 export type EventFormMode =
   | { kind: "create-free" }
   | { kind: "create-arena"; reservationId: string; slotLabel: string; locationLabel: string }
-  | { kind: "edit"; event: EventDetails };
+  | { kind: "edit"; event: OrganizerEventDetail };
 
 type EventFormProps = {
   mode: EventFormMode;
@@ -44,9 +44,9 @@ function zodFieldErrors(error: { issues: { path: (string | number)[]; message: s
   return errors;
 }
 
-function initialSharedFromEvent(event: EventDetails) {
+function initialSharedFromEvent(event: OrganizerEventDetail) {
   return {
-    categoryId: "",
+    categoryId: event.categoryId,
     title: event.title,
     description: event.description ?? "",
     type: event.type,
@@ -67,9 +67,8 @@ export function EventForm({
   onSubmitUpdate
 }: EventFormProps) {
   const isEdit = mode.kind === "edit";
-  const isArena =
-    mode.kind === "create-arena" || (isEdit && mode.event.sourceType === "ARENA_RESERVATION");
-  const allowLocationFields = !isArena && isEdit;
+  const locationReadOnly = isEdit ? mode.event.locationReadOnly : mode.kind === "create-arena";
+  const allowLocationFields = isEdit && !locationReadOnly;
 
   const initial = useMemo(() => {
     if (mode.kind === "edit") {
@@ -80,9 +79,9 @@ export function EventForm({
           startAtLocal: isoToDateTimeLocal(mode.event.startAt),
           endAtLocal: isoToDateTimeLocal(mode.event.endAt),
           addressName: mode.event.addressName,
-          street: "",
-          number: "",
-          district: "",
+          street: mode.event.street,
+          number: mode.event.number,
+          district: mode.event.district,
           city: mode.event.city,
           state: mode.event.state
         }
@@ -166,7 +165,7 @@ export function EventForm({
       return;
     }
     const payload = parseUpdateFormToPayload(parsed.data, {
-      allowLocationFields: mode.event.sourceType === "FREE_LOCATION"
+      allowLocationFields: !mode.event.locationReadOnly
     });
     if (Object.keys(payload).length === 0) {
       setFormError("Informe ao menos um campo para atualizar.");
@@ -191,7 +190,7 @@ export function EventForm({
         <ArenaReservationSummary slotLabel={mode.slotLabel} locationLabel={mode.locationLabel} />
       ) : null}
 
-      {isEdit && mode.event.sourceType === "ARENA_RESERVATION" ? (
+      {isEdit && locationReadOnly ? (
         <ArenaReservationSummary
           slotLabel={`${new Intl.DateTimeFormat("pt-BR", {
             day: "2-digit",
@@ -202,7 +201,7 @@ export function EventForm({
             hour: "2-digit",
             minute: "2-digit"
           }).format(new Date(mode.event.endAt))}`}
-          locationLabel={`${mode.event.addressName}, ${mode.event.city} – ${mode.event.state}`}
+          locationLabel={`${mode.event.addressName}, ${mode.event.street}, ${mode.event.number} – ${mode.event.district}, ${mode.event.city}/${mode.event.state}`}
         />
       ) : null}
 
@@ -218,7 +217,7 @@ export function EventForm({
         />
       </section>
 
-      {!isArena && (mode.kind === "create-free" || allowLocationFields) ? (
+      {mode.kind === "create-free" || allowLocationFields ? (
         <section className="space-y-4">
           <FreeLocationFields
             values={location}
@@ -226,12 +225,6 @@ export function EventForm({
             onChange={handleLocationChange}
             readOnly={false}
           />
-          {isEdit ? (
-            <p className="text-muted-foreground text-xs">
-              Rua, número e bairro não são retornados pelo detalhe do evento. Preencha apenas se
-              precisar alterar o endereço completo.
-            </p>
-          ) : null}
         </section>
       ) : null}
 

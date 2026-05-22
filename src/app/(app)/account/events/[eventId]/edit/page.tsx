@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { EventForm, mapMutationError } from "@/features/events/components/event-form";
 import { buildOrganizerEventPath } from "@/features/events/event-links";
 import { useEvent, useEventCategories, useUpdateEvent } from "@/features/events/hooks";
+import { isOrganizerEventDetail } from "@/features/events/types";
 import { getApiErrorMessage, isNotFoundError } from "@/lib/api/error-messages";
 import { ApiError } from "@/lib/api/errors";
 
@@ -23,6 +24,7 @@ export default function EditOrganizerEventPage({ params }: EditOrganizerEventPag
   const [formError, setFormError] = useState<string | null>(null);
 
   const event = eventQuery.data;
+  const organizerEvent = event && isOrganizerEventDetail(event) ? event : null;
   const cancelled = event?.status === "CANCELLED";
 
   return (
@@ -65,9 +67,16 @@ export default function EditOrganizerEventPage({ params }: EditOrganizerEventPag
         </p>
       ) : null}
 
-      {event && categoriesQuery.isSuccess && !cancelled ? (
+      {event && !organizerEvent && !cancelled && eventQuery.isSuccess ? (
+        <p className="rounded-lg border p-4 text-sm">
+          Não foi possível carregar os dados completos para edição. Verifique se você é o
+          organizador deste evento.
+        </p>
+      ) : null}
+
+      {organizerEvent && categoriesQuery.isSuccess && !cancelled ? (
         <EventForm
-          mode={{ kind: "edit", event }}
+          mode={{ kind: "edit", event: organizerEvent }}
           categories={categoriesQuery.data}
           isPending={updateMutation.isPending}
           onSubmitCreateFree={() => {}}

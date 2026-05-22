@@ -1,0 +1,10 @@
+cd D:\ALEFEIO\Projetos\Spolê\Projetos\web
+
+git status --short
+pnpm.cmd lint
+pnpm.cmd build
+pnpm.cmd format:write
+
+git add .
+git commit -m "feat: add organizer events listing and management"
+git push

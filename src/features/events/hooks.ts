@@ -9,6 +9,7 @@ import {
   listCategories,
   listEventParticipants,
   listEvents,
+  listMyEvents,
   updateEvent
 } from "@/features/events/api";
 import type {
@@ -16,6 +17,7 @@ import type {
   EventDetailsParams,
   EventListParams,
   JoinFreeEventParams,
+  OrganizerEventsListParams,
   UpdateEventPayload
 } from "@/features/events/types";
 import { participantsKeys } from "@/features/participants/hooks";
@@ -29,7 +31,9 @@ export const eventsKeys = {
   detail: (eventId: string, params?: EventDetailsParams) =>
     [...eventsKeys.details(), eventId, params] as const,
   categories: () => [...eventsKeys.all, "categories"] as const,
-  participants: (eventId: string) => [...eventsKeys.all, "participants", eventId] as const
+  participants: (eventId: string) => [...eventsKeys.all, "participants", eventId] as const,
+  mine: () => [...eventsKeys.all, "mine"] as const,
+  mineList: (params: OrganizerEventsListParams) => [...eventsKeys.mine(), params] as const
 };
 
 export function useEvents(params: EventListParams) {
@@ -45,6 +49,14 @@ export function useEventCategories() {
     queryKey: eventsKeys.categories(),
     queryFn: listCategories,
     staleTime: 5 * 60 * 1000
+  });
+}
+
+export function useMyEvents(params: OrganizerEventsListParams) {
+  return useQuery({
+    queryKey: eventsKeys.mineList(params),
+    queryFn: () => listMyEvents(params),
+    placeholderData: (previousData) => previousData
   });
 }
 
@@ -79,6 +91,7 @@ export function useJoinFreeEvent() {
 function invalidateEventCaches(queryClient: ReturnType<typeof useQueryClient>, eventId?: string) {
   void queryClient.invalidateQueries({ queryKey: eventsKeys.details() });
   void queryClient.invalidateQueries({ queryKey: eventsKeys.lists() });
+  void queryClient.invalidateQueries({ queryKey: eventsKeys.mine() });
   if (eventId) {
     void queryClient.invalidateQueries({ queryKey: eventsKeys.participants(eventId) });
   }

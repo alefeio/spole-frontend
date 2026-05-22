@@ -93,7 +93,7 @@
 
 `GET /events` adiciona em `meta`: `sort` (`startAt`), `order` (`asc` | `desc`).
 
-Endpoints paginados hoje: `GET /events`, `GET /arenas/:arenaId/slots`, `GET /spaces/:spaceId/slots`, `GET /users/me/notifications`, `GET /users/me/bookings`, `GET /users/me/payments`.
+Endpoints paginados hoje: `GET /events`, `GET /users/me/events`, `GET /arenas/:arenaId/slots`, `GET /spaces/:spaceId/slots`, `GET /users/me/notifications`, `GET /users/me/bookings`, `GET /users/me/payments`.
 
 Listagens **sem** paginação na API atual: `GET /categories`, `GET /reservations/me`, `GET /users/me/participants`, `GET /events/:eventId/participants`, `GET /arenas/:arenaId/reservations`, `GET /arenas/:arenaId/spaces`.
 
@@ -193,6 +193,7 @@ Legenda de auth: **Público** | **JWT** (qualquer role autenticada salvo indica�
 | Método | Rota                      | Auth                  | Descrição                    |
 | ------ | ------------------------- | --------------------- | ---------------------------- |
 | GET    | `/users/me`               | JWT                   | Perfil autenticado           |
+| GET    | `/users/me/events`        | JWT + filtros/página  | Meus eventos (organizador)   |
 | GET    | `/users/me/participants`  | JWT                   | Minhas inscrições em eventos |
 | GET    | `/users/me/notifications` | JWT + `page`, `limit` | Notificações                 |
 | GET    | `/users/me/bookings`      | JWT + `page`, `limit` | Meus bookings                |
@@ -227,6 +228,27 @@ Lista paginada de bookings (estados: `RESERVED`, `EXPIRED`, `CANCELLED`, `COMPLE
 #### `GET /users/me/payments` — `data` + `meta`
 
 Lista paginada de pagamentos do usuário.
+
+#### `GET /users/me/events` — `data` + `meta`
+
+Lista paginada dos eventos em que o usuário autenticado é `organizerId`. Inclui `DRAFT`, `PUBLISHED`, `CANCELLED`, `PUBLIC`, `PRIVATE`, `FREE_LOCATION`, `ARENA_RESERVATION`. **Não retorna** `privateCode`.
+
+| Query        | Descrição                                                     |
+| ------------ | ------------------------------------------------------------- |
+| `page`       | Página (default 1)                                            |
+| `limit`      | Itens por página (máx. 100)                                   |
+| `q`          | Busca em título/descrição                                     |
+| `status`     | `DRAFT` \| `PUBLISHED` \| `CANCELLED`                         |
+| `visibility` | `PUBLIC` \| `PRIVATE`                                         |
+| `type`       | `FREE` \| `PAID`                                              |
+| `sourceType` | `FREE_LOCATION` \| `ARENA_RESERVATION`                        |
+| `categoryId` | UUID da categoria                                             |
+| `dateFrom`   | ISO com offset — filtro em `startAt`                          |
+| `dateTo`     | ISO com offset                                                |
+| `sort`       | `startAt` \| `createdAt` \| `updatedAt` (default `updatedAt`) |
+| `order`      | `asc` \| `desc` (default `desc`)                              |
+
+Item típico em `data`: `id`, `title`, `status`, `visibility`, `type`, `sourceType`, `categoryId`, `startAt`, `endAt`, `city`, `state`, `capacity`, `pricePerPerson`, `createdAt`, `updatedAt`.
 
 ---
 
@@ -307,7 +329,9 @@ Mesmos campos editáveis (sem trocar `sourceType` / `reservationId` via patch si
 
 #### `GET /events/:id` — `data` (detalhe)
 
-Campos completos do evento; organizador autenticado pode receber `privateCode` e campos de gestão.
+**Visitante / não-dono:** payload reduzido (`id`, `title`, `description`, `type`, `visibility`, `status`, `sourceType`, `startAt`, `endAt`, `addressName`, `city`, `state`, `capacity`, `pricePerPerson`). Evento `PRIVATE` exige `privateCode` na query.
+
+**Organizador ou admin:** payload completo para edição — inclui `categoryId`, `street`, `number`, `district`, `reservationId` (se houver), `privateCode` (se `PRIVATE`), `locationReadOnly` (`true` para `ARENA_RESERVATION`, `false` para `FREE_LOCATION`).
 
 **Erros frequentes:** `EVENT_NOT_FOUND`, `FORBIDDEN`, `INVALID_CATEGORY`, `INACTIVE_CATEGORY`, `RESERVATION_NOT_FOUND`, `RESERVATION_INVALID_STATE`, `EVENT_CANCELLED`.
 
@@ -565,6 +589,7 @@ Mapeamento sugerido (App Router) — rotas de UI a definir na implementação.
 | Detalhe do evento       | `GET /events/:id`, `privateCode`                                                          | Todos                                |
 | Login / cadastro        | `POST /auth/login`, `POST /auth/register`                                                 | Todos                                |
 | Minha conta             | `GET /users/me`                                                                           | Autenticado                          |
+| Meus eventos            | `GET /users/me/events`, `GET /events/:id` (detalhe completo dono)                         | Organizador                          |
 | Criar / editar evento   | `POST /events`, `PATCH /events/:id`, `DELETE /events/:id`                                 | Organizador                          |
 | Inscrição gratuita      | `POST /events/:id/participants/free`                                                      | Autenticado                          |
 | Compra de vaga (pago)   | `POST /events/:id/bookings` → `POST /bookings/:id/payments` → polling `GET /payments/:id` | Autenticado                          |
