@@ -7,6 +7,7 @@ import { useMyBookings } from "@/features/bookings/hooks";
 import { useMyNotifications } from "@/features/notifications/hooks";
 import { useMyParticipants } from "@/features/participants/hooks";
 import { useMyPayments } from "@/features/payments/hooks";
+import { useMyReservations } from "@/features/reservations/hooks";
 
 const ROLE_LABELS: Record<string, string> = {
   user: "Participante",
@@ -20,6 +21,7 @@ export default function DashboardPage() {
   const bookingsQuery = useMyBookings({ page: 1, limit: 3 });
   const paymentsQuery = useMyPayments({ page: 1, limit: 3 });
   const notificationsQuery = useMyNotifications({ page: 1, limit: 3 });
+  const reservationsQuery = useMyReservations();
 
   return (
     <div className="space-y-6">
@@ -47,7 +49,12 @@ export default function DashboardPage() {
         </dl>
       ) : null}
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <DashboardCard
+          title="Reservas de arena"
+          value={reservationsQuery.data?.length ?? 0}
+          href="/account/reservations"
+        />
         <DashboardCard
           title="Inscrições gratuitas"
           value={participantsQuery.data?.length ?? 0}
@@ -75,7 +82,13 @@ export default function DashboardPage() {
           <Link href="/account">Minha conta</Link>
         </Button>
         <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
+          <Link href="/account/reservations">Minhas reservas</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
           <Link href="/events">Explorar eventos</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
+          <Link href="/arenas">Arenas</Link>
         </Button>
         {user?.role === "admin" ? (
           <Button asChild className="min-h-11 sm:min-h-9">

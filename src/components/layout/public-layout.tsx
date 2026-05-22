@@ -21,6 +21,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
             <Button variant="ghost" size="sm" asChild>
               <Link href="/events">Eventos</Link>
             </Button>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/arenas">Arenas</Link>
+            </Button>
             <PublicAuthLink />
           </nav>
         </div>

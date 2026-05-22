@@ -30,7 +30,17 @@ const CODE_MESSAGES: Record<string, string> = {
   UNKNOWN_ERROR: "Não foi possível concluir a operação.",
   INVALID_RESPONSE: "Resposta inválida do servidor.",
   INTERNAL_SERVER_ERROR: "Erro interno do servidor. Tente novamente mais tarde.",
-  PAYMENT_CANNOT_COMPLETE: "Não foi possível concluir este pagamento."
+  PAYMENT_CANNOT_COMPLETE: "Não foi possível concluir este pagamento.",
+  SLOT_NOT_FOUND: "Horário não encontrado ou já indisponível.",
+  SLOT_UNAVAILABLE: "Este horário não está mais disponível. Escolha outro.",
+  RECURRENCE_NOT_ALLOWED: "Recorrência não está disponível nesta arena.",
+  MIN_ADVANCE_VIOLATION: "Este horário exige mais antecedência do que a política da arena permite.",
+  RESERVATION_CONFLICT: "Você já possui uma reserva ativa para este horário ou espaço.",
+  INVALID_SLOT_PRICE: "Não foi possível reservar: preço do horário inválido.",
+  RESERVATION_NOT_FOUND: "Reserva não encontrada.",
+  RESERVATION_ALREADY_CONSUMED: "Esta reserva já foi utilizada e não pode ser cancelada.",
+  ARENA_NOT_FOUND: "Arena não encontrada.",
+  SPACE_NOT_FOUND: "Espaço não encontrado."
 };
 
 const NETWORK_ERROR_MESSAGE =

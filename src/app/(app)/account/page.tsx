@@ -7,6 +7,7 @@ import { useMyBookings } from "@/features/bookings/hooks";
 import { useMyNotifications } from "@/features/notifications/hooks";
 import { useMyParticipants } from "@/features/participants/hooks";
 import { useMyPayments } from "@/features/payments/hooks";
+import { useMyReservations } from "@/features/reservations/hooks";
 
 const ROLE_LABELS: Record<string, string> = {
   user: "Participante",
@@ -26,6 +27,7 @@ export default function AccountPage() {
   const bookingsQuery = useMyBookings({ page: 1, limit: 3 });
   const paymentsQuery = useMyPayments({ page: 1, limit: 3 });
   const notificationsQuery = useMyNotifications({ page: 1, limit: 3 });
+  const reservationsQuery = useMyReservations();
 
   if (!user) {
     return null;
@@ -69,7 +71,13 @@ export default function AccountPage() {
         </dl>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <SummaryCard
+          title="Reservas de arena"
+          value={reservationsQuery.data?.length ?? 0}
+          description="Horários em arenas"
+          href="/account/reservations"
+        />
         <SummaryCard
           title="Inscrições"
           value={participantsQuery.data?.length ?? 0}
@@ -92,6 +100,9 @@ export default function AccountPage() {
 
       <section className="grid gap-3 sm:flex sm:flex-wrap">
         <Button asChild className="min-h-11 sm:min-h-9">
+          <Link href="/account/reservations">Minhas reservas</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
           <Link href="/account/bookings">Ver inscrições</Link>
         </Button>
         <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
