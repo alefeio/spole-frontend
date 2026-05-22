@@ -20,8 +20,7 @@ export default function ReservationDetailPage({ params }: ReservationDetailPageP
       <header className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Detalhe da reserva</h1>
         <p className="text-muted-foreground text-sm">
-          Dados de <code className="bg-muted rounded px-1">GET /reservations/:id</code> — status
-          exibido sem alteração no frontend.
+          Status e valores conforme retornados pela API, sem alteração no frontend.
         </p>
       </header>
 

@@ -23,9 +23,7 @@ export default function AccountReservationsPage() {
             Minhas reservas de arena
           </h1>
           <p className="text-muted-foreground text-sm">
-            Horários reservados em arenas via{" "}
-            <code className="bg-muted rounded px-1">GET /reservations/me</code>. Inscrições em
-            eventos ficam em Inscrições.
+            Horários reservados em arenas. Inscrições em eventos ficam em Inscrições.
           </p>
         </div>
       </header>

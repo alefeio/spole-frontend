@@ -1,25 +1,29 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import {
   createPaymentForBooking,
   createPaymentForReservation,
   getMyPayments,
   getPaymentById
 } from "@/features/payments/api";
+import { invalidatePaymentTerminalCaches } from "@/features/payments/invalidate-payment-caches";
+import { PAYMENT_POLL_INTERVAL_MS, PAYMENT_POLL_MAX_MS } from "@/features/payments/polling-config";
 import { bookingsKeys } from "@/features/bookings/hooks";
 import { eventsKeys } from "@/features/events/hooks";
 import { reservationsKeys } from "@/features/reservations/hooks";
-import { isPendingPaymentStatus } from "@/features/payments/payment-status";
+import { createIdempotencyKey } from "@/lib/api/idempotency";
+import {
+  isPendingPaymentStatus,
+  isTerminalPaymentStatus
+} from "@/features/payments/payment-status";
+import type { Payment } from "@/features/payments/types";
 import type {
   CreatePaymentForBookingParams,
   CreatePaymentForReservationParams,
   PaymentListParams
 } from "@/features/payments/types";
-
-const PAYMENT_POLL_INTERVAL_MS = 4000;
-const PAYMENT_POLL_MAX_MS = 5 * 60 * 1000;
 
 export const paymentsKeys = {
   all: ["payments"] as const,
@@ -36,28 +40,44 @@ export function useMyPayments(params: PaymentListParams = {}) {
 }
 
 type UsePaymentOptions = {
-  /** Atualiza GET /payments/:id enquanto status for PENDING (máx. 5 min). */
+  /** Atualiza o pagamento enquanto status for PENDING (máx. 5 min). */
   pollWhilePending?: boolean;
 };
 
-export function usePayment(paymentId: string, options: UsePaymentOptions = {}) {
+export type PaymentQueryResult = UseQueryResult<Payment> & {
+  pollTimedOut: boolean;
+};
+
+export function usePayment(paymentId: string, options: UsePaymentOptions = {}): PaymentQueryResult {
+  const queryClient = useQueryClient();
   const pollStartedAtRef = useRef<number | null>(null);
+  const previousStatusRef = useRef<string | undefined>(undefined);
+  const [pollTimedOutFlag, setPollTimedOutFlag] = useState(false);
 
   useEffect(() => {
-    if (options.pollWhilePending && paymentId) {
-      pollStartedAtRef.current = Date.now();
-    } else {
+    if (!options.pollWhilePending || !paymentId) {
       pollStartedAtRef.current = null;
+      previousStatusRef.current = undefined;
+      return;
     }
+
+    pollStartedAtRef.current = Date.now();
+    previousStatusRef.current = undefined;
+    const timeoutId = window.setTimeout(() => setPollTimedOutFlag(true), PAYMENT_POLL_MAX_MS);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      setPollTimedOutFlag(false);
+    };
   }, [options.pollWhilePending, paymentId]);
 
-  return useQuery({
+  const query = useQuery({
     queryKey: paymentsKeys.detail(paymentId),
     queryFn: () => getPaymentById(paymentId),
     enabled: Boolean(paymentId),
-    refetchInterval: (query) => {
+    refetchInterval: (q) => {
       if (!options.pollWhilePending || !paymentId) return false;
-      const status = query.state.data?.status;
+      const status = q.state.data?.status;
       if (!status || !isPendingPaymentStatus(status)) return false;
       const startedAt = pollStartedAtRef.current;
       if (startedAt && Date.now() - startedAt > PAYMENT_POLL_MAX_MS) return false;
@@ -65,13 +85,34 @@ export function usePayment(paymentId: string, options: UsePaymentOptions = {}) {
     },
     refetchIntervalInBackground: false
   });
+
+  useEffect(() => {
+    if (!options.pollWhilePending || !paymentId) return;
+
+    const payment = query.data;
+    if (!payment?.status) return;
+
+    if (isTerminalPaymentStatus(payment.status) && previousStatusRef.current !== payment.status) {
+      invalidatePaymentTerminalCaches(queryClient, payment);
+    }
+    previousStatusRef.current = payment.status;
+  }, [options.pollWhilePending, paymentId, query.data?.status, queryClient, query.data]);
+
+  const pollTimedOut =
+    pollTimedOutFlag && Boolean(query.data?.status && isPendingPaymentStatus(query.data.status));
+
+  return { ...query, pollTimedOut };
 }
 
 export function useCreatePaymentForBooking() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: CreatePaymentForBookingParams) => createPaymentForBooking(params),
+    mutationFn: (params: CreatePaymentForBookingParams) =>
+      createPaymentForBooking({
+        ...params,
+        idempotencyKey: params.idempotencyKey ?? createIdempotencyKey()
+      }),
     onSuccess: (payment) => {
       void queryClient.invalidateQueries({ queryKey: paymentsKeys.all });
       void queryClient.invalidateQueries({ queryKey: bookingsKeys.all });
@@ -87,7 +128,11 @@ export function useCreatePaymentForReservation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: CreatePaymentForReservationParams) => createPaymentForReservation(params),
+    mutationFn: (params: CreatePaymentForReservationParams) =>
+      createPaymentForReservation({
+        ...params,
+        idempotencyKey: params.idempotencyKey ?? createIdempotencyKey()
+      }),
     onSuccess: (payment) => {
       void queryClient.invalidateQueries({ queryKey: paymentsKeys.all });
       void queryClient.invalidateQueries({ queryKey: reservationsKeys.all });
@@ -109,7 +154,7 @@ export function useReservationPaymentSync({
   reservationId,
   paymentId,
   enabled = true
-}: UseReservationPaymentSyncOptions) {
+}: UseReservationPaymentSyncOptions): PaymentQueryResult {
   const queryClient = useQueryClient();
   const paymentQuery = usePayment(paymentId ?? "", {
     pollWhilePending: Boolean(paymentId) && enabled
@@ -118,15 +163,9 @@ export function useReservationPaymentSync({
   useEffect(() => {
     if (!enabled || !paymentId) return;
     const status = paymentQuery.data?.status;
-    if (!status) return;
+    if (!status || !isPendingPaymentStatus(status)) return;
 
-    if (isPendingPaymentStatus(status)) {
-      void queryClient.invalidateQueries({ queryKey: reservationsKeys.detail(reservationId) });
-      return;
-    }
-
-    void queryClient.invalidateQueries({ queryKey: reservationsKeys.all });
-    void queryClient.invalidateQueries({ queryKey: paymentsKeys.all });
+    void queryClient.invalidateQueries({ queryKey: reservationsKeys.detail(reservationId) });
   }, [enabled, paymentId, paymentQuery.data?.status, queryClient, reservationId]);
 
   return paymentQuery;

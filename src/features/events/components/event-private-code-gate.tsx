@@ -32,8 +32,8 @@ export function EventPrivateCodeGate({ eventId, invalidCodeMessage }: EventPriva
       <header className="space-y-2 text-center sm:text-left">
         <h1 className="text-2xl font-bold tracking-tight">Evento privado</h1>
         <p className="text-muted-foreground text-sm">
-          Este evento não aparece no catálogo público. Informe o código de acesso fornecido pelo
-          organizador.
+          Este evento é exclusivo e não aparece na listagem pública. Informe o código de acesso
+          fornecido pelo organizador.
         </p>
       </header>
 

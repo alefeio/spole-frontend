@@ -9,17 +9,26 @@ export type ApiFailureEnvelope = {
   error: ApiErrorPayload;
 };
 
+export type ApiErrorMeta = {
+  requestId?: string;
+  retryAfter?: number;
+};
+
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
   readonly details?: unknown[];
+  readonly requestId?: string;
+  readonly retryAfter?: number;
 
-  constructor(status: number, payload: ApiErrorPayload) {
+  constructor(status: number, payload: ApiErrorPayload, meta: ApiErrorMeta = {}) {
     super(payload.message);
     this.name = "ApiError";
     this.status = status;
     this.code = payload.code;
     this.details = payload.details;
+    this.requestId = meta.requestId;
+    this.retryAfter = meta.retryAfter;
   }
 }
 

@@ -72,8 +72,8 @@ export function EventParticipationCta({ event, privateCode }: EventParticipation
           {user ? (
             <>
               {event.type === "FREE"
-                ? "Inscreva-se gratuitamente. A confirmação vem da API após o envio."
-                : "Reserve uma vaga temporária e siga para o checkout mock para criar o pagamento pendente."}
+                ? "Garanta sua vaga em segundos — a confirmação aparece aqui assim que a inscrição for aceita."
+                : "Reserve sua vaga agora e finalize o pagamento no checkout para não perder o lugar."}
             </>
           ) : (
             "Entre ou crie sua conta para participar deste evento."
@@ -82,7 +82,7 @@ export function EventParticipationCta({ event, privateCode }: EventParticipation
       </div>
 
       {successMessage ? (
-        <div className="border-primary/30 bg-primary/5 text-primary rounded-lg border p-3 text-sm font-medium">
+        <div className="border-primary/25 bg-accent text-primary rounded-lg border p-3 text-sm font-medium">
           {successMessage}
         </div>
       ) : null}

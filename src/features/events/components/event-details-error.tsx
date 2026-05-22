@@ -22,7 +22,7 @@ export function EventDetailsError({ error, onRetry, fallbackMessage }: EventDeta
           Tentar novamente
         </Button>
         <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
-          <Link href="/events">Voltar ao catálogo</Link>
+          <Link href="/events">Voltar para eventos</Link>
         </Button>
       </div>
     </div>

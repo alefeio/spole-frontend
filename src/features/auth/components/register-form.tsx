@@ -47,7 +47,7 @@ export function RegisterForm() {
       <header className="space-y-2 text-center">
         <h1 className="text-2xl font-bold tracking-tight">Criar conta</h1>
         <p className="text-muted-foreground text-sm">
-          Cadastre-se para participar de eventos no Spolê
+          Crie sua conta e comece a jogar, treinar e conhecer pessoas na sua cidade.
         </p>
       </header>
 

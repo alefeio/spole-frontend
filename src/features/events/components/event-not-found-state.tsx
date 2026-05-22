@@ -9,7 +9,7 @@ export function EventNotFoundState() {
         O evento solicitado não existe, foi removido ou não está disponível para visualização.
       </p>
       <Button asChild>
-        <Link href="/events">Voltar ao catálogo</Link>
+        <Link href="/events">Voltar para eventos</Link>
       </Button>
     </div>
   );

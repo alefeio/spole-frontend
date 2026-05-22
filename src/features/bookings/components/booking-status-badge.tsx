@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import type { BookingStatus } from "@/features/bookings/types";
 
 const STATUS_LABELS: Record<BookingStatus, string> = {
@@ -7,10 +8,19 @@ const STATUS_LABELS: Record<BookingStatus, string> = {
   COMPLETED: "Concluído"
 };
 
+const STATUS_VARIANT: Record<
+  BookingStatus,
+  "accent" | "success" | "destructive" | "muted" | "secondary" | "warning"
+> = {
+  RESERVED: "accent",
+  EXPIRED: "warning",
+  CANCELLED: "secondary",
+  COMPLETED: "success"
+};
+
 export function BookingStatusBadge({ status }: { status: BookingStatus | string }) {
-  return (
-    <span className="bg-secondary text-secondary-foreground rounded-full px-2.5 py-1 text-xs font-medium">
-      {STATUS_LABELS[status as BookingStatus] ?? status}
-    </span>
-  );
+  const key = status as BookingStatus;
+  const variant = STATUS_VARIANT[key] ?? "secondary";
+
+  return <Badge variant={variant}>{STATUS_LABELS[key] ?? status}</Badge>;
 }

@@ -10,13 +10,15 @@ import type {
 
 export async function createBooking({
   eventId,
-  privateCode
+  privateCode,
+  idempotencyKey
 }: CreateBookingParams): Promise<Booking> {
   const { data } = await apiClient<Booking>(endpoints.events.bookings(eventId), {
     method: "POST",
     query: {
       privateCode
-    }
+    },
+    idempotencyKey
   });
 
   return data;

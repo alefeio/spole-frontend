@@ -14,7 +14,7 @@ type ErrorStateProps = {
 
 export function EmptyState({ title, description }: EmptyStateProps) {
   return (
-    <div className="bg-muted/40 rounded-xl border p-6 text-center">
+    <div className="bg-muted/40 rounded-xl border p-6 text-center shadow-xs">
       <h2 className="font-semibold">{title}</h2>
       <p className="text-muted-foreground mt-1 text-sm">{description}</p>
     </div>

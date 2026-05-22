@@ -40,11 +40,13 @@ export async function getPaymentById(paymentId: string): Promise<Payment> {
 
 export async function createPaymentForBooking({
   bookingId,
-  payload = MOCK_PAYMENT_PAYLOAD
+  payload = MOCK_PAYMENT_PAYLOAD,
+  idempotencyKey
 }: CreatePaymentForBookingParams): Promise<Payment> {
   const { data } = await apiClient<Payment>(endpoints.payments.forBooking(bookingId), {
     method: "POST",
-    body: payload
+    body: payload,
+    idempotencyKey
   });
 
   return data;
@@ -64,7 +66,7 @@ export async function createPaymentForReservation({
   return data;
 }
 
-/** Localiza pagamento de arena em GET /users/me/payments (sem endpoint por reserva). */
+/** Localiza pagamento de arena na lista do usuário (sem endpoint por reserva). */
 export async function findPaymentByReservationId(reservationId: string): Promise<Payment | null> {
   const { data } = await getMyPayments({ page: 1, limit: PAYMENT_LOOKUP_LIMIT });
   return data.find((payment) => payment.reservationId === reservationId) ?? null;

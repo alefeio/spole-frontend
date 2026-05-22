@@ -50,9 +50,8 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         <div className="space-y-4 rounded-xl border p-6 text-center">
           <h2 className="text-lg font-semibold">Reserva não encontrada nesta página</h2>
           <p className="text-muted-foreground text-sm">
-            O checkout localiza a reserva em{" "}
-            <code className="bg-muted rounded px-1">GET /users/me/bookings</code> (até 100 itens).
-            Ela pode ter expirado, sido cancelada ou estar em outra página da lista.
+            Não encontramos esta reserva entre as suas inscrições recentes (até 100 itens
+            carregados). Ela pode ter expirado, sido cancelada ou estar em outra página da lista.
             {mayBeBeyondFirstPage
               ? " Você tem mais de 100 reservas — abra a lista completa em Minhas inscrições."
               : null}
@@ -105,8 +104,8 @@ function CheckoutHeader() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Checkout mock</h1>
         <p className="text-muted-foreground text-sm">
-          Crie e acompanhe um pagamento pendente para sua reserva de evento pago. Status vem da API;
-          confirmação depende do webhook no backend.
+          Crie e acompanhe um pagamento pendente para sua reserva de evento pago. A confirmação
+          depende do processamento no backend.
         </p>
       </div>
     </header>

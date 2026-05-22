@@ -1,40 +1,31 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { SiteHeader } from "@/components/layout/site-header";
 import { LogoutButton } from "@/features/auth/components/logout-button";
+import type { NavItem } from "@/components/layout/nav-link";
 
 type AppLayoutProps = {
   children: React.ReactNode;
 };
 
-const navItems = [
+const appNavItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard" },
+  { href: "/events", label: "Eventos" },
   { href: "/account", label: "Conta" },
   { href: "/account/reservations", label: "Reservas" },
   { href: "/account/bookings", label: "Inscrições" },
   { href: "/account/payments", label: "Pagamentos" },
-  { href: "/account/notifications", label: "Notificações" },
-  { href: "/events", label: "Eventos" }
-] as const;
+  { href: "/account/notifications", label: "Notificações" }
+];
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <>
-      <header className="border-b">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/dashboard" className="text-lg font-semibold tracking-tight">
-            Spolê
-          </Link>
-          <nav className="flex flex-wrap items-center gap-2">
-            {navItems.map((item) => (
-              <Button key={item.href} variant="ghost" size="sm" asChild>
-                <Link href={item.href}>{item.label}</Link>
-              </Button>
-            ))}
-            <LogoutButton />
-          </nav>
-        </div>
-      </header>
+    <div className="flex min-h-full flex-col">
+      <SiteHeader
+        homeHref="/dashboard"
+        navItems={appNavItems}
+        actions={<LogoutButton className="min-h-9" />}
+        mobileActions={<LogoutButton className="min-h-11 w-full" />}
+      />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:py-8">{children}</main>
-    </>
+    </div>
   );
 }

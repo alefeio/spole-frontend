@@ -31,7 +31,7 @@ export default function PaymentDetailPage({ params }: PaymentDetailPageProps) {
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Detalhe do pagamento</h1>
           <p className="text-muted-foreground text-sm">
-            Dados retornados por <code className="bg-muted rounded px-1">GET /payments/:id</code>.
+            Status, valores e vínculos com reserva ou inscrição.
           </p>
         </div>
       </header>
@@ -46,7 +46,11 @@ export default function PaymentDetailPage({ params }: PaymentDetailPageProps) {
       ) : null}
 
       {paymentQuery.isSuccess && payment ? (
-        <PaymentDetail payment={payment} isPolling={isPolling} />
+        <PaymentDetail
+          payment={payment}
+          isPolling={isPolling}
+          pollTimedOut={paymentQuery.pollTimedOut}
+        />
       ) : null}
     </div>
   );

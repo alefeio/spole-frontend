@@ -447,7 +447,7 @@ Apenas `status: PAID` é aceito para concluir fluxo.
 - Ocorrência não paga até **24h antes** do horário → slot liberado (`RELEASED`).
 - Pagamento por ocorrência: `POST /reservation-occurrences/:occurrenceId/payments`.
 
-> **Frontend:** tratar fluxo completo de pagamento de reserva + recorrência como **pendente/instável** (§10).
+> **Frontend:** pagamento mock de reserva SINGLE implementado (Sprints 09–10). **Recorrência** e pagamento por ocorrência permanecem fora de escopo (§8).
 
 ---
 
@@ -558,46 +558,46 @@ Listagem: `GET /users/me/notifications`.
 
 Mapeamento sugerido (App Router) — rotas de UI a definir na implementação.
 
-| Área / tela             | Endpoints principais                                                                      | Perfis                        |
-| ----------------------- | ----------------------------------------------------------------------------------------- | ----------------------------- |
-| Landing / home          | `GET /events`, `GET /categories`                                                          | Todos                         |
-| Busca e filtros         | `GET /events?q&category&city&dateFrom&dateTo&type`                                        | Todos                         |
-| Detalhe do evento       | `GET /events/:id`, `privateCode`                                                          | Todos                         |
-| Login / cadastro        | `POST /auth/login`, `POST /auth/register`                                                 | Todos                         |
-| Minha conta             | `GET /users/me`                                                                           | Autenticado                   |
-| Criar / editar evento   | `POST /events`, `PATCH /events/:id`, `DELETE /events/:id`                                 | Organizador                   |
-| Inscrição gratuita      | `POST /events/:id/participants/free`                                                      | Autenticado                   |
-| Compra de vaga (pago)   | `POST /events/:id/bookings` → `POST /bookings/:id/payments` → polling `GET /payments/:id` | Autenticado                   |
-| Minhas inscrições       | `GET /users/me/participants`                                                              | Autenticado                   |
-| Meus bookings           | `GET /users/me/bookings`, `PATCH /bookings/:id/cancel`                                    | Autenticado                   |
-| Meus pagamentos         | `GET /users/me/payments`, `GET /payments/:id`                                             | Autenticado                   |
-| Notificações            | `GET /users/me/notifications`, `PATCH /notifications/:id/read`                            | Autenticado                   |
-| Participantes do evento | `GET /events/:eventId/participants`                                                       | Organizador                   |
-| Explorar arena          | `GET /arenas/:id`, `GET /arenas/:id/spaces`, `GET /arenas/:id/slots`                      | Todos / organizador           |
-| Cadastro de arena       | `POST /arenas`, `PATCH /arenas/:id`                                                       | `arena_owner`                 |
-| Espaços e slots         | `POST /arenas/:id/spaces`, `POST /spaces/:id/slots`                                       | Dono arena                    |
-| Reservar horário        | `POST /reservations`, `GET /reservations/me`, `GET /reservations/:id`                     | Organizador                   |
-| Pagar reserva de arena  | `POST /reservations/:id/payments`, ocorrências                                            | Organizador — **pendente UI** |
-| Painel arena — reservas | `GET /arenas/:arenaId/reservations`                                                       | Dono arena                    |
-| Admin — categorias      | `POST/PATCH/DELETE /categories`                                                           | `admin`                       |
-| Health (ops)            | `GET /health`                                                                             | Interno                       |
+| Área / tela             | Endpoints principais                                                                      | Perfis                               |
+| ----------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------ |
+| Landing / home          | `GET /events`, `GET /categories`                                                          | Todos                                |
+| Busca e filtros         | `GET /events?q&category&city&dateFrom&dateTo&type`                                        | Todos                                |
+| Detalhe do evento       | `GET /events/:id`, `privateCode`                                                          | Todos                                |
+| Login / cadastro        | `POST /auth/login`, `POST /auth/register`                                                 | Todos                                |
+| Minha conta             | `GET /users/me`                                                                           | Autenticado                          |
+| Criar / editar evento   | `POST /events`, `PATCH /events/:id`, `DELETE /events/:id`                                 | Organizador                          |
+| Inscrição gratuita      | `POST /events/:id/participants/free`                                                      | Autenticado                          |
+| Compra de vaga (pago)   | `POST /events/:id/bookings` → `POST /bookings/:id/payments` → polling `GET /payments/:id` | Autenticado                          |
+| Minhas inscrições       | `GET /users/me/participants`                                                              | Autenticado                          |
+| Meus bookings           | `GET /users/me/bookings`, `PATCH /bookings/:id/cancel`                                    | Autenticado                          |
+| Meus pagamentos         | `GET /users/me/payments`, `GET /payments/:id`                                             | Autenticado                          |
+| Notificações            | `GET /users/me/notifications`, `PATCH /notifications/:id/read`                            | Autenticado                          |
+| Participantes do evento | `GET /events/:eventId/participants`                                                       | Organizador                          |
+| Explorar arena          | `GET /arenas/:id`, `GET /arenas/:id/spaces`, `GET /arenas/:id/slots`                      | Todos / organizador                  |
+| Cadastro de arena       | `POST /arenas`, `PATCH /arenas/:id`                                                       | `arena_owner`                        |
+| Espaços e slots         | `POST /arenas/:id/spaces`, `POST /spaces/:id/slots`                                       | Dono arena                           |
+| Reservar horário        | `POST /reservations`, `GET /reservations/me`, `GET /reservations/:id`                     | Organizador                          |
+| Pagar reserva de arena  | `POST /reservations/:id/payments`, polling `GET /payments/:id`                            | Autenticado — **UI mock Sprint 09+** |
+| Painel arena — reservas | `GET /arenas/:arenaId/reservations`                                                       | Dono arena                           |
+| Admin — categorias      | `POST/PATCH/DELETE /categories`                                                           | `admin`                              |
+| Health (ops)            | `GET /health`                                                                             | Interno                              |
 
 ---
 
 ## 8. Pontos pendentes ou instáveis
 
-| Item                                   | Situação                                                                | Impacto no frontend                                                                                |
-| -------------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Pagamento de reserva de arena          | Implementado na API (Sprint 10) com **mock-provider**; sem gateway real | **Não** construir checkout completo; apenas placeholders ou fluxo dev controlado                   |
-| Recorrência semanal                    | Mínima (`RECURRING` + ocorrências + liberação 24h)                      | UI de recorrência **adiada**; documentar estados antes de desenhar wizard                          |
-| Webhooks de pagamento                  | Apenas backend / simulação manual                                       | Frontend **não** chama webhooks; confirmação via polling `GET /payments/:id` ou ambiente de testes |
-| `PATCH /users/me`                      | Não existe                                                              | Sem tela de edição de perfil até o backend expor rota                                              |
-| `GET /arenas` (lista)                  | Não existe                                                              | Descoberta de arenas só por ID/link direto                                                         |
-| Módulo admin                           | Sem rotas dedicadas                                                     | Painel admin limitado a categorias (JWT admin)                                                     |
-| Atualização de perfil / avatar         | Spec em `/api/docs/02-features/users.md`, sem rota                      | Fora do escopo imediato                                                                            |
-| Search dedicado                        | Spec futura; hoje = `GET /events`                                       | Não criar cliente para `/search`                                                                   |
-| Reembolso, split, antifraude           | Fora do MVP                                                             | Não modelar na UI                                                                                  |
-| Edição de slots / cancelamento de slot | Sem `PATCH`/`DELETE` em slots na API                                    | Gestão de agenda parcial no frontend                                                               |
+| Item                                   | Situação                                                                                  | Impacto no frontend                                                                                |
+| -------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Pagamento de reserva de arena          | API com **mock-provider**; frontend com checkout mock (Sprint 09) + hardening (Sprint 10) | Recorrência e gateway real **fora** do escopo; confirmação via backend/webhook de teste em dev     |
+| Recorrência semanal                    | Mínima (`RECURRING` + ocorrências + liberação 24h)                                        | UI de recorrência **adiada**; documentar estados antes de desenhar wizard                          |
+| Webhooks de pagamento                  | Apenas backend / simulação manual                                                         | Frontend **não** chama webhooks; confirmação via polling `GET /payments/:id` ou ambiente de testes |
+| `PATCH /users/me`                      | Não existe                                                                                | Sem tela de edição de perfil até o backend expor rota                                              |
+| `GET /arenas` (lista)                  | Não existe                                                                                | Descoberta de arenas só por ID/link direto                                                         |
+| Módulo admin                           | Sem rotas dedicadas                                                                       | Painel admin limitado a categorias (JWT admin)                                                     |
+| Atualização de perfil / avatar         | Spec em `/api/docs/02-features/users.md`, sem rota                                        | Fora do escopo imediato                                                                            |
+| Search dedicado                        | Spec futura; hoje = `GET /events`                                                         | Não criar cliente para `/search`                                                                   |
+| Reembolso, split, antifraude           | Fora do MVP                                                                               | Não modelar na UI                                                                                  |
+| Edição de slots / cancelamento de slot | Sem `PATCH`/`DELETE` em slots na API                                                      | Gestão de agenda parcial no frontend                                                               |
 
 ### Estabilidade recomendada para a 1ª sprint frontend
 

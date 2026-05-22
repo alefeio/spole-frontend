@@ -42,6 +42,7 @@ export type CreatePaymentForBookingPayload = {
 export type CreatePaymentForBookingParams = {
   bookingId: string;
   payload?: CreatePaymentForBookingPayload;
+  idempotencyKey?: string;
 };
 
 export type CreatePaymentForReservationPayload = {

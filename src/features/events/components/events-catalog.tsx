@@ -72,11 +72,15 @@ export function EventsCatalog() {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <p className="text-primary text-sm font-medium tracking-wide uppercase">Catálogo público</p>
-        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Eventos no Spolê</h1>
+        <p className="text-primary text-sm font-medium tracking-wide uppercase">
+          Eventos perto de você
+        </p>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+          Escolha sua próxima atividade
+        </h1>
         <p className="text-muted-foreground max-w-2xl">
-          Busque eventos públicos publicados pela plataforma. A busca usa o contrato real via{" "}
-          <code className="bg-muted rounded px-1 py-0.5">GET /events?q=...</code>.
+          Futebol, vôlei, corridas, treinos em grupo e mais — filtre por cidade e categoria e
+          garanta sua vaga antes de lotar.
         </p>
       </header>
 

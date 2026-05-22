@@ -43,9 +43,9 @@ const CODE_MESSAGES: Record<string, string> = {
   RESERVATION_EXPIRED: "Esta reserva de arena expirou. Faça uma nova reserva de horário.",
   RESERVATION_NO_PAYMENT_REQUIRED: "Esta reserva não exige pagamento.",
   PAYMENT_STATE_CONFLICT: "O pagamento não pode ser confirmado no estado atual.",
-  IDEMPOTENCY_KEY_REUSED:
-    "Esta solicitação de pagamento já foi enviada. Aguarde ou tente novamente.",
-  IDEMPOTENCY_IN_PROGRESS: "Pagamento em processamento. Aguarde alguns instantes.",
+  RATE_LIMIT_EXCEEDED: "Muitas tentativas em pouco tempo. Aguarde um momento e tente novamente.",
+  IDEMPOTENCY_KEY_REUSED: "Essa tentativa já foi processada. Atualize a página ou tente novamente.",
+  IDEMPOTENCY_IN_PROGRESS: "Essa ação já está em processamento. Aguarde alguns instantes.",
   RESERVATION_ALREADY_CONSUMED: "Esta reserva já foi utilizada e não pode ser cancelada.",
   ARENA_NOT_FOUND: "Arena não encontrada.",
   SPACE_NOT_FOUND: "Espaço não encontrado."
@@ -53,6 +53,48 @@ const CODE_MESSAGES: Record<string, string> = {
 
 const NETWORK_ERROR_MESSAGE =
   "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.";
+
+const OPERATIONAL_CODES = new Set([
+  "UNKNOWN_ERROR",
+  "INVALID_RESPONSE",
+  "INTERNAL_SERVER_ERROR",
+  "RATE_LIMIT_EXCEEDED"
+]);
+
+function formatValidationDetails(details: unknown[] | undefined): string | null {
+  if (!details?.length) return null;
+  const first = details[0];
+  if (first && typeof first === "object" && "message" in first) {
+    const message = (first as { message?: unknown }).message;
+    if (typeof message === "string" && message.trim()) return message;
+  }
+  return null;
+}
+
+function shouldAppendRequestReference(error: ApiError): boolean {
+  if (!error.requestId?.trim()) return false;
+  if (error.code === "VALIDATION_ERROR" && formatValidationDetails(error.details)) return false;
+  if (error.code === "INVALID_CREDENTIALS") return false;
+  if (error.code === "EVENT_FULL") return false;
+  if (error.status === 404) return false;
+  if (error.status === 409 || error.status === 422) {
+    if (CODE_MESSAGES[error.code]) return false;
+  }
+  if (OPERATIONAL_CODES.has(error.code) || error.status >= 500) return true;
+  return false;
+}
+
+function appendRequestReference(message: string, requestId: string): string {
+  return `${message} Código de referência: ${requestId}.`;
+}
+
+function resolveRateLimitMessage(error: ApiError): string {
+  const base = CODE_MESSAGES.RATE_LIMIT_EXCEEDED;
+  if (error.retryAfter != null && error.retryAfter > 0) {
+    return `Aguarde cerca de ${error.retryAfter} segundos e tente novamente.`;
+  }
+  return base;
+}
 
 export function isPrivateEventForbidden(error: unknown): boolean {
   return error instanceof ApiError && error.status === 403 && error.code === "FORBIDDEN";
@@ -70,16 +112,6 @@ export function isPaymentAlreadyExistsError(error: unknown): boolean {
   return error instanceof ApiError && error.code === "PAYMENT_ALREADY_EXISTS";
 }
 
-function formatValidationDetails(details: unknown[] | undefined): string | null {
-  if (!details?.length) return null;
-  const first = details[0];
-  if (first && typeof first === "object" && "message" in first) {
-    const message = (first as { message?: unknown }).message;
-    if (typeof message === "string" && message.trim()) return message;
-  }
-  return null;
-}
-
 export function getApiErrorMessage(
   error: unknown,
   fallback = "Ocorreu um erro inesperado. Tente novamente."
@@ -87,12 +119,25 @@ export function getApiErrorMessage(
   if (error instanceof ApiError) {
     const validationMessage = formatValidationDetails(error.details);
     if (validationMessage) return validationMessage;
-    return CODE_MESSAGES[error.code] ?? error.message ?? fallback;
+
+    let message: string;
+    if (error.code === "RATE_LIMIT_EXCEEDED") {
+      message = resolveRateLimitMessage(error);
+    } else {
+      message = CODE_MESSAGES[error.code] ?? error.message ?? fallback;
+    }
+
+    if (shouldAppendRequestReference(error)) {
+      return appendRequestReference(message, error.requestId!);
+    }
+
+    return message;
   }
-  if (error instanceof TypeError && error.message === "Failed to fetch") {
-    return NETWORK_ERROR_MESSAGE;
-  }
-  if (error instanceof Error && error.message === "Failed to fetch") {
+
+  if (
+    (error instanceof TypeError || error instanceof Error) &&
+    error.message === "Failed to fetch"
+  ) {
     return NETWORK_ERROR_MESSAGE;
   }
   if (error instanceof Error && error.message) return error.message;

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PaymentStatusBadge } from "@/features/payments/components/payment-status-badge";
+import { PAYMENT_POLL_TIMEOUT_MESSAGE } from "@/features/payments/polling-config";
 import { isPendingPaymentStatus } from "@/features/payments/payment-status";
 import type { Payment } from "@/features/payments/types";
 
@@ -27,9 +28,10 @@ function formatDate(value?: string | null) {
 type PaymentDetailProps = {
   payment: Payment;
   isPolling?: boolean;
+  pollTimedOut?: boolean;
 };
 
-export function PaymentDetail({ payment, isPolling }: PaymentDetailProps) {
+export function PaymentDetail({ payment, isPolling, pollTimedOut }: PaymentDetailProps) {
   const showBookingCheckoutLink =
     isPendingPaymentStatus(payment.status) && Boolean(payment.bookingId);
   const showReservationCheckoutLink =
@@ -52,15 +54,21 @@ export function PaymentDetail({ payment, isPolling }: PaymentDetailProps) {
 
       {isPolling ? (
         <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
-          Atualizando status do pagamento… A confirmação depende do processamento mock no backend
-          (webhook), não do navegador.
+          Atualizando status do pagamento… A confirmação depende do processamento no backend, não
+          deste navegador.
+        </p>
+      ) : null}
+
+      {pollTimedOut && isPendingPaymentStatus(payment.status) ? (
+        <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
+          {PAYMENT_POLL_TIMEOUT_MESSAGE}
         </p>
       ) : null}
 
       {isPendingPaymentStatus(payment.status) ? (
         <p className="bg-muted rounded-lg border p-3 text-sm">
-          Pagamento pendente. Quando o backend confirmar via webhook, o status mudará para pago
-          nesta tela.
+          Pagamento pendente. Quando o backend confirmar o pagamento, o status será atualizado nesta
+          tela.
         </p>
       ) : null}
 

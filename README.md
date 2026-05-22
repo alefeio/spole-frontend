@@ -61,7 +61,7 @@ pnpm dev
 pnpm dev -- -p 3001
 ```
 
-Outros comandos: `pnpm build`, `pnpm lint`, `pnpm format`.
+Outros comandos: `pnpm build`, `pnpm lint`, `pnpm format`, `pnpm format:write`.
 
 ## Estrutura
 
@@ -81,10 +81,52 @@ docs/            # Documentação do frontend
 
 1. **Não** chamar `fetch` em páginas ou componentes — usar `src/lib/api/client.ts` via `src/features/*/api.ts`.
 2. Contrato HTTP: [`docs/02-features/api-contract-map.md`](./docs/02-features/api-contract-map.md).
-3. Frontend **1 sprint atrás** do backend.
-4. Fora de escopo imediato: pagamento de reserva de arena, recorrência, módulo `/search`, admin avançado.
+3. Sprints 00–10 entregues no participante (auth, eventos, checkout, conta, arenas, reserva, hardening).
+4. Fora de escopo imediato: recorrência, gateway real, webhook no browser, `/search`, Admin UI, CRUD de eventos no front, painel do dono de arena, `PATCH /users/me`.
+
+## Troubleshooting
+
+### API fora do ar ou `Failed to fetch`
+
+- Confirme que o backend em `/api` está rodando (`pnpm dev` na pasta da API).
+- Verifique `NEXT_PUBLIC_API_URL` em `.env.local` (ex.: `http://localhost:3000`).
+
+### CORS / URL incorreta
+
+- O front deve apontar para a **origem da API**, não para a porta do Next.js.
+- Erros de CORS costumam indicar URL errada ou API não aceitando a origem do front (ex.: `http://localhost:3001`).
+- Após a Sprint 10, o front envia `X-Request-Id` em todas as requisições. A API precisa permitir esse header em `Access-Control-Allow-Headers` (e expor `X-Request-Id` em `Access-Control-Expose-Headers` para ler o código de referência em erros). Reinicie a API após atualizar o CORS.
+
+### Porta 3000 ocupada
+
+Rode o frontend em outra porta e mantenha a API em 3000:
+
+```powershell
+pnpm.cmd dev -- -p 3001
+```
+
+### Seed de desenvolvimento
+
+Use o seed/documentação do backend (`/api`) para usuários, eventos e arenas de teste.
+
+### Pagamento mock permanece `PENDING`
+
+O navegador **não** confirma pagamentos. Em desenvolvimento, dispare o webhook de teste do backend (ver Sprint 09 em `docs/01-sprints/`). O front faz polling em `GET /payments/:id` por até 5 minutos.
+
+### Rate limit (HTTP 429)
+
+Muitas tentativas retornam `RATE_LIMIT_EXCEEDED`. Aguarde o intervalo sugerido (header `Retry-After`, quando enviado) e tente de novo.
+
+### Código de referência em erros
+
+Em falhas operacionais (5xx, 429, erros genéricos), a UI pode exibir **Código de referência** com o `X-Request-Id` devolvido pela API — útil para suporte.
+
+### Idempotência
+
+Criar booking, pagamento de booking e pagamento de reserva enviam `Idempotency-Key` por tentativa. Reutilizar a mesma chave com payload diferente pode retornar `IDEMPOTENCY_KEY_REUSED` ou `IDEMPOTENCY_IN_PROGRESS`.
 
 ## Documentação
 
 - [Visão do produto web](./docs/00-product/frontend-overview.md)
 - [Sprint 00 — Foundation](./docs/01-sprints/sprint-00-frontend-foundation.md)
+- [Sprint 10 — Client hardening](./docs/01-sprints/sprint-10-client-hardening-api12.md)

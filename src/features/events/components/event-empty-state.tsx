@@ -9,7 +9,7 @@ export function EventEmptyState({ hasFilters }: EventEmptyStateProps) {
       <p className="text-muted-foreground mt-2 text-sm">
         {hasFilters
           ? "Tente remover filtros ou buscar por outro termo."
-          : "Ainda não há eventos públicos publicados no catálogo."}
+          : "Em breve teremos novos eventos por aqui. Volte em alguns dias ou amplie os filtros."}
       </p>
     </div>
   );

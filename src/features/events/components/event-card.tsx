@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Event } from "@/features/events/types";
 
@@ -32,9 +33,9 @@ export function EventCard({ event }: EventCardProps) {
       <div className="flex flex-1 flex-col gap-3">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="bg-secondary text-secondary-foreground rounded-full px-2.5 py-1 text-xs font-medium">
+            <Badge variant={event.type === "FREE" ? "success" : "accent"}>
               {event.type === "FREE" ? "Gratuito" : "Pago"}
-            </span>
+            </Badge>
             <span className="text-muted-foreground text-xs">{formatDate(event.startAt)}</span>
           </div>
           <h2 className="line-clamp-2 text-lg font-semibold tracking-tight">{event.title}</h2>

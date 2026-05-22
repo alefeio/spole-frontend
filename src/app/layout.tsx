@@ -18,7 +18,11 @@ export const metadata: Metadata = {
     default: "Spolê",
     template: "%s | Spolê"
   },
-  description: "Plataforma para descoberta, eventos e reservas esportivas."
+  description: "Plataforma para descoberta, eventos e reservas esportivas.",
+  icons: {
+    icon: "/logo_h.png",
+    apple: "/logo_h.png"
+  }
 };
 
 export default function RootLayout({

@@ -36,7 +36,7 @@ export default function AccountPaymentsPage() {
       <header className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Meus pagamentos</h1>
         <p className="text-muted-foreground text-sm">
-          Pagamentos associados aos seus fluxos no Spolê.
+          Histórico de pagamentos de eventos e reservas de arena.
         </p>
       </header>
 

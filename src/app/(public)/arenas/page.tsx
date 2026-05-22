@@ -23,15 +23,15 @@ export default function ArenasHubPage() {
       <header className="space-y-2">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Arenas</h1>
         <p className="text-muted-foreground text-sm">
-          Arenas são acessadas por link direto. Não existe listagem global (
-          <code className="bg-muted rounded px-1">GET /arenas</code> não está disponível).
+          Recebeu o link da arena? Abra pelo identificador abaixo, escolha horário e reserve sua
+          quadra.
         </p>
       </header>
 
       <section className="space-y-4 rounded-xl border p-4 sm:p-6">
         <h2 className="text-lg font-semibold">Abrir arena pelo ID</h2>
         <p className="text-muted-foreground text-sm">
-          Cole o identificador (UUID) recebido do organizador ou da documentação de desenvolvimento.
+          Cole o código que a arena ou o organizador compartilhou com você.
         </p>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">

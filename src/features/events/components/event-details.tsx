@@ -35,7 +35,7 @@ export function EventDetails({ eventId, privateCode }: EventDetailsProps) {
       return (
         <div className="space-y-6">
           <Button asChild variant="ghost" className="min-h-11 px-0 sm:min-h-9">
-            <Link href="/events">← Voltar ao catálogo</Link>
+            <Link href="/events">← Voltar para eventos</Link>
           </Button>
           <EventPrivateCodeGate
             eventId={eventId}
@@ -65,7 +65,7 @@ export function EventDetails({ eventId, privateCode }: EventDetailsProps) {
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" className="min-h-11 px-0 sm:min-h-9">
-        <Link href="/events">← Voltar ao catálogo</Link>
+        <Link href="/events">← Voltar para eventos</Link>
       </Button>
 
       <header className="space-y-4">

@@ -4,50 +4,62 @@
 
 Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-based**, com camada única de acesso à API e estado de servidor via TanStack Query.
 
-## 2. Stack planejada (não implementada ainda)
+## 2. Stack
 
-| Camada        | Tecnologia                                   |
-| ------------- | -------------------------------------------- |
-| Framework     | Next.js (App Router)                         |
-| Linguagem     | TypeScript                                   |
-| Estilo        | Tailwind CSS                                 |
-| Componentes   | shadcn/ui                                    |
-| Dados remotos | TanStack Query                               |
-| API           | Cliente centralizado (wrapper sobre `fetch`) |
+| Camada        | Tecnologia                                      |
+| ------------- | ----------------------------------------------- |
+| Framework     | Next.js (App Router)                            |
+| Linguagem     | TypeScript                                      |
+| Estilo        | Tailwind CSS v4 + shadcn/ui                     |
+| Dados remotos | TanStack Query                                  |
+| API           | Cliente centralizado em `src/lib/api/client.ts` |
 
 ## 3. Princípios de arquitetura
 
 1. **Features primeiro** — `src/features/<domínio>/` com componentes, hooks e tipos locais.
-2. **API isolada** — `src/lib/api/` (ou equivalente) com client, interceptors de auth e funções por módulo; **proibido** `fetch`/`axios` em componentes.
+2. **API isolada** — `src/lib/api/` com client, erros e mensagens; **proibido** `fetch` fora de `client.ts`.
 3. **Contrato explícito** — tipos e endpoints alinhados a [`../02-features/api-contract-map.md`](../02-features/api-contract-map.md).
-4. **Sprints defasadas** — o frontend implementa a sprint **N−1** em relação ao backend (ex.: backend na sprint 10 → frontend foca entregas equivalentes à sprint 9).
+4. **Sprints defasadas** — o frontend costuma implementar a sprint **N−1** em relação ao backend; Sprint 10 alinhou hardening à maturidade da API (~12).
 5. **Sem antecipar backend** — não construir telas para rotas inexistentes.
 
-## 4. Perfis e áreas da UI (planejamento)
+## 4. Escopo entregue (Sprints 00–10)
 
-| Perfil        | Áreas principais                                                                   |
-| ------------- | ---------------------------------------------------------------------------------- |
-| Participante  | Descoberta, detalhe do evento, inscrição gratuita, compra paga, conta              |
-| Organizador   | Criar/editar eventos, reservar arena, minhas reservas                              |
-| Dono de arena | Cadastro de arena, espaços, slots, reservas recebidas                              |
-| Admin         | Categorias (quando houver painel); demais rotas admin ainda **não existem** na API |
+| Área                | Entregas                                                            |
+| ------------------- | ------------------------------------------------------------------- |
+| Foundation          | Next.js, layout, apiClient, auth token, guards                      |
+| Auth                | Login, registro, sessão, redirect                                   |
+| Eventos             | Catálogo, detalhe, eventos privados, participação gratuita          |
+| Bookings / checkout | Reserva temporária, checkout mock, pagamento de evento pago         |
+| Conta               | Perfil, inscrições, bookings, pagamentos, notificações              |
+| Arenas              | Hub por ID, detalhe, espaços, slots, reserva SINGLE                 |
+| Reserva + pagamento | Lista/detalhe, cancelamento, checkout mock de reserva               |
+| Hardening (10)      | Request id, 429, idempotência, polling centralizado, cache terminal |
 
-## 5. Integração com a API
+## 5. Perfis e áreas da UI
 
-- Base URL configurável (`NEXT_PUBLIC_API_URL`).
-- Autenticação: header `Authorization: Bearer <token>` após login.
-- Envelope de resposta: `{ success, data, meta? }` / `{ success: false, error }` — ver mapa de contrato.
+| Perfil        | Áreas no frontend atual                                    |
+| ------------- | ---------------------------------------------------------- |
+| Participante  | Eventos, inscrição, checkout pago, conta, arenas, reservas |
+| Organizador   | Fluxos de participante (sem CRUD de eventos no front)      |
+| Dono de arena | Sem painel dedicado                                        |
+| Admin         | Sem painel (categorias admin só na API)                    |
 
-## 6. Escopo pendente / instável (não priorizar UI completa)
+## 6. Integração com a API
 
-- Pagamento de **reserva de arena** (`POST /reservations/:id/payments`, ocorrências recorrentes).
-- **Recorrência semanal** de reservas e liberação automática por inadimplência.
-- Gateway real (hoje: `mock-provider` + PIX simulado).
-- Módulo **admin** dedicado na API.
-- Atualização de perfil (`PATCH /users/me`) — **não implementado** no backend.
+- Base URL: `NEXT_PUBLIC_API_URL`.
+- Auth: `Authorization: Bearer <token>`.
+- Envelope: `{ success, data, meta? }` / `{ success: false, error }`.
+- Headers: `X-Request-Id` (todas as requisições), `Idempotency-Key` (ações sensíveis documentadas).
 
-## 7. Próximos passos (fora desta entrega)
+## 7. Fora de escopo / instável
 
-1. Bootstrap do projeto Next.js em `/web`.
-2. Cliente HTTP + providers (Query, auth).
-3. Primeira sprint frontend alinhada a `01-sprints/`.
+- **Recorrência** semanal e pagamento por ocorrência.
+- **Gateway real** (PIX/cartão de produção).
+- **Webhook no browser** — confirmação mock via backend em dev.
+- **Admin UI**, CRUD de eventos no front, painel do dono de arena.
+- **`PATCH /users/me`**, módulo `/search`, listagem global `GET /arenas`.
+
+## 8. Próximos passos sugeridos
+
+1. Admin (API 11) ou CRUD de eventos ou gestão de arena — conforme produto.
+2. Manter contrato em `api-contract-map.md` ao evoluir a API.

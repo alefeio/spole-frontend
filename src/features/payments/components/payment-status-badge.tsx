@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import type { PaymentStatus } from "@/features/payments/types";
 
 const STATUS_LABELS: Record<PaymentStatus, string> = {
@@ -8,10 +9,20 @@ const STATUS_LABELS: Record<PaymentStatus, string> = {
   CANCELLED: "Cancelado"
 };
 
+const STATUS_VARIANT: Record<
+  PaymentStatus,
+  "accent" | "success" | "destructive" | "muted" | "secondary"
+> = {
+  PENDING: "accent",
+  PAID: "success",
+  FAILED: "destructive",
+  REFUNDED: "muted",
+  CANCELLED: "secondary"
+};
+
 export function PaymentStatusBadge({ status }: { status: PaymentStatus | string }) {
-  return (
-    <span className="bg-secondary text-secondary-foreground rounded-full px-2.5 py-1 text-xs font-medium">
-      {STATUS_LABELS[status as PaymentStatus] ?? status}
-    </span>
-  );
+  const key = status as PaymentStatus;
+  const variant = STATUS_VARIANT[key] ?? "secondary";
+
+  return <Badge variant={variant}>{STATUS_LABELS[key] ?? status}</Badge>;
 }

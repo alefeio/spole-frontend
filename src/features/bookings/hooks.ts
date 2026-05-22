@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cancelBooking, createBooking, getMyBookings } from "@/features/bookings/api";
 import type { BookingListParams, CreateBookingParams } from "@/features/bookings/types";
+import { createIdempotencyKey } from "@/lib/api/idempotency";
 import { eventsKeys } from "@/features/events/hooks";
 import { notificationsKeys } from "@/features/notifications/hooks";
 
@@ -23,7 +24,11 @@ export function useCreateBooking() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: CreateBookingParams) => createBooking(params),
+    mutationFn: (params: CreateBookingParams) =>
+      createBooking({
+        ...params,
+        idempotencyKey: params.idempotencyKey ?? createIdempotencyKey()
+      }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: bookingsKeys.all });
       void queryClient.invalidateQueries({ queryKey: eventsKeys.details() });

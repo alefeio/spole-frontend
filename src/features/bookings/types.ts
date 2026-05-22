@@ -12,6 +12,7 @@ export type Booking = {
 export type CreateBookingParams = {
   eventId: string;
   privateCode?: string;
+  idempotencyKey?: string;
 };
 
 export type BookingListParams = {

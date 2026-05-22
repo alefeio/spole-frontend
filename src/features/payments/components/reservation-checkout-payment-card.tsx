@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { getApiErrorMessage, isPaymentAlreadyExistsError } from "@/lib/api/error-messages";
+import { createIdempotencyKey } from "@/lib/api/idempotency";
 import { findPaymentByReservationId } from "@/features/payments/api";
 import { PaymentCard } from "@/features/payments/components/payment-card";
 import {
   useCreatePaymentForReservation,
   useReservationPaymentSync
 } from "@/features/payments/hooks";
+import { PAYMENT_POLL_TIMEOUT_MESSAGE } from "@/features/payments/polling-config";
 import {
   isPendingPaymentStatus,
   isTerminalPaymentStatus
@@ -46,7 +48,7 @@ export function ReservationCheckoutPaymentCard({
   const terminalMessage =
     payment && isTerminalPaymentStatus(payment.status)
       ? payment.status === "PAID"
-        ? "Pagamento confirmado pela API. A reserva será atualizada quando o backend refletir o status."
+        ? "Pagamento confirmado. A reserva será atualizada quando o backend refletir o status."
         : `Status do pagamento atualizado: ${payment.status}.`
       : null;
 
@@ -75,14 +77,13 @@ export function ReservationCheckoutPaymentCard({
 
   function handleCreatePayment() {
     setActionMessage(null);
-    const idempotencyKey = crypto.randomUUID();
     createPaymentMutation.mutate(
-      { reservationId: reservation.id, idempotencyKey },
+      { reservationId: reservation.id, idempotencyKey: createIdempotencyKey() },
       {
         onSuccess: (createdPayment) => {
           setCreatedPaymentId(createdPayment.id);
           setActionMessage(
-            "Pagamento mock criado. A confirmação final depende do webhook do backend — o frontend não aprova pagamentos."
+            "Pagamento mock criado. A confirmação final depende do processamento no backend — o frontend não aprova pagamentos."
           );
         },
         onError: async (error) => {
@@ -121,9 +122,9 @@ export function ReservationCheckoutPaymentCard({
       <div>
         <h2 className="text-lg font-semibold">Pagamento mock da reserva</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Pagamento com PIX e mock-provider. A confirmação final depende do processamento/webhook do
-          backend — o frontend não aprova nem simula pagamento. Em desenvolvimento, o status pode
-          permanecer pendente até o backend receber o webhook de teste.
+          Pagamento com PIX e mock-provider. A confirmação final depende do processamento no backend
+          — o frontend não aprova nem simula pagamento. Em desenvolvimento, o status pode permanecer
+          pendente até o backend receber a confirmação de teste.
         </p>
       </div>
 
@@ -136,6 +137,12 @@ export function ReservationCheckoutPaymentCard({
       {isPolling ? (
         <p className="text-muted-foreground text-sm" role="status">
           Atualizando pagamento e reserva a cada poucos segundos…
+        </p>
+      ) : null}
+
+      {paymentQuery.pollTimedOut && payment && isPendingPaymentStatus(payment.status) ? (
+        <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
+          {PAYMENT_POLL_TIMEOUT_MESSAGE}
         </p>
       ) : null}
 

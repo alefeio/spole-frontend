@@ -50,7 +50,9 @@ export function LoginForm() {
     <div className="mx-auto w-full max-w-md space-y-6">
       <header className="space-y-2 text-center">
         <h1 className="text-2xl font-bold tracking-tight">Entrar</h1>
-        <p className="text-muted-foreground text-sm">Acesse sua conta no Spolê</p>
+        <p className="text-muted-foreground text-sm">
+          Volte para seus eventos, reservas e pagamentos em um só lugar.
+        </p>
       </header>
 
       {registered ? (

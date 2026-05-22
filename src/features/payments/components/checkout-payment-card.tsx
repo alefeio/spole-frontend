@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { getApiErrorMessage } from "@/lib/api/error-messages";
+import { createIdempotencyKey } from "@/lib/api/idempotency";
 import { PaymentCard } from "@/features/payments/components/payment-card";
 import { useCreatePaymentForBooking, usePayment } from "@/features/payments/hooks";
+import { PAYMENT_POLL_TIMEOUT_MESSAGE } from "@/features/payments/polling-config";
 import {
   isPendingPaymentStatus,
   isTerminalPaymentStatus
@@ -34,7 +36,7 @@ export function CheckoutPaymentCard({ bookingId }: CheckoutPaymentCardProps) {
   const terminalMessage =
     payment && isTerminalPaymentStatus(payment.status)
       ? payment.status === "PAID"
-        ? "Pagamento confirmado pela API."
+        ? "Pagamento confirmado."
         : `Status atualizado: ${payment.status}.`
       : null;
 
@@ -43,7 +45,7 @@ export function CheckoutPaymentCard({ bookingId }: CheckoutPaymentCardProps) {
   function handleCreatePayment() {
     setActionMessage(null);
     createPaymentMutation.mutate(
-      { bookingId },
+      { bookingId, idempotencyKey: createIdempotencyKey() },
       {
         onSuccess: (createdPayment) => {
           setCreatedPaymentId(createdPayment.id);
@@ -64,8 +66,8 @@ export function CheckoutPaymentCard({ bookingId }: CheckoutPaymentCardProps) {
       <div>
         <h2 className="text-lg font-semibold">Pagamento mock</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Crie um pagamento pendente com PIX e mock-provider. A confirmação final depende do webhook
-          do backend — não há simulação de aprovação neste navegador.
+          Crie um pagamento pendente com PIX e mock-provider. A confirmação final depende do
+          processamento no backend — não há simulação de aprovação neste navegador.
         </p>
       </div>
 
@@ -78,6 +80,12 @@ export function CheckoutPaymentCard({ bookingId }: CheckoutPaymentCardProps) {
       {isPolling ? (
         <p className="text-muted-foreground text-sm" role="status">
           Atualizando status a cada poucos segundos…
+        </p>
+      ) : null}
+
+      {paymentQuery.pollTimedOut && payment && isPendingPaymentStatus(payment.status) ? (
+        <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
+          {PAYMENT_POLL_TIMEOUT_MESSAGE}
         </p>
       ) : null}
 

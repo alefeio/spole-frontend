@@ -1,5 +1,11 @@
+import { createRequestId } from "@/lib/api/idempotency";
 import { getToken, removeToken } from "@/lib/auth/token";
-import { ApiError, isApiFailureEnvelope, type ApiFailureEnvelope } from "@/lib/api/errors";
+import {
+  ApiError,
+  isApiFailureEnvelope,
+  type ApiErrorPayload,
+  type ApiFailureEnvelope
+} from "@/lib/api/errors";
 
 export type ApiSuccessEnvelope<T> = {
   success: true;
@@ -22,6 +28,8 @@ export type ApiClientOptions = {
   token?: string | null;
   signal?: AbortSignal;
 };
+
+const REQUEST_ID_HEADER = "x-request-id";
 
 function getApiBaseUrl(): string {
   const base = process.env.NEXT_PUBLIC_API_URL;
@@ -58,6 +66,51 @@ function handleUnauthorized(usedToken: string | null): void {
   redirectToLogin();
 }
 
+function parseRetryAfterSeconds(header: string | null): number | undefined {
+  if (!header) return undefined;
+  const parsed = Number.parseInt(header.trim(), 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) return undefined;
+  return parsed;
+}
+
+function readResponseMeta(response: Response): { requestId?: string; retryAfter?: number } {
+  const requestId = response.headers.get(REQUEST_ID_HEADER)?.trim() || undefined;
+  const retryAfter =
+    response.status === 429
+      ? parseRetryAfterSeconds(response.headers.get("Retry-After"))
+      : undefined;
+  return { requestId, retryAfter };
+}
+
+function throwApiError(
+  response: Response,
+  payload: ApiErrorPayload,
+  meta?: { requestId?: string; retryAfter?: number }
+): never {
+  const fromHeaders = readResponseMeta(response);
+  throw new ApiError(response.status, payload, {
+    requestId: meta?.requestId ?? fromHeaders.requestId,
+    retryAfter: meta?.retryAfter ?? fromHeaders.retryAfter
+  });
+}
+
+function fallbackErrorCode(status: number): string {
+  if (status === 401) return "UNAUTHORIZED";
+  if (status === 429) return "RATE_LIMIT_EXCEEDED";
+  return "UNKNOWN_ERROR";
+}
+
+/**
+ * X-Request-Id só em mutações (POST/PATCH/DELETE) ou quando há Idempotency-Key.
+ * GET/HEAD — inclusive GET /users/me com Bearer — não enviam o header para evitar
+ * preflight CORS bloqueado quando a API ainda não lista X-Request-Id em Allow-Headers.
+ * A API continua gerando request id na resposta.
+ */
+function shouldAttachRequestId(method: string, idempotencyKey: string | undefined): boolean {
+  if (idempotencyKey) return true;
+  return method !== "GET" && method !== "HEAD";
+}
+
 /**
  * Cliente HTTP centralizado. Único lugar do app autorizado a usar fetch para a API Spolê.
  */
@@ -73,6 +126,9 @@ export async function apiClient<T>(
   const requestHeaders = new Headers(headers);
   if (body !== undefined && !requestHeaders.has("Content-Type")) {
     requestHeaders.set("Content-Type", "application/json");
+  }
+  if (shouldAttachRequestId(method, idempotencyKey) && !requestHeaders.has(REQUEST_ID_HEADER)) {
+    requestHeaders.set(REQUEST_ID_HEADER, createRequestId());
   }
   if (idempotencyKey) {
     requestHeaders.set("Idempotency-Key", idempotencyKey);
@@ -96,21 +152,21 @@ export async function apiClient<T>(
     }
 
     if (isApiFailureEnvelope(json)) {
-      throw new ApiError(response.status, json.error);
+      throwApiError(response, json.error);
     }
 
     const fallback: ApiFailureEnvelope = {
       success: false,
       error: {
-        code: response.status === 401 ? "UNAUTHORIZED" : "UNKNOWN_ERROR",
+        code: fallbackErrorCode(response.status),
         message: response.statusText || "Request failed"
       }
     };
-    throw new ApiError(response.status, fallback.error);
+    throwApiError(response, fallback.error);
   }
 
   if (!json || typeof json !== "object" || (json as ApiSuccessEnvelope<T>).success !== true) {
-    throw new ApiError(500, {
+    throwApiError(response, {
       code: "INVALID_RESPONSE",
       message: "API response envelope is invalid"
     });

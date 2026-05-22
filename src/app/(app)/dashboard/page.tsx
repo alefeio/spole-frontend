@@ -28,7 +28,8 @@ export default function DashboardPage() {
       <header className="space-y-1">
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Dashboard</h1>
         <p className="text-muted-foreground">
-          Olá{user ? `, ${user.name}` : ""}! Esta é sua área logada no Spolê.
+          Olá{user ? `, ${user.name}` : ""}! Acompanhe inscrições, reservas de quadra e pagamentos
+          em um só painel.
         </p>
       </header>
 
