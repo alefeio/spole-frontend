@@ -1,4 +1,7 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { PaymentStatusBadge } from "@/features/payments/components/payment-status-badge";
+import { isPendingPaymentStatus } from "@/features/payments/payment-status";
 import type { Payment } from "@/features/payments/types";
 
 function formatMoney(value: number) {
@@ -21,8 +24,10 @@ function formatDate(value?: string | null) {
 }
 
 export function PaymentCard({ payment }: { payment: Payment }) {
+  const canContinueCheckout = isPendingPaymentStatus(payment.status) && Boolean(payment.bookingId);
+
   return (
-    <article className="space-y-3 rounded-xl border p-4">
+    <article className="flex flex-col gap-4 rounded-xl border p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="text-muted-foreground text-xs">Pagamento</p>
@@ -48,17 +53,30 @@ export function PaymentCard({ payment }: { payment: Payment }) {
           <dt className="text-muted-foreground">Criado em</dt>
           <dd className="font-medium">{formatDate(payment.createdAt)}</dd>
         </div>
-        <div>
-          <dt className="text-muted-foreground">Pago em</dt>
-          <dd className="font-medium">{formatDate(payment.paidAt)}</dd>
-        </div>
+        {payment.bookingId ? (
+          <div className="sm:col-span-2">
+            <dt className="text-muted-foreground">Reserva (booking)</dt>
+            <dd className="font-mono text-xs break-all">{payment.bookingId}</dd>
+          </div>
+        ) : null}
       </dl>
 
-      {payment.status === "PENDING" ? (
+      {isPendingPaymentStatus(payment.status) ? (
         <p className="bg-muted rounded-lg border p-3 text-sm">
-          Pagamento pendente. A aprovacao do mock depende do processamento do backend/webhook.
+          Pagamento pendente. A confirmação depende do processamento mock no backend.
         </p>
       ) : null}
+
+      <div className="grid gap-2 sm:flex sm:flex-wrap">
+        <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+          <Link href={`/account/payments/${payment.id}`}>Ver detalhes</Link>
+        </Button>
+        {canContinueCheckout ? (
+          <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+            <Link href={`/checkout/${payment.bookingId}`}>Continuar pagamento</Link>
+          </Button>
+        ) : null}
+      </div>
     </article>
   );
 }

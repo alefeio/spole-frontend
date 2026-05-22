@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/api/errors";
+import { getApiErrorMessage, isPrivateEventForbidden } from "@/lib/api/error-messages";
 import { EventDateLocation } from "@/features/events/components/event-date-location";
 import { EventDetailsError } from "@/features/events/components/event-details-error";
 import { EventDetailsSkeleton } from "@/features/events/components/event-details-skeleton";
@@ -10,6 +11,7 @@ import { EventInfoCard } from "@/features/events/components/event-info-card";
 import { EventNotFoundState } from "@/features/events/components/event-not-found-state";
 import { EventParticipationCta } from "@/features/events/components/event-participation-cta";
 import { EventPriceBadge } from "@/features/events/components/event-price-badge";
+import { EventPrivateCodeGate } from "@/features/events/components/event-private-code-gate";
 import { useEvent } from "@/features/events/hooks";
 
 type EventDetailsProps = {
@@ -29,7 +31,29 @@ export function EventDetails({ eventId, privateCode }: EventDetailsProps) {
       return <EventNotFoundState />;
     }
 
-    return <EventDetailsError error={eventQuery.error} onRetry={() => void eventQuery.refetch()} />;
+    if (isPrivateEventForbidden(eventQuery.error)) {
+      return (
+        <div className="space-y-6">
+          <Button asChild variant="ghost" className="min-h-11 px-0 sm:min-h-9">
+            <Link href="/events">← Voltar ao catálogo</Link>
+          </Button>
+          <EventPrivateCodeGate
+            eventId={eventId}
+            invalidCodeMessage={
+              privateCode ? "Código inválido ou sem permissão. Verifique com o organizador." : null
+            }
+          />
+        </div>
+      );
+    }
+
+    return (
+      <EventDetailsError
+        error={eventQuery.error}
+        onRetry={() => void eventQuery.refetch()}
+        fallbackMessage={getApiErrorMessage(eventQuery.error)}
+      />
+    );
   }
 
   const event = eventQuery.data;
@@ -55,7 +79,7 @@ export function EventDetails({ eventId, privateCode }: EventDetailsProps) {
           <h1 className="text-2xl font-bold tracking-tight break-words sm:text-4xl">
             {event.title}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground break-words">
             {event.description || "Este evento ainda não possui descrição detalhada."}
           </p>
         </div>
@@ -67,7 +91,7 @@ export function EventDetails({ eventId, privateCode }: EventDetailsProps) {
 
           <section className="rounded-xl border p-4">
             <h2 className="font-semibold">Sobre o evento</h2>
-            <p className="text-muted-foreground mt-2 text-sm leading-6">
+            <p className="text-muted-foreground mt-2 text-sm leading-6 break-words">
               {event.description || "Mais informações serão adicionadas pelo organizador."}
             </p>
           </section>

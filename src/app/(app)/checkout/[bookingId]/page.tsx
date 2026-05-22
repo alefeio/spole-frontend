@@ -18,6 +18,8 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
   const { bookingId } = use(params);
   const bookingsQuery = useMyBookings({ page: 1, limit: 100 });
   const booking = bookingsQuery.data?.data.find((item) => item.id === bookingId);
+  const totalLoaded = bookingsQuery.data?.meta.total ?? 0;
+  const mayBeBeyondFirstPage = totalLoaded > 100;
 
   if (bookingsQuery.isLoading) {
     return (
@@ -33,7 +35,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
       <div className="space-y-6">
         <CheckoutHeader />
         <ErrorState
-          title="Nao foi possivel carregar a reserva"
+          title="Não foi possível carregar a reserva"
           error={bookingsQuery.error}
           onRetry={() => void bookingsQuery.refetch()}
         />
@@ -45,14 +47,24 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
     return (
       <div className="space-y-6">
         <CheckoutHeader />
-        <div className="rounded-xl border p-6 text-center">
-          <h2 className="text-lg font-semibold">Reserva nao encontrada</h2>
-          <p className="text-muted-foreground mt-1 text-sm">
-            A API nao retornou esta reserva na lista do usuario autenticado.
+        <div className="space-y-4 rounded-xl border p-6 text-center">
+          <h2 className="text-lg font-semibold">Reserva não encontrada nesta página</h2>
+          <p className="text-muted-foreground text-sm">
+            O checkout localiza a reserva em{" "}
+            <code className="bg-muted rounded px-1">GET /users/me/bookings</code> (até 100 itens).
+            Ela pode ter expirado, sido cancelada ou estar em outra página da lista.
+            {mayBeBeyondFirstPage
+              ? " Você tem mais de 100 reservas — abra a lista completa em Minhas inscrições."
+              : null}
           </p>
-          <Button asChild className="mt-4 min-h-11 sm:min-h-9">
-            <Link href="/account/bookings">Voltar para minhas inscricoes</Link>
-          </Button>
+          <div className="flex flex-col justify-center gap-2 sm:flex-row">
+            <Button asChild className="min-h-11 sm:min-h-9">
+              <Link href="/account/bookings">Ir para minhas inscrições</Link>
+            </Button>
+            <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
+              <Link href="/events">Explorar eventos</Link>
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -68,12 +80,15 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
         {canCreatePayment ? (
           <CheckoutPaymentCard bookingId={booking.id} />
         ) : (
-          <section className="rounded-xl border p-4">
-            <h2 className="font-semibold">Pagamento indisponivel</h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Esta reserva esta com status {booking.status}. O frontend nao altera status
-              manualmente.
+          <section className="space-y-3 rounded-xl border p-4">
+            <h2 className="font-semibold">Pagamento indisponível</h2>
+            <p className="text-muted-foreground text-sm">
+              Esta reserva está com status <strong>{booking.status}</strong>. Só reservas{" "}
+              <strong>RESERVED</strong> permitem criar pagamento mock.
             </p>
+            <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+              <Link href="/account/bookings">Ver minhas inscrições</Link>
+            </Button>
           </section>
         )}
       </div>
@@ -85,12 +100,13 @@ function CheckoutHeader() {
   return (
     <header className="space-y-3">
       <Button asChild variant="ghost" className="min-h-11 px-0 sm:min-h-9">
-        <Link href="/account/bookings">← Voltar para minhas inscricoes</Link>
+        <Link href="/account/bookings">← Voltar para minhas inscrições</Link>
       </Button>
       <div>
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Checkout mock</h1>
         <p className="text-muted-foreground text-sm">
-          Crie um pagamento pendente para sua reserva de evento pago usando o fluxo mock do backend.
+          Crie e acompanhe um pagamento pendente para sua reserva de evento pago. Status vem da API;
+          confirmação depende do webhook no backend.
         </p>
       </div>
     </header>

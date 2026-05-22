@@ -29,8 +29,24 @@ const CODE_MESSAGES: Record<string, string> = {
   REDIS_UNAVAILABLE: "Não foi possível criar a reserva temporária. Tente novamente em instantes.",
   UNKNOWN_ERROR: "Não foi possível concluir a operação.",
   INVALID_RESPONSE: "Resposta inválida do servidor.",
-  INTERNAL_SERVER_ERROR: "Erro interno do servidor. Tente novamente mais tarde."
+  INTERNAL_SERVER_ERROR: "Erro interno do servidor. Tente novamente mais tarde.",
+  PAYMENT_CANNOT_COMPLETE: "Não foi possível concluir este pagamento."
 };
+
+const NETWORK_ERROR_MESSAGE =
+  "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente.";
+
+export function isPrivateEventForbidden(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 403 && error.code === "FORBIDDEN";
+}
+
+export function isNotFoundError(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 404;
+}
+
+export function isUnauthorizedError(error: unknown): boolean {
+  return error instanceof ApiError && (error.status === 401 || error.code === "UNAUTHORIZED");
+}
 
 function formatValidationDetails(details: unknown[] | undefined): string | null {
   if (!details?.length) return null;
@@ -50,6 +66,12 @@ export function getApiErrorMessage(
     const validationMessage = formatValidationDetails(error.details);
     if (validationMessage) return validationMessage;
     return CODE_MESSAGES[error.code] ?? error.message ?? fallback;
+  }
+  if (error instanceof TypeError && error.message === "Failed to fetch") {
+    return NETWORK_ERROR_MESSAGE;
+  }
+  if (error instanceof Error && error.message === "Failed to fetch") {
+    return NETWORK_ERROR_MESSAGE;
   }
   if (error instanceof Error && error.message) return error.message;
   return fallback;

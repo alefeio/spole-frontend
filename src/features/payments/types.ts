@@ -2,6 +2,7 @@ export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "CANCEL
 
 export type Payment = {
   id: string;
+  userId?: string;
   bookingId?: string | null;
   reservationId?: string | null;
   reservationOccurrenceId?: string | null;

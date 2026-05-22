@@ -72,8 +72,8 @@ export function EventParticipationCta({ event, privateCode }: EventParticipation
           {user ? (
             <>
               {event.type === "FREE"
-                ? "Inscreva-se gratuitamente usando o fluxo real da API."
-                : "Crie uma reserva temporária para este evento pago. Checkout fica para uma próxima etapa."}
+                ? "Inscreva-se gratuitamente. A confirmação vem da API após o envio."
+                : "Reserve uma vaga temporária e siga para o checkout mock para criar o pagamento pendente."}
             </>
           ) : (
             "Entre ou crie sua conta para participar deste evento."
