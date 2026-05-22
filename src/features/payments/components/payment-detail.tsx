@@ -30,13 +30,21 @@ type PaymentDetailProps = {
 };
 
 export function PaymentDetail({ payment, isPolling }: PaymentDetailProps) {
-  const showCheckoutLink = isPendingPaymentStatus(payment.status) && Boolean(payment.bookingId);
+  const showBookingCheckoutLink =
+    isPendingPaymentStatus(payment.status) && Boolean(payment.bookingId);
+  const showReservationCheckoutLink =
+    isPendingPaymentStatus(payment.status) && Boolean(payment.reservationId);
+  const contextLabel = payment.reservationId
+    ? "Pagamento — reserva de arena"
+    : payment.bookingId
+      ? "Pagamento — inscrição paga"
+      : "Pagamento";
 
   return (
     <article className="space-y-6 rounded-xl border p-4 sm:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 space-y-1">
-          <p className="text-muted-foreground text-sm">Pagamento</p>
+          <p className="text-muted-foreground text-sm">{contextLabel}</p>
           <p className="font-mono text-xs break-all sm:text-sm">{payment.id}</p>
         </div>
         <PaymentStatusBadge status={payment.status} />
@@ -83,6 +91,12 @@ export function PaymentDetail({ payment, isPolling }: PaymentDetailProps) {
             <dd className="font-mono text-xs break-all">{payment.providerReference}</dd>
           </div>
         ) : null}
+        {payment.reservationId ? (
+          <div className="sm:col-span-2">
+            <dt className="text-muted-foreground">Reserva de arena</dt>
+            <dd className="font-mono text-xs break-all">{payment.reservationId}</dd>
+          </div>
+        ) : null}
         {payment.bookingId ? (
           <div className="sm:col-span-2">
             <dt className="text-muted-foreground">Reserva (booking)</dt>
@@ -106,7 +120,21 @@ export function PaymentDetail({ payment, isPolling }: PaymentDetailProps) {
       </dl>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        {showCheckoutLink ? (
+        {showReservationCheckoutLink && payment.reservationId ? (
+          <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+            <Link href={`/account/reservations/${payment.reservationId}/payment`}>
+              Continuar pagamento da reserva
+            </Link>
+          </Button>
+        ) : null}
+        {payment.reservationId ? (
+          <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+            <Link href={`/account/reservations/${payment.reservationId}`}>
+              Ver reserva de arena
+            </Link>
+          </Button>
+        ) : null}
+        {showBookingCheckoutLink && payment.bookingId ? (
           <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
             <Link href={`/checkout/${payment.bookingId}`}>Continuar no checkout</Link>
           </Button>
@@ -114,9 +142,11 @@ export function PaymentDetail({ payment, isPolling }: PaymentDetailProps) {
         <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
           <Link href="/account/payments">Meus pagamentos</Link>
         </Button>
-        <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
-          <Link href="/account/bookings">Minhas inscrições</Link>
-        </Button>
+        {payment.bookingId ? (
+          <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+            <Link href="/account/bookings">Minhas inscrições</Link>
+          </Button>
+        ) : null}
       </div>
     </article>
   );

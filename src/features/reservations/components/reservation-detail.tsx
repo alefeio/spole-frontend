@@ -7,6 +7,7 @@ import { ReservationCancelDialog } from "@/features/reservations/components/rese
 import { ReservationStatusBadge } from "@/features/reservations/components/reservation-status-badge";
 import { useCancelReservation } from "@/features/reservations/hooks";
 import type { ReservationDetail } from "@/features/reservations/types";
+import { canShowPayReservationCta } from "@/features/reservations/reservation-payability";
 import { getApiErrorMessage } from "@/lib/api/error-messages";
 
 function formatMoney(value: number) {
@@ -40,6 +41,7 @@ export function ReservationDetailView({ reservation }: ReservationDetailViewProp
   const [message, setMessage] = useState<string | null>(null);
   const cancelMutation = useCancelReservation();
   const canCancel = reservation.status === "PENDING" || reservation.status === "CONFIRMED";
+  const showPayCta = canShowPayReservationCta(reservation);
 
   function handleCancel() {
     setMessage(null);
@@ -82,10 +84,24 @@ export function ReservationDetailView({ reservation }: ReservationDetailViewProp
           </div>
         </dl>
 
-        {reservation.status === "PENDING" ? (
+        {reservation.status === "CONFIRMED" ? (
+          <p className="border-primary/30 bg-primary/5 rounded-lg border p-3 text-sm">
+            Reserva confirmada. O status exibido é o retornado pela API.
+          </p>
+        ) : null}
+
+        {reservation.status === "PENDING" && !showPayCta ? (
           <p className="bg-muted/40 rounded-lg border p-3 text-sm">
-            Pagamento de reserva será tratado em etapa futura. O status exibido é o retornado pela
-            API.
+            {(reservation.financial?.requiredPaymentAmount ?? 0) <= 0
+              ? "Esta reserva não exige pagamento adicional."
+              : "Esta reserva não está aberta para pagamento no momento."}
+          </p>
+        ) : null}
+
+        {reservation.status === "PENDING" && showPayCta && reservation.financial?.expiresAt ? (
+          <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm">
+            <span className="font-medium">Prazo para pagamento: </span>
+            {formatDateTime(reservation.financial.expiresAt)}
           </p>
         ) : null}
 
@@ -135,6 +151,12 @@ export function ReservationDetailView({ reservation }: ReservationDetailViewProp
             {formatDateTime(reservation.nextOccurrence.dueAt)}
           </p>
         </section>
+      ) : null}
+
+      {showPayCta ? (
+        <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+          <Link href={`/account/reservations/${reservation.id}/payment`}>Pagar reserva</Link>
+        </Button>
       ) : null}
 
       {message ? (

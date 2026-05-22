@@ -2,11 +2,21 @@
 
 import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createPaymentForBooking, getMyPayments, getPaymentById } from "@/features/payments/api";
+import {
+  createPaymentForBooking,
+  createPaymentForReservation,
+  getMyPayments,
+  getPaymentById
+} from "@/features/payments/api";
 import { bookingsKeys } from "@/features/bookings/hooks";
 import { eventsKeys } from "@/features/events/hooks";
+import { reservationsKeys } from "@/features/reservations/hooks";
 import { isPendingPaymentStatus } from "@/features/payments/payment-status";
-import type { CreatePaymentForBookingParams, PaymentListParams } from "@/features/payments/types";
+import type {
+  CreatePaymentForBookingParams,
+  CreatePaymentForReservationParams,
+  PaymentListParams
+} from "@/features/payments/types";
 
 const PAYMENT_POLL_INTERVAL_MS = 4000;
 const PAYMENT_POLL_MAX_MS = 5 * 60 * 1000;
@@ -71,4 +81,53 @@ export function useCreatePaymentForBooking() {
       }
     }
   });
+}
+
+export function useCreatePaymentForReservation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: CreatePaymentForReservationParams) => createPaymentForReservation(params),
+    onSuccess: (payment) => {
+      void queryClient.invalidateQueries({ queryKey: paymentsKeys.all });
+      void queryClient.invalidateQueries({ queryKey: reservationsKeys.all });
+      if (payment.id) {
+        queryClient.setQueryData(paymentsKeys.detail(payment.id), payment);
+      }
+    }
+  });
+}
+
+type UseReservationPaymentSyncOptions = {
+  reservationId: string;
+  paymentId: string | null;
+  enabled?: boolean;
+};
+
+/** Revalida reserva enquanto pagamento estiver PENDING (checkout de arena). */
+export function useReservationPaymentSync({
+  reservationId,
+  paymentId,
+  enabled = true
+}: UseReservationPaymentSyncOptions) {
+  const queryClient = useQueryClient();
+  const paymentQuery = usePayment(paymentId ?? "", {
+    pollWhilePending: Boolean(paymentId) && enabled
+  });
+
+  useEffect(() => {
+    if (!enabled || !paymentId) return;
+    const status = paymentQuery.data?.status;
+    if (!status) return;
+
+    if (isPendingPaymentStatus(status)) {
+      void queryClient.invalidateQueries({ queryKey: reservationsKeys.detail(reservationId) });
+      return;
+    }
+
+    void queryClient.invalidateQueries({ queryKey: reservationsKeys.all });
+    void queryClient.invalidateQueries({ queryKey: paymentsKeys.all });
+  }, [enabled, paymentId, paymentQuery.data?.status, queryClient, reservationId]);
+
+  return paymentQuery;
 }

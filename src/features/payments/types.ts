@@ -43,3 +43,14 @@ export type CreatePaymentForBookingParams = {
   bookingId: string;
   payload?: CreatePaymentForBookingPayload;
 };
+
+export type CreatePaymentForReservationPayload = {
+  method: "PIX";
+  provider: "mock-provider";
+};
+
+export type CreatePaymentForReservationParams = {
+  reservationId: string;
+  payload?: CreatePaymentForReservationPayload;
+  idempotencyKey?: string;
+};

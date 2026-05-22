@@ -24,13 +24,21 @@ function formatDate(value?: string | null) {
 }
 
 export function PaymentCard({ payment }: { payment: Payment }) {
-  const canContinueCheckout = isPendingPaymentStatus(payment.status) && Boolean(payment.bookingId);
+  const canContinueBookingCheckout =
+    isPendingPaymentStatus(payment.status) && Boolean(payment.bookingId);
+  const canContinueReservationCheckout =
+    isPendingPaymentStatus(payment.status) && Boolean(payment.reservationId);
+  const contextLabel = payment.reservationId
+    ? "Reserva de arena"
+    : payment.bookingId
+      ? "Inscrição paga (evento)"
+      : "Pagamento";
 
   return (
     <article className="flex flex-col gap-4 rounded-xl border p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
-          <p className="text-muted-foreground text-xs">Pagamento</p>
+          <p className="text-muted-foreground text-xs">{contextLabel}</p>
           <p className="font-mono text-xs break-all">{payment.id}</p>
         </div>
         <PaymentStatusBadge status={payment.status} />
@@ -53,6 +61,12 @@ export function PaymentCard({ payment }: { payment: Payment }) {
           <dt className="text-muted-foreground">Criado em</dt>
           <dd className="font-medium">{formatDate(payment.createdAt)}</dd>
         </div>
+        {payment.reservationId ? (
+          <div className="sm:col-span-2">
+            <dt className="text-muted-foreground">Reserva de arena</dt>
+            <dd className="font-mono text-xs break-all">{payment.reservationId}</dd>
+          </div>
+        ) : null}
         {payment.bookingId ? (
           <div className="sm:col-span-2">
             <dt className="text-muted-foreground">Reserva (booking)</dt>
@@ -71,9 +85,21 @@ export function PaymentCard({ payment }: { payment: Payment }) {
         <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
           <Link href={`/account/payments/${payment.id}`}>Ver detalhes</Link>
         </Button>
-        {canContinueCheckout ? (
+        {canContinueReservationCheckout && payment.reservationId ? (
+          <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+            <Link href={`/account/reservations/${payment.reservationId}/payment`}>
+              Continuar pagamento
+            </Link>
+          </Button>
+        ) : null}
+        {canContinueBookingCheckout && payment.bookingId ? (
           <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
             <Link href={`/checkout/${payment.bookingId}`}>Continuar pagamento</Link>
+          </Button>
+        ) : null}
+        {payment.reservationId ? (
+          <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+            <Link href={`/account/reservations/${payment.reservationId}`}>Ver reserva</Link>
           </Button>
         ) : null}
       </div>

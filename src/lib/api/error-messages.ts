@@ -21,7 +21,8 @@ const CODE_MESSAGES: Record<string, string> = {
   BOOKING_EXPIRED: "Esta reserva expirou.",
   BOOKING_NOT_CANCELLABLE: "Esta reserva não pode ser cancelada.",
   PAYMENT_NOT_FOUND: "Pagamento não encontrado.",
-  PAYMENT_ALREADY_EXISTS: "Já existe um pagamento para esta reserva.",
+  PAYMENT_ALREADY_EXISTS:
+    "Já existe um pagamento para esta reserva de arena. Consulte Meus pagamentos ou continue pelo link abaixo.",
   PAYMENT_CREATE_FAILED: "Não foi possível criar o pagamento.",
   INVALID_PAYMENT_METHOD: "Método de pagamento não suportado.",
   INVALID_PAYMENT_PROVIDER: "Provedor de pagamento não suportado.",
@@ -38,6 +39,13 @@ const CODE_MESSAGES: Record<string, string> = {
   RESERVATION_CONFLICT: "Você já possui uma reserva ativa para este horário ou espaço.",
   INVALID_SLOT_PRICE: "Não foi possível reservar: preço do horário inválido.",
   RESERVATION_NOT_FOUND: "Reserva não encontrada.",
+  RESERVATION_NOT_PAYABLE: "Esta reserva de arena não está aberta para pagamento.",
+  RESERVATION_EXPIRED: "Esta reserva de arena expirou. Faça uma nova reserva de horário.",
+  RESERVATION_NO_PAYMENT_REQUIRED: "Esta reserva não exige pagamento.",
+  PAYMENT_STATE_CONFLICT: "O pagamento não pode ser confirmado no estado atual.",
+  IDEMPOTENCY_KEY_REUSED:
+    "Esta solicitação de pagamento já foi enviada. Aguarde ou tente novamente.",
+  IDEMPOTENCY_IN_PROGRESS: "Pagamento em processamento. Aguarde alguns instantes.",
   RESERVATION_ALREADY_CONSUMED: "Esta reserva já foi utilizada e não pode ser cancelada.",
   ARENA_NOT_FOUND: "Arena não encontrada.",
   SPACE_NOT_FOUND: "Espaço não encontrado."
@@ -56,6 +64,10 @@ export function isNotFoundError(error: unknown): boolean {
 
 export function isUnauthorizedError(error: unknown): boolean {
   return error instanceof ApiError && (error.status === 401 || error.code === "UNAUTHORIZED");
+}
+
+export function isPaymentAlreadyExistsError(error: unknown): boolean {
+  return error instanceof ApiError && error.code === "PAYMENT_ALREADY_EXISTS";
 }
 
 function formatValidationDetails(details: unknown[] | undefined): string | null {

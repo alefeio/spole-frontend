@@ -12,6 +12,8 @@ export type ApiClientOptions = {
   body?: unknown;
   query?: Record<string, string | number | boolean | undefined | null>;
   headers?: HeadersInit;
+  /** Enviado como header Idempotency-Key em POST/PATCH quando informado. */
+  idempotencyKey?: string;
   /**
    * undefined — anexa token do storage quando existir
    * null — nunca anexa (login/register)
@@ -63,7 +65,7 @@ export async function apiClient<T>(
   path: string,
   options: ApiClientOptions = {}
 ): Promise<ApiSuccessEnvelope<T>> {
-  const { method = "GET", body, query, headers, token, signal } = options;
+  const { method = "GET", body, query, headers, token, signal, idempotencyKey } = options;
 
   const resolvedToken = token === undefined ? getToken() : token;
   const usedToken = resolvedToken ?? null;
@@ -71,6 +73,9 @@ export async function apiClient<T>(
   const requestHeaders = new Headers(headers);
   if (body !== undefined && !requestHeaders.has("Content-Type")) {
     requestHeaders.set("Content-Type", "application/json");
+  }
+  if (idempotencyKey) {
+    requestHeaders.set("Idempotency-Key", idempotencyKey);
   }
   if (usedToken) {
     requestHeaders.set("Authorization", `Bearer ${usedToken}`);
