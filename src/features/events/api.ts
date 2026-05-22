@@ -1,14 +1,20 @@
 import { apiClient } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
 import type {
+  CancelEventResponse,
+  CreateEventPayload,
+  CreateEventResponse,
   Event,
   EventCategory,
   EventDetails,
   EventDetailsParams,
   EventListParams,
   EventListResponse,
+  EventParticipant,
   FreeEventParticipation,
-  JoinFreeEventParams
+  JoinFreeEventParams,
+  UpdateEventPayload,
+  UpdateEventResponse
 } from "@/features/events/types";
 
 export async function listEvents(params: EventListParams = {}): Promise<EventListResponse> {
@@ -66,5 +72,39 @@ export async function joinFreeEvent({
     }
   });
 
+  return data;
+}
+
+export async function createEvent(payload: CreateEventPayload): Promise<CreateEventResponse> {
+  const { data } = await apiClient<CreateEventResponse>(endpoints.events.list, {
+    method: "POST",
+    body: payload
+  });
+
+  return data;
+}
+
+export async function updateEvent(
+  eventId: string,
+  payload: UpdateEventPayload
+): Promise<UpdateEventResponse> {
+  const { data } = await apiClient<UpdateEventResponse>(endpoints.events.byId(eventId), {
+    method: "PATCH",
+    body: payload
+  });
+
+  return data;
+}
+
+export async function cancelEvent(eventId: string): Promise<CancelEventResponse> {
+  const { data } = await apiClient<CancelEventResponse>(endpoints.events.byId(eventId), {
+    method: "DELETE"
+  });
+
+  return data;
+}
+
+export async function listEventParticipants(eventId: string): Promise<EventParticipant[]> {
+  const { data } = await apiClient<EventParticipant[]>(endpoints.events.participants(eventId));
   return data;
 }

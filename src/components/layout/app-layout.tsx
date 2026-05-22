@@ -9,6 +9,7 @@ type AppLayoutProps = {
 const appNavItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/events", label: "Eventos" },
+  { href: "/account/events", label: "Meus eventos" },
   { href: "/account", label: "Conta" },
   { href: "/account/reservations", label: "Reservas" },
   { href: "/account/bookings", label: "Inscrições" },

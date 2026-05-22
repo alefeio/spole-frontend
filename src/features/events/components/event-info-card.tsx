@@ -17,8 +17,7 @@ const VISIBILITY_LABELS: Record<EventDetails["visibility"], string> = {
 const STATUS_LABELS: Record<EventDetails["status"], string> = {
   DRAFT: "Rascunho",
   PUBLISHED: "Publicado",
-  CANCELLED: "Cancelado",
-  FINISHED: "Finalizado"
+  CANCELLED: "Cancelado"
 };
 
 const SOURCE_LABELS: Record<EventDetails["sourceType"], string> = {

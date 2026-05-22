@@ -50,6 +50,27 @@ export default function DashboardPage() {
         </dl>
       ) : null}
 
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <DashboardCard
+          title="Meus eventos"
+          value={0}
+          href="/account/events"
+          hint="Criar e gerenciar"
+        />
+        <DashboardCard
+          title="Criar evento"
+          value={0}
+          href="/account/events/new"
+          hint="Local livre"
+        />
+        <DashboardCard
+          title="Evento na reserva"
+          value={0}
+          href="/account/reservations"
+          hint="Reserva confirmada"
+        />
+      </section>
+
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <DashboardCard
           title="Reservas de arena"
@@ -79,6 +100,12 @@ export default function DashboardPage() {
       </section>
 
       <div className="grid gap-3 sm:flex sm:flex-wrap">
+        <Button asChild className="min-h-11 sm:min-h-9">
+          <Link href="/account/events/new">Criar evento</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
+          <Link href="/account/events">Meus eventos</Link>
+        </Button>
         <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
           <Link href="/account">Minha conta</Link>
         </Button>
@@ -101,11 +128,22 @@ export default function DashboardPage() {
   );
 }
 
-function DashboardCard({ title, value, href }: { title: string; value: number; href: string }) {
+function DashboardCard({
+  title,
+  value,
+  href,
+  hint
+}: {
+  title: string;
+  value: number;
+  href: string;
+  hint?: string;
+}) {
   return (
     <Link href={href} className="hover:bg-muted/40 rounded-xl border p-4 transition-colors">
       <p className="text-muted-foreground text-sm">{title}</p>
       <p className="mt-2 text-3xl font-bold">{value}</p>
+      {hint ? <p className="text-muted-foreground mt-1 text-xs">{hint}</p> : null}
     </Link>
   );
 }

@@ -159,6 +159,14 @@ export function ReservationDetailView({ reservation }: ReservationDetailViewProp
         </Button>
       ) : null}
 
+      {reservation.status === "CONFIRMED" ? (
+        <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+          <Link href={`/account/reservations/${reservation.id}/create-event`}>
+            Criar evento nesta reserva
+          </Link>
+        </Button>
+      ) : null}
+
       {message ? (
         <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
           {message}

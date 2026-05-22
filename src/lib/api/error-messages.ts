@@ -48,7 +48,18 @@ const CODE_MESSAGES: Record<string, string> = {
   IDEMPOTENCY_IN_PROGRESS: "Essa ação já está em processamento. Aguarde alguns instantes.",
   RESERVATION_ALREADY_CONSUMED: "Esta reserva já foi utilizada e não pode ser cancelada.",
   ARENA_NOT_FOUND: "Arena não encontrada.",
-  SPACE_NOT_FOUND: "Espaço não encontrado."
+  SPACE_NOT_FOUND: "Espaço não encontrado.",
+  INVALID_CATEGORY: "Categoria inválida ou não encontrada.",
+  INACTIVE_CATEGORY: "Esta categoria não está ativa.",
+  INVALID_PRICE: "Preço inválido para o tipo de evento.",
+  INVALID_DATE_RANGE: "A data de término deve ser posterior ao início.",
+  INVALID_CAPACITY: "Capacidade deve ser maior que zero.",
+  RESERVATION_INVALID_STATE: "Esta reserva precisa estar confirmada para gerar um evento.",
+  SLOT_INVALID_STATE: "O horário da reserva não está disponível para criar evento.",
+  ARENA_ADDRESS_MISSING: "A arena não possui endereço completo para vincular ao evento.",
+  EVENT_CREATE_FAILED: "Não foi possível criar o evento. Tente novamente.",
+  EVENT_CANCELLED: "Este evento está cancelado e não pode ser editado.",
+  INVALID_STATUS: "Status de evento inválido para esta operação."
 };
 
 const NETWORK_ERROR_MESSAGE =

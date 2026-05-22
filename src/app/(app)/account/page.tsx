@@ -71,7 +71,13 @@ export default function AccountPage() {
         </dl>
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <SummaryCard
+          title="Eventos"
+          value={0}
+          description="Criar e gerenciar eventos"
+          href="/account/events"
+        />
         <SummaryCard
           title="Reservas de arena"
           value={reservationsQuery.data?.length ?? 0}
@@ -100,6 +106,12 @@ export default function AccountPage() {
 
       <section className="grid gap-3 sm:flex sm:flex-wrap">
         <Button asChild className="min-h-11 sm:min-h-9">
+          <Link href="/account/events">Meus eventos</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
+          <Link href="/account/events/new">Criar evento</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
           <Link href="/account/reservations">Minhas reservas</Link>
         </Button>
         <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
