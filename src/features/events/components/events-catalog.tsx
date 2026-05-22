@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { EventEmptyState } from "@/features/events/components/event-empty-state";
 import { EventErrorState } from "@/features/events/components/event-error-state";
@@ -21,12 +22,15 @@ export function EventsCatalog() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const params: EventListParams = {
-    q: searchParams.get("q") || undefined,
-    category: searchParams.get("category") || undefined,
-    page: parsePositiveInt(searchParams.get("page"), 1),
-    limit: parsePositiveInt(searchParams.get("limit"), DEFAULT_LIMIT)
-  };
+  const params: EventListParams = useMemo(
+    () => ({
+      q: searchParams.get("q") || undefined,
+      category: searchParams.get("category") || undefined,
+      page: parsePositiveInt(searchParams.get("page"), 1),
+      limit: parsePositiveInt(searchParams.get("limit"), DEFAULT_LIMIT)
+    }),
+    [searchParams]
+  );
 
   const eventsQuery = useEvents(params);
   const categoriesQuery = useEventCategories();
@@ -86,7 +90,9 @@ export function EventsCatalog() {
         onClear={handleClear}
       />
 
-      {eventsQuery.isLoading ? <EventListSkeleton /> : null}
+      {eventsQuery.isLoading || (eventsQuery.isPending && eventsQuery.isPaused) ? (
+        <EventListSkeleton />
+      ) : null}
 
       {eventsQuery.isError ? (
         <EventErrorState error={eventsQuery.error} onRetry={() => void eventsQuery.refetch()} />
