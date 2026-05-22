@@ -1,4 +1,6 @@
 import type { Booking } from "@/features/bookings/types";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 type BookingHoldConfirmationProps = {
   booking: Booking;
@@ -23,6 +25,9 @@ export function BookingHoldConfirmation({ booking }: BookingHoldConfirmationProp
         Status: <span className="font-medium">{booking.status}</span>. A reserva expira em{" "}
         {formatExpiration(booking.expiresAt)}. O pagamento mock será tratado em uma próxima etapa.
       </p>
+      <Button asChild className="mt-3 min-h-11 w-full sm:min-h-9">
+        <Link href={`/checkout/${booking.id}`}>Continuar pagamento</Link>
+      </Button>
     </div>
   );
 }

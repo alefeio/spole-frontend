@@ -8,7 +8,7 @@ function formatMoney(value: number) {
   }).format(value);
 }
 
-function formatDate(value: string | null) {
+function formatDate(value?: string | null) {
   if (!value) return "Não informado";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Não informado";
@@ -53,6 +53,12 @@ export function PaymentCard({ payment }: { payment: Payment }) {
           <dd className="font-medium">{formatDate(payment.paidAt)}</dd>
         </div>
       </dl>
+
+      {payment.status === "PENDING" ? (
+        <p className="bg-muted rounded-lg border p-3 text-sm">
+          Pagamento pendente. A aprovacao do mock depende do processamento do backend/webhook.
+        </p>
+      ) : null}
     </article>
   );
 }

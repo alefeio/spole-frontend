@@ -84,14 +84,19 @@ export function BookingCard({ booking }: BookingCardProps) {
           onCancel={() => setIsConfirming(false)}
         />
       ) : canCancel ? (
-        <Button
-          type="button"
-          variant="outline"
-          className="min-h-11 w-full sm:min-h-9 sm:w-auto"
-          onClick={() => setIsConfirming(true)}
-        >
-          Cancelar reserva
-        </Button>
+        <div className="grid gap-2 sm:flex">
+          <Button asChild className="min-h-11 sm:min-h-9">
+            <Link href={`/checkout/${booking.id}`}>Continuar pagamento</Link>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 w-full sm:min-h-9 sm:w-auto"
+            onClick={() => setIsConfirming(true)}
+          >
+            Cancelar reserva
+          </Button>
+        </div>
       ) : null}
     </article>
   );

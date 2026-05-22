@@ -2,17 +2,19 @@ export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "CANCEL
 
 export type Payment = {
   id: string;
-  bookingId: string | null;
-  reservationId: string | null;
-  reservationOccurrenceId: string | null;
+  bookingId?: string | null;
+  reservationId?: string | null;
+  reservationOccurrenceId?: string | null;
   status: PaymentStatus | string;
   method: string;
   provider: string;
+  providerReference?: string;
   grossAmount: number;
   feeAmount: number;
   netAmount: number;
-  paidAt: string | null;
-  createdAt: string;
+  paidAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type PaymentListParams = {
@@ -29,4 +31,14 @@ export type PaginationMeta = {
 export type PaymentListResponse = {
   data: Payment[];
   meta: PaginationMeta;
+};
+
+export type CreatePaymentForBookingPayload = {
+  method: "PIX";
+  provider: "mock-provider";
+};
+
+export type CreatePaymentForBookingParams = {
+  bookingId: string;
+  payload?: CreatePaymentForBookingPayload;
 };

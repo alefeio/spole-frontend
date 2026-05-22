@@ -1,6 +1,11 @@
 import { apiClient } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
-import type { Payment, PaymentListParams, PaymentListResponse } from "@/features/payments/types";
+import type {
+  CreatePaymentForBookingParams,
+  Payment,
+  PaymentListParams,
+  PaymentListResponse
+} from "@/features/payments/types";
 
 export async function getMyPayments(params: PaymentListParams = {}): Promise<PaymentListResponse> {
   const { data, meta } = await apiClient<Payment[]>(endpoints.users.myPayments, {
@@ -22,5 +27,20 @@ export async function getMyPayments(params: PaymentListParams = {}): Promise<Pay
 
 export async function getPaymentById(paymentId: string): Promise<Payment> {
   const { data } = await apiClient<Payment>(endpoints.payments.byId(paymentId));
+  return data;
+}
+
+export async function createPaymentForBooking({
+  bookingId,
+  payload = {
+    method: "PIX",
+    provider: "mock-provider"
+  }
+}: CreatePaymentForBookingParams): Promise<Payment> {
+  const { data } = await apiClient<Payment>(endpoints.payments.forBooking(bookingId), {
+    method: "POST",
+    body: payload
+  });
+
   return data;
 }

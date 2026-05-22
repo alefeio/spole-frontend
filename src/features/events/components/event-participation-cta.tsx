@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BookingHoldConfirmation } from "@/features/bookings/components/booking-hold-confirmation";
@@ -17,6 +18,7 @@ type EventParticipationCtaProps = {
 };
 
 export function EventParticipationCta({ event, privateCode }: EventParticipationCtaProps) {
+  const router = useRouter();
   const { data: user } = useMe();
   const joinFreeMutation = useJoinFreeEvent();
   const createBookingMutation = useCreateBooking();
@@ -53,6 +55,7 @@ export function EventParticipationCta({ event, privateCode }: EventParticipation
         onSuccess: (booking) => {
           setCreatedBooking(booking);
           setSuccessMessage("Vaga reservada temporariamente.");
+          router.push(`/checkout/${booking.id}`);
         },
         onError: (error) => {
           setErrorMessage(getApiErrorMessage(error));
