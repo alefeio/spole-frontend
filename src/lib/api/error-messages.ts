@@ -22,7 +22,7 @@ const CODE_MESSAGES: Record<string, string> = {
   BOOKING_NOT_CANCELLABLE: "Esta reserva não pode ser cancelada.",
   PAYMENT_NOT_FOUND: "Pagamento não encontrado.",
   PAYMENT_ALREADY_EXISTS:
-    "Já existe um pagamento para esta reserva de arena. Consulte Meus pagamentos ou continue pelo link abaixo.",
+    "Já existe um pagamento para esta operação. Consulte Meus pagamentos ou use o link exibido na tela.",
   PAYMENT_CREATE_FAILED: "Não foi possível criar o pagamento.",
   INVALID_PAYMENT_METHOD: "Método de pagamento não suportado.",
   INVALID_PAYMENT_PROVIDER: "Provedor de pagamento não suportado.",
@@ -70,7 +70,20 @@ const CODE_MESSAGES: Record<string, string> = {
     "Já existe um horário disponível que cruza com esse intervalo. Ajuste o início ou o fim do horário.",
   ARENA_CREATE_FAILED: "Não foi possível criar a arena. Tente novamente.",
   SPACE_CREATE_FAILED: "Não foi possível criar o espaço. Tente novamente.",
-  SLOT_CREATE_FAILED: "Não foi possível criar o horário. Tente novamente."
+  SLOT_CREATE_FAILED: "Não foi possível criar o horário. Tente novamente.",
+  RESOURCE_NOT_FOUND: "Recurso não encontrado.",
+  SLUG_ALREADY_EXISTS: "Este identificador (slug) já está em uso. Escolha outro.",
+  CATEGORY_NOT_FOUND: "Categoria não encontrada.",
+  CATEGORY_IN_USE: "Esta categoria está em uso e não pode ser removida.",
+  OCCURRENCE_NOT_FOUND: "Ocorrência da reserva não encontrada.",
+  DEPENDENCY_INCONSISTENT:
+    "O serviço está temporariamente indisponível. Tente novamente em instantes.",
+  INVALID_WEBHOOK_PAYLOAD: "Dados do webhook inválidos.",
+  UNSUPPORTED_WEBHOOK_STATUS: "Status de webhook não suportado.",
+  WEBHOOK_FORBIDDEN: "Webhook não autorizado.",
+  WEBHOOK_INVALID_PAYLOAD: "Dados do webhook inválidos.",
+  WEBHOOK_INVALID_SIGNATURE: "Assinatura do webhook inválida.",
+  WEBHOOK_PROCESSING_FAILED: "Não foi possível processar o webhook."
 };
 
 const NETWORK_ERROR_MESSAGE =

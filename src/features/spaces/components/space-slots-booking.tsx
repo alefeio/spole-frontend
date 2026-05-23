@@ -134,7 +134,10 @@ export function SpaceSlotsBooking({ arenaId, space, bookingEnabled }: SpaceSlots
             <section className="space-y-3 rounded-xl border p-4">
               <h2 className="font-semibold">Confirmar reserva avulsa</h2>
               <p className="text-muted-foreground text-sm">
-                Reserva única (SINGLE). Pagamento da reserva será tratado em etapa futura.
+                Reserva única (SINGLE). Conforme a política da arena, pode ser necessário pagar
+                parte do valor após criar a reserva — você será direcionado ao fluxo de pagamento
+                simulado na sua conta. Se o percentual mínimo for 0%, a reserva pode já nascer
+                confirmada, conforme a API. O status final sempre vem do servidor.
               </p>
 
               {!isLoggedIn ? (

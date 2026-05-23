@@ -66,8 +66,10 @@ export function ArenaDetail({ arena }: ArenaDetailProps) {
       </dl>
 
       <p className="text-muted-foreground bg-muted/40 rounded-lg border p-3 text-sm">
-        Recorrência e pagamento de reserva de arena serão tratados em etapas futuras. Nesta versão
-        você pode reservar horários avulsos (SINGLE) quando a arena estiver ativa.
+        Você pode reservar horários avulsos (SINGLE) quando a arena estiver ativa. O pagamento
+        mínimo da reserva ({arena.policy.minReservationPaymentPercent}%) define se será necessário
+        concluir um pagamento simulado após a reserva ou se ela pode ser confirmada na criação. A
+        recorrência semanal ainda não está disponível nesta interface.
       </p>
     </section>
   );

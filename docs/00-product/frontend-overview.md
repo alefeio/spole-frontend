@@ -19,50 +19,57 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 1. **Features primeiro** — `src/features/<domínio>/` com componentes, hooks e tipos locais.
 2. **API isolada** — `src/lib/api/` com client, erros e mensagens; **proibido** `fetch` fora de `client.ts`.
 3. **Contrato explícito** — tipos e endpoints alinhados a [`../02-features/api-contract-map.md`](../02-features/api-contract-map.md).
-4. **Sprints defasadas** — o frontend costuma implementar a sprint **N−1** em relação ao backend; Sprint 10 alinhou hardening à maturidade da API (~12).
-5. **Sem antecipar backend** — não construir telas para rotas inexistentes.
+4. **Sem antecipar backend** — não construir telas para rotas inexistentes.
 
-## 4. Escopo entregue (Sprints 00–12A)
+## 4. Escopo entregue (Sprints 00–15)
 
-| Área                   | Entregas                                                                    |
-| ---------------------- | --------------------------------------------------------------------------- |
-| Foundation             | Next.js, layout, apiClient, auth token, guards                              |
-| Auth                   | Login, registro, sessão, redirect                                           |
-| Eventos                | Catálogo, detalhe, eventos privados, participação gratuita                  |
-| Bookings / checkout    | Reserva temporária, checkout mock, pagamento de evento pago                 |
-| Conta                  | Perfil, inscrições, bookings, pagamentos, notificações                      |
-| Arenas                 | Hub por ID, detalhe, espaços, slots, reserva SINGLE                         |
-| Reserva + pagamento    | Lista/detalhe, cancelamento, checkout mock de reserva                       |
-| Hardening (10)         | Request id, 429, idempotência, polling centralizado, cache terminal         |
-| Organizador (11)       | CRUD mínimo de eventos, listagem `GET /users/me/events`                     |
-| Admin (12A)            | Hub `/admin`, listagens operacionais, ações de status com motivo            |
-| Dono de arena (13A–14) | Hub `/owner`, listagem, espaços, slots, reservas, agenda operacional diária |
+| Área                  | Entregas                                                             |
+| --------------------- | -------------------------------------------------------------------- |
+| Foundation            | Next.js, layout, apiClient, auth token, guards                       |
+| Auth                  | Login, registro, sessão, redirect                                    |
+| Eventos               | Catálogo, detalhe, eventos privados, participação gratuita           |
+| Bookings / checkout   | Reserva temporária, checkout mock, pagamento de evento pago          |
+| Conta                 | Perfil, inscrições, bookings, pagamentos, notificações               |
+| Arenas                | Hub por ID, detalhe, espaços, slots, reserva SINGLE                  |
+| Reserva + pagamento   | Lista/detalhe, cancelamento, checkout mock de reserva                |
+| Hardening (10)        | Request id, 429, idempotência, polling centralizado, cache terminal  |
+| Organizador (11)      | CRUD mínimo de eventos, listagem `GET /users/me/events`              |
+| Admin (12A)           | Hub `/admin`, listagens operacionais, ações de status com motivo     |
+| Dono de arena (13–14) | Hub `/owner`, listagem, espaços, slots, reservas, agenda operacional |
+| QA / MVP (15)         | Checklist de homologação, copy/guards/erros, docs de prontidão       |
 
 ## 5. Perfis e áreas da UI
 
-| Perfil                  | Áreas no frontend atual                                                            |
-| ----------------------- | ---------------------------------------------------------------------------------- |
-| Participante            | Eventos, inscrição, checkout pago, conta, arenas, reservas                         |
-| Organizador             | `/account/events` — criar, editar, publicar, cancelar                              |
-| Dono de arena (13A–13C) | `/owner/*` — hub, listagem, navegação contextual, espaços, slots, reservas, agenda |
-| Admin                   | `/admin/*` — operação da plataforma (separado do owner)                            |
+| Perfil        | Áreas no frontend atual                                                           |
+| ------------- | --------------------------------------------------------------------------------- |
+| Participante  | Eventos, inscrição, checkout pago, conta, arenas por ID, reservas                 |
+| Organizador   | `/account/events` — criar, editar, publicar, cancelar, evento a partir de reserva |
+| Dono de arena | `/owner/*` — hub, minhas arenas, espaços, slots, reservas recebidas, agenda       |
+| Admin         | `/admin/*` — operação da plataforma (separado do painel dono)                     |
+
+Homologação manual: [`../03-qa/mvp-operational-checklist.md`](../03-qa/mvp-operational-checklist.md).
 
 ## 6. Integração com a API
 
 - Base URL: `NEXT_PUBLIC_API_URL`.
 - Auth: `Authorization: Bearer <token>`.
 - Envelope: `{ success, data, meta? }` / `{ success: false, error }`.
-- Headers: `X-Request-Id` (todas as requisições), `Idempotency-Key` (ações sensíveis documentadas).
+- Headers: `X-Request-Id` em mutações (e quando há `Idempotency-Key`); `Idempotency-Key` em bookings e pagamentos sensíveis.
 
-## 7. Fora de escopo / instável
+## 7. Limitações conscientes do MVP web
 
-- **Recorrência** semanal e pagamento por ocorrência.
-- **Gateway real** (PIX/cartão de produção).
-- **Webhook no browser** — confirmação mock via backend em dev.
-- Dashboard analítico admin, CRUD completo de arenas/slots além do já exposto.
-- **`PATCH /users/me`**, módulo `/search`, listagem global `GET /arenas`.
+- **Recorrência** — sem wizard operacional; dados podem aparecer somente leitura.
+- **Gateway real** — pagamentos mock (`mock-provider`); confirmação via backend/webhook de teste em dev.
+- **Webhook no browser** — não implementado.
+- **Arenas** — sem catálogo global (`GET /arenas`); hub por ID em `/arenas`.
+- **Dono** — reservas da arena com filtros **no cliente**; sem cancelar/confirmar reserva pelo dono.
+- **Slots** — criação unitária; sem PATCH/DELETE/bloqueio.
+- **Organizador** — sem gestão de lista de bookings pagos do evento.
+- **Perfil** — sem `PATCH /users/me`.
+- **Busca** — apenas `GET /events?q=...` (sem `/search`).
 
-## 8. Próximos passos sugeridos
+## 8. Próximos passos (produto / backend)
 
-1. Painel do dono de arena ou gestão avançada de arenas — conforme produto.
-2. Manter contrato em `api-contract-map.md` ao evoluir a API.
+1. Filtros e paginação server-side em reservas da arena.
+2. Ações do dono sobre reservas e gestão avançada de slots, quando a API expuser.
+3. Manter [`../02-features/api-contract-map.md`](../02-features/api-contract-map.md) sincronizado.

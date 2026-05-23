@@ -621,35 +621,30 @@ Mapeamento sugerido (App Router) — rotas de UI a definir na implementação.
 | Reservar horário        | `POST /reservations`, `GET /reservations/me`, `GET /reservations/:id`                     | Organizador                          |
 | Pagar reserva de arena  | `POST /reservations/:id/payments`, polling `GET /payments/:id`                            | Autenticado — **UI mock Sprint 09+** |
 | Painel arena — reservas | `GET /arenas/:arenaId/reservations`                                                       | Dono arena                           |
-| Painel dono (13A–13C)   | `/owner/*` — hub, listagem, navegação contextual, espaços, slots, reservas, agenda        | `arena_owner`                        |
-| Admin — categorias      | `POST/PATCH/DELETE /categories`                                                           | `admin`                              |
+| Painel dono (13–14)     | `/owner/*` — hub, listagem, espaços, slots, reservas, agenda (filtros client-side)        | `arena_owner`                        |
+| Admin operacional (12A) | `/admin/*` — users, events, reservations, payments, arenas, bookings, audit               | `admin`                              |
+| Admin — categorias      | `POST/PATCH/DELETE /categories` (API; UI dedicada opcional)                               | `admin`                              |
 | Health (ops)            | `GET /health`                                                                             | Interno                              |
 
 ---
 
 ## 8. Pontos pendentes ou instáveis
 
-| Item                                   | Situação                                                                                  | Impacto no frontend                                                                                |
-| -------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Pagamento de reserva de arena          | API com **mock-provider**; frontend com checkout mock (Sprint 09) + hardening (Sprint 10) | Recorrência e gateway real **fora** do escopo; confirmação via backend/webhook de teste em dev     |
-| Recorrência semanal                    | Mínima (`RECURRING` + ocorrências + liberação 24h)                                        | UI de recorrência **adiada**; documentar estados antes de desenhar wizard                          |
-| Webhooks de pagamento                  | Apenas backend / simulação manual                                                         | Frontend **não** chama webhooks; confirmação via polling `GET /payments/:id` ou ambiente de testes |
-| `PATCH /users/me`                      | Não existe                                                                                | Sem tela de edição de perfil até o backend expor rota                                              |
-| `GET /arenas` (lista)                  | Não existe                                                                                | Descoberta de arenas só por ID/link direto                                                         |
-| Módulo admin                           | Sem rotas dedicadas                                                                       | Painel admin limitado a categorias (JWT admin)                                                     |
-| Atualização de perfil / avatar         | Spec em `/api/docs/02-features/users.md`, sem rota                                        | Fora do escopo imediato                                                                            |
-| Search dedicado                        | Spec futura; hoje = `GET /events`                                                         | Não criar cliente para `/search`                                                                   |
-| Reembolso, split, antifraude           | Fora do MVP                                                                               | Não modelar na UI                                                                                  |
-| Edição de slots / cancelamento de slot | Sem `PATCH`/`DELETE` em slots na API                                                      | Gestão de agenda parcial no frontend                                                               |
-
-### Estabilidade recomendada para a 1ª sprint frontend
-
-Priorizar recorte equivalente à **sprint 9 do backend** (estável):
-
-- Auth, listagem/detalhe de eventos, categorias públicas
-- Inscrição gratuita, bookings + pagamento de **evento pago** (mock)
-- Conta: `me`, notificações, bookings e payments paginados
-- Adiar: reserva de arena paga, recorrência, painel financeiro de arena
+| Item                                        | Situação                                            | Impacto no frontend                                                          |
+| ------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Pagamento de reserva de arena               | API mock + UI checkout (Sprints 09–10)              | Confirmação via webhook **no backend**; polling `GET /payments/:id` no front |
+| Recorrência semanal                         | API parcial (`RECURRING`, ocorrências)              | UI operacional de recorrência **fora** do MVP web                            |
+| Webhooks de pagamento                       | Somente backend                                     | Front **não** chama webhooks                                                 |
+| `GET /arenas` (lista global)                | Não existe                                          | Hub `/arenas` por ID; sem catálogo de arenas                                 |
+| `GET /arenas/:arenaId/reservations` filtros | Lista completa; sem `dateFrom`/`status` no servidor | Filtros **client-side** no painel dono (Sprint 14)                           |
+| Ações do dono sobre reserva                 | Sem rotas de cancelar/confirmar/consumir pelo dono  | Detalhe de reserva owner **somente leitura**                                 |
+| Edição / exclusão de slot                   | Sem `PATCH`/`DELETE` em slots                       | Dono: POST unitário apenas                                                   |
+| Bookings pagos do evento (organizador)      | API expõe bookings; sem painel dedicado no produto  | Aviso no detalhe do evento organizador                                       |
+| `PATCH /users/me`                           | Não existe                                          | Sem edição de perfil                                                         |
+| Search dedicado                             | Futuro; hoje `GET /events?q=...`                    | Não usar `/search`                                                           |
+| Gateway real / split / antifraude           | Fora do MVP                                         | Não modelar na UI                                                            |
+| Admin UI                                    | **Implementado** (`/admin/*`, Sprint 12A)           | Separado de `/owner/*`; não misturar papéis                                  |
+| Painel dono                                 | **Implementado** (`/owner/*`, Sprints 13–14)        | `arena_owner` only; admin usa `/admin`                                       |
 
 ---
 
@@ -667,6 +662,7 @@ Priorizar recorte equivalente à **sprint 9 do backend** (estável):
 
 ## 10. Changelog deste documento
 
-| Data    | Alteração                                                                     |
-| ------- | ----------------------------------------------------------------------------- |
-| 2026-05 | Criação inicial a partir do inventário de rotas em `/api/src` (até sprint 10) |
+| Data    | Alteração                                                                          |
+| ------- | ---------------------------------------------------------------------------------- |
+| 2026-05 | Criação inicial a partir do inventário de rotas em `/api/src` (até sprint 10)      |
+| 2026-05 | Sprint 15: admin/owner no front, pagamento de reserva implementado, limitações MVP |

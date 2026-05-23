@@ -37,8 +37,9 @@ export function useCreateReservation() {
 
   return useMutation({
     mutationFn: (payload: CreateReservationPayload) => createReservation(payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       void queryClient.invalidateQueries({ queryKey: reservationsKeys.all });
+      void queryClient.invalidateQueries({ queryKey: reservationsKeys.detail(data.id) });
       void queryClient.invalidateQueries({ queryKey: slotsKeys.all });
     }
   });

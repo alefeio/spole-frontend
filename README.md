@@ -81,9 +81,8 @@ docs/            # Documentação do frontend
 
 1. **Não** chamar `fetch` em páginas ou componentes — usar `src/lib/api/client.ts` via `src/features/*/api.ts`.
 2. Contrato HTTP: [`docs/02-features/api-contract-map.md`](./docs/02-features/api-contract-map.md).
-3. Sprints 00–10 entregues no participante (auth, eventos, checkout, conta, arenas, reserva, hardening).
-4. Sprints 11A–11B: CRUD mínimo do organizador; Sprint **12A**: Admin UI (`/admin/*`); Sprints **13A–14**: Painel dono de arena (`/owner/*`).
-5. Fora de escopo imediato: recorrência, gateway real, webhook no browser, `/search`, `PATCH /users/me`.
+3. Sprints **00–15**: MVP web (participante, organizador, admin, dono de arena, hardening e QA operacional).
+4. Fora de escopo imediato: recorrência operacional, gateway real, webhook no browser, `/search`, `PATCH /users/me`, `GET /arenas` global.
 
 ## Troubleshooting
 
@@ -96,7 +95,7 @@ docs/            # Documentação do frontend
 
 - O front deve apontar para a **origem da API**, não para a porta do Next.js.
 - Erros de CORS costumam indicar URL errada ou API não aceitando a origem do front (ex.: `http://localhost:3001`).
-- Após a Sprint 10, o front envia `X-Request-Id` em todas as requisições. A API precisa permitir esse header em `Access-Control-Allow-Headers` (e expor `X-Request-Id` em `Access-Control-Expose-Headers` para ler o código de referência em erros). Reinicie a API após atualizar o CORS.
+- O front envia `X-Request-Id` em **mutações** (POST/PATCH/DELETE) e quando há `Idempotency-Key`. A API precisa permitir esse header em `Access-Control-Allow-Headers` e expor `X-Request-Id` em `Access-Control-Expose-Headers` para o código de referência em erros. Reinicie a API após atualizar o CORS.
 
 ### Porta 3000 ocupada
 
@@ -108,11 +107,22 @@ pnpm.cmd dev -- -p 3001
 
 ### Seed de desenvolvimento
 
-Use o seed/documentação do backend (`/api`) para usuários, eventos e arenas de teste.
+Senha padrão do seed: `SpoleDev123!` (ver [`/api/docs/02-dev-seed.md`](../api/docs/02-dev-seed.md)).
+
+Contas úteis:
+
+| Papel         | E-mail             |
+| ------------- | ------------------ |
+| Participante  | `user1@spole.dev`  |
+| Organizador   | `org1@spole.dev`   |
+| Dono de arena | `arena1@spole.dev` |
+| Admin         | `admin@spole.dev`  |
+
+Na pasta `/api`: `npm run db:seed:dev` (não use em produção).
 
 ### Pagamento mock permanece `PENDING`
 
-O navegador **não** confirma pagamentos. Em desenvolvimento, dispare o webhook de teste do backend (ver Sprint 09 em `docs/01-sprints/`). O front faz polling em `GET /payments/:id` por até 5 minutos.
+O navegador **não** confirma pagamentos. Em desenvolvimento, dispare o webhook de teste do backend (instruções na Sprint 09 em `docs/01-sprints/sprint-09-reservation-payment-mock.md` e no README da API). O front faz polling em `GET /payments/:id` por até 5 minutos enquanto o status for `PENDING`.
 
 ### Rate limit (HTTP 429)
 
@@ -126,9 +136,14 @@ Em falhas operacionais (5xx, 429, erros genéricos), a UI pode exibir **Código 
 
 Criar booking, pagamento de booking e pagamento de reserva enviam `Idempotency-Key` por tentativa. Reutilizar a mesma chave com payload diferente pode retornar `IDEMPOTENCY_KEY_REUSED` ou `IDEMPOTENCY_IN_PROGRESS`.
 
+## Homologação (QA manual)
+
+Checklist operacional do MVP: [`docs/03-qa/mvp-operational-checklist.md`](./docs/03-qa/mvp-operational-checklist.md).
+
 ## Documentação
 
 - [Visão do produto web](./docs/00-product/frontend-overview.md)
+- [Checklist QA do MVP](./docs/03-qa/mvp-operational-checklist.md)
 - [Sprint 00 — Foundation](./docs/01-sprints/sprint-00-frontend-foundation.md)
 - [Sprint 10 — Client hardening](./docs/01-sprints/sprint-10-client-hardening-api12.md)
 - [Sprint 12A — Admin UI operacional](./docs/01-sprints/sprint-12-admin-operational-ui.md)
@@ -136,3 +151,4 @@ Criar booking, pagamento de booking e pagamento de reserva enviam `Idempotency-K
 - [Sprint 13B — Minhas arenas (listagem)](./docs/01-sprints/sprint-13b-owner-arenas-listing.md)
 - [Sprint 13C — Refinamento painel dono](./docs/01-sprints/sprint-13c-owner-panel-refinement.md)
 - [Sprint 14 — Horários e agenda do dono](./docs/01-sprints/sprint-14-owner-slots-agenda.md)
+- [Sprint 15 — QA e hardening do MVP](./docs/01-sprints/sprint-15-mvp-qa-hardening.md)

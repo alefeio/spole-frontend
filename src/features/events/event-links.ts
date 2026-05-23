@@ -4,6 +4,19 @@ export function buildPublicEventPath(eventId: string): string {
   return `/events/${eventId}`;
 }
 
+/** Caminho interno para retorno após login (preserva privateCode na query quando informado). */
+export function buildEventParticipantReturnPath(eventId: string, privateCode?: string): string {
+  const path = buildPublicEventPath(eventId);
+  const trimmed = privateCode?.trim();
+  if (!trimmed) return path;
+  return `${path}?privateCode=${encodeURIComponent(trimmed)}`;
+}
+
+export function buildLoginRedirectHref(returnPath: string): string {
+  const safePath = returnPath.startsWith("/") ? returnPath : "/dashboard";
+  return `/login?redirect=${encodeURIComponent(safePath)}`;
+}
+
 export function buildParticipantEventUrl(
   eventId: string,
   visibility: EventVisibility,

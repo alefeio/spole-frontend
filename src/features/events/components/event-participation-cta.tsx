@@ -10,6 +10,10 @@ import type { Booking } from "@/features/bookings/types";
 import { useMe } from "@/features/auth/hooks";
 import { useJoinFreeEvent } from "@/features/events/hooks";
 import type { EventDetails } from "@/features/events/types";
+import {
+  buildEventParticipantReturnPath,
+  buildLoginRedirectHref
+} from "@/features/events/event-links";
 import { getApiErrorMessage } from "@/lib/api/error-messages";
 
 type EventParticipationCtaProps = {
@@ -28,6 +32,7 @@ export function EventParticipationCta({ event, privateCode }: EventParticipation
 
   const isSubmitting = joinFreeMutation.isPending || createBookingMutation.isPending;
   const isUnavailable = event.status !== "PUBLISHED";
+  const loginHref = buildLoginRedirectHref(buildEventParticipantReturnPath(event.id, privateCode));
 
   function handleParticipate() {
     setSuccessMessage(null);
@@ -115,7 +120,7 @@ export function EventParticipationCta({ event, privateCode }: EventParticipation
       ) : (
         <div className="grid gap-2 sm:grid-cols-2">
           <Button asChild className="min-h-11">
-            <Link href={`/login?redirect=/events/${event.id}`}>Entrar para participar</Link>
+            <Link href={loginHref}>Entrar para participar</Link>
           </Button>
           <Button asChild variant="outline" className="min-h-11">
             <Link href="/register">Criar conta</Link>

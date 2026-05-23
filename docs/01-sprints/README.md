@@ -9,7 +9,7 @@ O frontend **caminha 1 sprint atrás** do backend:
 | Sprint atual em desenvolvimento   | Implementa o recorte **estável** da sprint anterior                     |
 | Endpoints novos ou em fluxo       | Documentar em `02-features/api-contract-map.md`; UI só após estabilizar |
 
-**Estado atual (maio/2026):** frontend com Sprints 00–10 (inclui pagamento mock de reserva SINGLE e hardening do cliente). **Recorrência**, gateway real e Admin UI permanecem fora de escopo.
+**Estado atual (maio/2026):** frontend com Sprints **00–15** (MVP web: participante, organizador, admin, dono de arena, QA operacional). **Recorrência**, gateway real e features fora do contrato permanecem bloqueadas até a API expor rotas.
 
 ## Como usar esta pasta
 
