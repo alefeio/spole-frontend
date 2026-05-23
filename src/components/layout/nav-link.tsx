@@ -21,6 +21,7 @@ function isActivePath(pathname: string, href: string): boolean {
   if (href === "/dashboard") return pathname === "/dashboard";
   if (href === "/account") return pathname === "/account";
   if (href === "/admin") return pathname === "/admin";
+  if (href === "/owner") return pathname === "/owner";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

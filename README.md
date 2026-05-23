@@ -82,7 +82,7 @@ docs/            # Documentação do frontend
 1. **Não** chamar `fetch` em páginas ou componentes — usar `src/lib/api/client.ts` via `src/features/*/api.ts`.
 2. Contrato HTTP: [`docs/02-features/api-contract-map.md`](./docs/02-features/api-contract-map.md).
 3. Sprints 00–10 entregues no participante (auth, eventos, checkout, conta, arenas, reserva, hardening).
-4. Sprints 11A–11B: CRUD mínimo do organizador; Sprint **12A**: Admin UI operacional (`/admin/*`).
+4. Sprints 11A–11B: CRUD mínimo do organizador; Sprint **12A**: Admin UI (`/admin/*`); Sprint **13A**: Painel dono de arena (`/owner/*`).
 5. Fora de escopo imediato: recorrência, gateway real, webhook no browser, `/search`, painel do dono de arena, `PATCH /users/me`.
 
 ## Troubleshooting
@@ -132,3 +132,4 @@ Criar booking, pagamento de booking e pagamento de reserva enviam `Idempotency-K
 - [Sprint 00 — Foundation](./docs/01-sprints/sprint-00-frontend-foundation.md)
 - [Sprint 10 — Client hardening](./docs/01-sprints/sprint-10-client-hardening-api12.md)
 - [Sprint 12A — Admin UI operacional](./docs/01-sprints/sprint-12-admin-operational-ui.md)
+- [Sprint 13A — Painel dono de arena](./docs/01-sprints/sprint-13-arena-owner-panel.md)

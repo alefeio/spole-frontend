@@ -71,6 +71,17 @@ export default function AccountPage() {
         </dl>
       </section>
 
+      {user.role === "arena_owner" ? (
+        <section className="grid gap-3 sm:grid-cols-2">
+          <SummaryCard
+            title="Painel da arena"
+            value={0}
+            description="Reservas recebidas, espaços e horários"
+            href="/owner"
+          />
+        </section>
+      ) : null}
+
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <SummaryCard
           title="Eventos"

@@ -63,7 +63,13 @@ const CODE_MESSAGES: Record<string, string> = {
   ADMIN_CANNOT_MODIFY_SELF: "Você não pode alterar o status da sua própria conta.",
   INVALID_STATUS_TRANSITION: "Transição de status não permitida.",
   USER_NOT_FOUND: "Usuário não encontrado.",
-  INVALID_EVENT_STATUS: "Apenas cancelamento de evento é suportado nesta ação."
+  INVALID_EVENT_STATUS: "Apenas cancelamento de evento é suportado nesta ação.",
+  ARENA_SLUG_CONFLICT:
+    "Não foi possível gerar um identificador único para a arena. Tente outro nome.",
+  SLOT_OVERLAP: "Este horário sobrepõe outro horário disponível no mesmo espaço.",
+  ARENA_CREATE_FAILED: "Não foi possível criar a arena. Tente novamente.",
+  SPACE_CREATE_FAILED: "Não foi possível criar o espaço. Tente novamente.",
+  SLOT_CREATE_FAILED: "Não foi possível criar o horário. Tente novamente."
 };
 
 const NETWORK_ERROR_MESSAGE =
