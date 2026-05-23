@@ -60,5 +60,32 @@ export const endpoints = {
   },
   notifications: {
     markRead: (id: string) => `/notifications/${id}/read` as const
+  },
+  admin: {
+    users: {
+      list: "/admin/users",
+      detail: (id: string) => `/admin/users/${id}` as const,
+      updateStatus: (id: string) => `/admin/users/${id}/status` as const
+    },
+    arenas: {
+      list: "/admin/arenas",
+      updateStatus: (id: string) => `/admin/arenas/${id}/status` as const
+    },
+    events: {
+      list: "/admin/events",
+      updateStatus: (id: string) => `/admin/events/${id}/status` as const
+    },
+    reservations: {
+      list: "/admin/reservations"
+    },
+    bookings: {
+      list: "/admin/bookings"
+    },
+    payments: {
+      list: "/admin/payments"
+    },
+    auditLogs: {
+      list: "/admin/audit-logs"
+    }
   }
 } as const;

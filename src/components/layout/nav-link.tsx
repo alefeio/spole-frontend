@@ -20,6 +20,7 @@ function isActivePath(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   if (href === "/dashboard") return pathname === "/dashboard";
   if (href === "/account") return pathname === "/account";
+  if (href === "/admin") return pathname === "/admin";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

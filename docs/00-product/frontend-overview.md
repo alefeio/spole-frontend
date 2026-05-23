@@ -22,7 +22,7 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 4. **Sprints defasadas** — o frontend costuma implementar a sprint **N−1** em relação ao backend; Sprint 10 alinhou hardening à maturidade da API (~12).
 5. **Sem antecipar backend** — não construir telas para rotas inexistentes.
 
-## 4. Escopo entregue (Sprints 00–10)
+## 4. Escopo entregue (Sprints 00–12A)
 
 | Área                | Entregas                                                            |
 | ------------------- | ------------------------------------------------------------------- |
@@ -34,15 +34,17 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 | Arenas              | Hub por ID, detalhe, espaços, slots, reserva SINGLE                 |
 | Reserva + pagamento | Lista/detalhe, cancelamento, checkout mock de reserva               |
 | Hardening (10)      | Request id, 429, idempotência, polling centralizado, cache terminal |
+| Organizador (11)    | CRUD mínimo de eventos, listagem `GET /users/me/events`             |
+| Admin (12A)         | Hub `/admin`, listagens operacionais, ações de status com motivo    |
 
 ## 5. Perfis e áreas da UI
 
 | Perfil        | Áreas no frontend atual                                    |
 | ------------- | ---------------------------------------------------------- |
 | Participante  | Eventos, inscrição, checkout pago, conta, arenas, reservas |
-| Organizador   | Fluxos de participante (sem CRUD de eventos no front)      |
+| Organizador   | `/account/events` — criar, editar, publicar, cancelar      |
 | Dono de arena | Sem painel dedicado                                        |
-| Admin         | Sem painel (categorias admin só na API)                    |
+| Admin         | `/admin/*` — operação (listagens, status, auditoria)       |
 
 ## 6. Integração com a API
 
@@ -56,10 +58,10 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 - **Recorrência** semanal e pagamento por ocorrência.
 - **Gateway real** (PIX/cartão de produção).
 - **Webhook no browser** — confirmação mock via backend em dev.
-- **Admin UI**, CRUD de eventos no front, painel do dono de arena.
+- **Painel do dono de arena**, dashboard analítico admin, CRUD completo de arenas.
 - **`PATCH /users/me`**, módulo `/search`, listagem global `GET /arenas`.
 
 ## 8. Próximos passos sugeridos
 
-1. Admin (API 11) ou CRUD de eventos ou gestão de arena — conforme produto.
+1. Painel do dono de arena ou gestão avançada de arenas — conforme produto.
 2. Manter contrato em `api-contract-map.md` ao evoluir a API.

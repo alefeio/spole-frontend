@@ -29,13 +29,21 @@ type PaymentDetailProps = {
   payment: Payment;
   isPolling?: boolean;
   pollTimedOut?: boolean;
+  /** Oculta CTAs de checkout e links da área do participante (visão admin). */
+  variant?: "account" | "admin";
 };
 
-export function PaymentDetail({ payment, isPolling, pollTimedOut }: PaymentDetailProps) {
+export function PaymentDetail({
+  payment,
+  isPolling,
+  pollTimedOut,
+  variant = "account"
+}: PaymentDetailProps) {
+  const isAdmin = variant === "admin";
   const showBookingCheckoutLink =
-    isPendingPaymentStatus(payment.status) && Boolean(payment.bookingId);
+    !isAdmin && isPendingPaymentStatus(payment.status) && Boolean(payment.bookingId);
   const showReservationCheckoutLink =
-    isPendingPaymentStatus(payment.status) && Boolean(payment.reservationId);
+    !isAdmin && isPendingPaymentStatus(payment.status) && Boolean(payment.reservationId);
   const contextLabel = payment.reservationId
     ? "Pagamento — reserva de arena"
     : payment.bookingId
@@ -127,35 +135,37 @@ export function PaymentDetail({ payment, isPolling, pollTimedOut }: PaymentDetai
         ) : null}
       </dl>
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        {showReservationCheckoutLink && payment.reservationId ? (
-          <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
-            <Link href={`/account/reservations/${payment.reservationId}/payment`}>
-              Continuar pagamento da reserva
-            </Link>
-          </Button>
-        ) : null}
-        {payment.reservationId ? (
+      {!isAdmin ? (
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          {showReservationCheckoutLink && payment.reservationId ? (
+            <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+              <Link href={`/account/reservations/${payment.reservationId}/payment`}>
+                Continuar pagamento da reserva
+              </Link>
+            </Button>
+          ) : null}
+          {payment.reservationId ? (
+            <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+              <Link href={`/account/reservations/${payment.reservationId}`}>
+                Ver reserva de arena
+              </Link>
+            </Button>
+          ) : null}
+          {showBookingCheckoutLink && payment.bookingId ? (
+            <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+              <Link href={`/checkout/${payment.bookingId}`}>Continuar no checkout</Link>
+            </Button>
+          ) : null}
           <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
-            <Link href={`/account/reservations/${payment.reservationId}`}>
-              Ver reserva de arena
-            </Link>
+            <Link href="/account/payments">Meus pagamentos</Link>
           </Button>
-        ) : null}
-        {showBookingCheckoutLink && payment.bookingId ? (
-          <Button asChild className="min-h-11 w-full sm:min-h-9 sm:w-auto">
-            <Link href={`/checkout/${payment.bookingId}`}>Continuar no checkout</Link>
-          </Button>
-        ) : null}
-        <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
-          <Link href="/account/payments">Meus pagamentos</Link>
-        </Button>
-        {payment.bookingId ? (
-          <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
-            <Link href="/account/bookings">Minhas inscrições</Link>
-          </Button>
-        ) : null}
-      </div>
+          {payment.bookingId ? (
+            <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
+              <Link href="/account/bookings">Minhas inscrições</Link>
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
     </article>
   );
 }

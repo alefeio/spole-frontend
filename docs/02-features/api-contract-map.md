@@ -8,23 +8,23 @@
 
 ## 1. Módulos existentes no backend
 
-| Módulo             | Pasta (`/api/src/modules/`) | Rotas registradas em `app.ts` | Observação                                                |
-| ------------------ | --------------------------- | ----------------------------- | --------------------------------------------------------- |
-| Health             | `http/routes/health.ts`     | Sim                           | Operação / deploy                                         |
-| Auth               | `auth/`                     | Sim                           | Register, login                                           |
-| Users              | `users/`                    | Sim                           | Perfil e listagens autenticadas                           |
-| Categories         | `categories/`               | Sim                           | Catálogo público + CRUD admin                             |
-| Events             | `events/`                   | Sim                           | CRUD + listagem pública (inclui busca MVP)                |
-| Event participants | `event-participants/`       | Sim                           | Inscrição gratuita + lista                                |
-| Bookings           | `bookings/`                 | Sim                           | Reserva temporária em evento pago                         |
-| Payments           | `payments/`                 | Sim                           | Pagamento de booking, reserva e ocorrência                |
-| Reservations       | `reservations/`             | Sim                           | Reserva de slot de arena                                  |
-| Spaces             | `spaces/`                   | Sim                           | Espaços internos da arena                                 |
-| Slots              | `slots/`                    | Sim                           | Horários por espaço                                       |
-| Arenas             | `arenas/`                   | Sim                           | Arena, slots agregados, reservas da arena                 |
-| Notifications      | `notifications/`            | Sim                           | Marcar como lida (listagem via users)                     |
-| Search             | —                           | **Não** (módulo separado)     | Busca via `GET /events?q=...`                             |
-| Admin              | —                           | **Não**                       | Sem rotas `/admin/*`; admin usa roles em rotas existentes |
+| Módulo             | Pasta (`/api/src/modules/`) | Rotas registradas em `app.ts` | Observação                                                    |
+| ------------------ | --------------------------- | ----------------------------- | ------------------------------------------------------------- |
+| Health             | `http/routes/health.ts`     | Sim                           | Operação / deploy                                             |
+| Auth               | `auth/`                     | Sim                           | Register, login                                               |
+| Users              | `users/`                    | Sim                           | Perfil e listagens autenticadas                               |
+| Categories         | `categories/`               | Sim                           | Catálogo público + CRUD admin                                 |
+| Events             | `events/`                   | Sim                           | CRUD + listagem pública (inclui busca MVP)                    |
+| Event participants | `event-participants/`       | Sim                           | Inscrição gratuita + lista                                    |
+| Bookings           | `bookings/`                 | Sim                           | Reserva temporária em evento pago                             |
+| Payments           | `payments/`                 | Sim                           | Pagamento de booking, reserva e ocorrência                    |
+| Reservations       | `reservations/`             | Sim                           | Reserva de slot de arena                                      |
+| Spaces             | `spaces/`                   | Sim                           | Espaços internos da arena                                     |
+| Slots              | `slots/`                    | Sim                           | Horários por espaço                                           |
+| Arenas             | `arenas/`                   | Sim                           | Arena, slots agregados, reservas da arena                     |
+| Notifications      | `notifications/`            | Sim                           | Marcar como lida (listagem via users)                         |
+| Search             | —                           | **Não** (módulo separado)     | Busca via `GET /events?q=...`                                 |
+| Admin              | `admin/`                    | Sim                           | Listagens operacionais + PATCH status (users, arenas, events) |
 
 ---
 

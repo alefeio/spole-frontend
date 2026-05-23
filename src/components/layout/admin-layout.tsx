@@ -10,9 +10,14 @@ type AdminLayoutProps = {
 };
 
 const adminNavItems: NavItem[] = [
-  { href: "/admin", label: "Admin" },
-  { href: "/dashboard", label: "Área logada" },
-  { href: "/", label: "Site público" }
+  { href: "/admin", label: "Visão geral" },
+  { href: "/admin/users", label: "Usuários" },
+  { href: "/admin/events", label: "Eventos" },
+  { href: "/admin/reservations", label: "Reservas" },
+  { href: "/admin/payments", label: "Pagamentos" },
+  { href: "/admin/arenas", label: "Arenas" },
+  { href: "/admin/audit", label: "Auditoria" },
+  { href: "/admin/bookings", label: "Bookings" }
 ];
 
 export function AdminLayout({ children }: AdminLayoutProps) {

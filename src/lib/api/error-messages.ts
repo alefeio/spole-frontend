@@ -59,7 +59,11 @@ const CODE_MESSAGES: Record<string, string> = {
   ARENA_ADDRESS_MISSING: "A arena não possui endereço completo para vincular ao evento.",
   EVENT_CREATE_FAILED: "Não foi possível criar o evento. Tente novamente.",
   EVENT_CANCELLED: "Este evento está cancelado e não pode ser editado.",
-  INVALID_STATUS: "Status de evento inválido para esta operação."
+  INVALID_STATUS: "Status de evento inválido para esta operação.",
+  ADMIN_CANNOT_MODIFY_SELF: "Você não pode alterar o status da sua própria conta.",
+  INVALID_STATUS_TRANSITION: "Transição de status não permitida.",
+  USER_NOT_FOUND: "Usuário não encontrado.",
+  INVALID_EVENT_STATUS: "Apenas cancelamento de evento é suportado nesta ação."
 };
 
 const NETWORK_ERROR_MESSAGE =
