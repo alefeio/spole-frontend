@@ -7,7 +7,10 @@ import { AccessDenied } from "@/components/feedback/access-denied";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useMe } from "@/features/auth/hooks";
+import { OWNER_INPUT_CLASS } from "@/features/owner/components/owner-constants";
+import { OwnerArenaNavigation } from "@/features/owner/components/owner-arena-navigation";
 import { OwnerPageHeader } from "@/features/owner/components/owner-page-header";
+import { OwnerArenaStatusBadge } from "@/features/owner-arenas/components/owner-arena-status-badge";
 import {
   patchArenaFormSchema,
   patchArenaFormToPayload,
@@ -16,8 +19,6 @@ import {
 import { usePatchArena } from "@/features/owner-arenas/hooks";
 import type { Arena } from "@/features/arenas/types";
 import { getApiErrorMessage } from "@/lib/api/error-messages";
-
-const inputClass = "border-input bg-background min-h-11 w-full rounded-md border px-3 py-2 text-sm";
 
 function arenaToForm(arena: Arena): PatchArenaFormValues {
   return {
@@ -84,12 +85,19 @@ export function OwnerArenaEditForm({ arena }: OwnerArenaEditFormProps) {
     <div className="space-y-6 overflow-x-hidden">
       <OwnerPageHeader title="Editar arena" description={arena.name} />
 
+      <OwnerArenaNavigation arenaId={arena.id} />
+
+      <div className="flex items-center gap-2">
+        <span className="text-muted-foreground text-sm">Status atual:</span>
+        <OwnerArenaStatusBadge status={values.status ?? arena.status} />
+      </div>
+
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div className="space-y-2">
           <Label htmlFor="edit-name">Nome</Label>
           <input
             id="edit-name"
-            className={inputClass}
+            className={OWNER_INPUT_CLASS}
             value={values.name ?? ""}
             onChange={(e) => setField("name", e.target.value)}
           />
@@ -98,7 +106,7 @@ export function OwnerArenaEditForm({ arena }: OwnerArenaEditFormProps) {
           <Label htmlFor="edit-desc">Descrição</Label>
           <textarea
             id="edit-desc"
-            className={`${inputClass} min-h-[88px]`}
+            className={`${OWNER_INPUT_CLASS} min-h-[88px]`}
             value={values.description ?? ""}
             onChange={(e) => setField("description", e.target.value)}
           />
@@ -108,7 +116,7 @@ export function OwnerArenaEditForm({ arena }: OwnerArenaEditFormProps) {
             <Label htmlFor="edit-phone">Telefone</Label>
             <input
               id="edit-phone"
-              className={inputClass}
+              className={OWNER_INPUT_CLASS}
               value={values.phone ?? ""}
               onChange={(e) => setField("phone", e.target.value)}
             />
@@ -118,7 +126,7 @@ export function OwnerArenaEditForm({ arena }: OwnerArenaEditFormProps) {
             <input
               id="edit-email"
               type="email"
-              className={inputClass}
+              className={OWNER_INPUT_CLASS}
               value={values.email ?? ""}
               onChange={(e) => setField("email", e.target.value)}
             />
@@ -128,7 +136,7 @@ export function OwnerArenaEditForm({ arena }: OwnerArenaEditFormProps) {
           <Label htmlFor="edit-status">Status</Label>
           <select
             id="edit-status"
-            className={inputClass}
+            className={OWNER_INPUT_CLASS}
             value={values.status ?? "ACTIVE"}
             onChange={(e) => setField("status", e.target.value as "ACTIVE" | "INACTIVE")}
           >
@@ -140,14 +148,14 @@ export function OwnerArenaEditForm({ arena }: OwnerArenaEditFormProps) {
           <Label htmlFor="edit-city">Cidade</Label>
           <input
             id="edit-city"
-            className={inputClass}
+            className={OWNER_INPUT_CLASS}
             value={values.city ?? ""}
             onChange={(e) => setField("city", e.target.value)}
           />
         </div>
 
         {message ? (
-          <p className="bg-muted rounded-lg border p-3 text-sm" role="alert">
+          <p className="text-destructive text-sm" role="alert">
             {message}
           </p>
         ) : null}

@@ -2,19 +2,22 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { AccessDenied } from "@/components/feedback/access-denied";
+import { CardsSkeleton, EmptyState, ErrorState } from "@/components/feedback/section-state";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AccessDenied } from "@/components/feedback/access-denied";
 import { useMe } from "@/features/auth/hooks";
-import { OwnerArenaNav } from "@/features/owner/components/owner-arena-nav";
+import { OWNER_INPUT_CLASS } from "@/features/owner/components/owner-constants";
+import { OwnerArenaNavigation } from "@/features/owner/components/owner-arena-navigation";
 import { OwnerPageHeader } from "@/features/owner/components/owner-page-header";
-import { formatOwnerDateTime, isSameCalendarDay } from "@/features/owner/utils";
+import { OwnerReservationStatusBadge } from "@/features/owner-arenas/components/owner-reservation-status-badge";
+import {
+  formatOwnerDateTime,
+  isSameCalendarDay,
+  sortReservationsBySlotStart
+} from "@/features/owner/utils";
 import { useOwnerArenaReservations } from "@/features/owner-arenas/hooks";
 import type { Arena } from "@/features/arenas/types";
-import { getApiErrorMessage } from "@/lib/api/error-messages";
-
-const inputClass = "border-input bg-background min-h-11 w-full rounded-md border px-3 py-2 text-sm";
 
 type OwnerArenaReservationsViewProps = {
   arena: Arena;
@@ -32,37 +35,44 @@ export function OwnerArenaReservationsView({ arena }: OwnerArenaReservationsView
     if (dateFilter) {
       list = list.filter((r) => r.slot?.startAt && isSameCalendarDay(r.slot.startAt, dateFilter));
     }
-    return list;
+    return sortReservationsBySlotStart(list);
   }, [query.data, statusFilter, dateFilter]);
 
   if (me.isSuccess && me.data && me.data.id !== arena.ownerId) {
     return <AccessDenied title="Arena de outro dono" description="Acesso negado." />;
   }
 
+  const emptyTitle = dateFilter
+    ? "Nenhuma reserva recebida nesta data"
+    : statusFilter
+      ? "Nenhuma reserva com esse status"
+      : "Nenhuma reserva recebida ainda";
+
   return (
     <div className="space-y-6 overflow-x-hidden">
       <OwnerPageHeader
         title="Reservas recebidas"
-        description="Reservas de clientes na sua arena. Filtros aplicados no navegador — a API não pagina esta rota."
-        actions={<OwnerArenaNav arenaId={arena.id} />}
+        description="Lista carregada da API. Filtros de data e status são aplicados no navegador."
       />
 
+      <OwnerArenaNavigation arenaId={arena.id} />
+
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-1">
-          <Label htmlFor="res-date">Data do horário (filtro local)</Label>
+        <div className="space-y-2">
+          <Label htmlFor="res-date">Data do horário</Label>
           <input
             id="res-date"
             type="date"
-            className={inputClass}
+            className={OWNER_INPUT_CLASS}
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
           />
         </div>
-        <div className="space-y-1">
+        <div className="space-y-2">
           <Label htmlFor="res-status">Status</Label>
           <select
             id="res-status"
-            className={inputClass}
+            className={OWNER_INPUT_CLASS}
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -75,29 +85,54 @@ export function OwnerArenaReservationsView({ arena }: OwnerArenaReservationsView
         </div>
       </div>
 
-      {query.isLoading ? <p className="text-muted-foreground text-sm">Carregando…</p> : null}
+      {query.isLoading ? <CardsSkeleton count={3} /> : null}
       {query.isError ? (
-        <p className="text-destructive text-sm">{getApiErrorMessage(query.error)}</p>
+        <ErrorState
+          title="Erro ao carregar reservas"
+          error={query.error}
+          onRetry={() => void query.refetch()}
+        />
       ) : null}
 
       {query.isSuccess && filtered.length === 0 ? (
-        <p className="text-muted-foreground text-sm">Nenhuma reserva encontrada.</p>
+        <EmptyState
+          title={emptyTitle}
+          description={
+            dateFilter || statusFilter
+              ? "Ajuste os filtros ou aguarde novas reservas."
+              : "Quando um cliente reservar um horário, ela aparecerá aqui."
+          }
+        />
       ) : null}
 
       <ul className="space-y-3">
         {filtered.map((reservation) => (
           <li key={reservation.id}>
-            <article className="space-y-3 rounded-xl border p-4">
-              <Badge variant="outline">{reservation.status}</Badge>
-              <p className="text-muted-foreground text-xs">{reservation.type}</p>
+            <article className="space-y-3 rounded-xl border p-4 shadow-xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <OwnerReservationStatusBadge status={reservation.status} />
+                <span className="text-muted-foreground text-xs">{reservation.type}</span>
+              </div>
               {reservation.slot ? (
-                <p className="text-sm">
+                <p className="text-sm font-medium">
                   {formatOwnerDateTime(reservation.slot.startAt)} —{" "}
                   {formatOwnerDateTime(reservation.slot.endAt)}
                 </p>
               ) : null}
+              <dl className="grid gap-2 text-xs sm:grid-cols-2">
+                <div>
+                  <dt className="text-muted-foreground">Criada em</dt>
+                  <dd>{formatOwnerDateTime(reservation.createdAt)}</dd>
+                </div>
+                <div>
+                  <dt className="text-muted-foreground">Atualizada em</dt>
+                  <dd>{formatOwnerDateTime(reservation.updatedAt)}</dd>
+                </div>
+              </dl>
+              <p className="font-mono text-xs break-all">ID: {reservation.id}</p>
+              <p className="font-mono text-xs break-all">Slot: {reservation.slotId}</p>
               <p className="font-mono text-xs break-all">Organizador: {reservation.organizerId}</p>
-              <Button asChild variant="outline" className="min-h-11 w-full sm:w-auto">
+              <Button asChild variant="outline" className="min-h-11 w-full">
                 <Link href={`/owner/arenas/${arena.id}/reservations/${reservation.id}`}>
                   Ver detalhe
                 </Link>
@@ -108,7 +143,7 @@ export function OwnerArenaReservationsView({ arena }: OwnerArenaReservationsView
       </ul>
 
       <Button asChild variant="ghost" className="min-h-11 px-0">
-        <Link href={`/owner/arenas/${arena.id}`}>← Arena</Link>
+        <Link href={`/owner/arenas/${arena.id}`}>← Visão geral da arena</Link>
       </Button>
     </div>
   );

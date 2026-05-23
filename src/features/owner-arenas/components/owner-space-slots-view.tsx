@@ -3,15 +3,19 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AccessDenied } from "@/components/feedback/access-denied";
+import { CardsSkeleton, EmptyState, ErrorState } from "@/components/feedback/section-state";
 import { PaginationControls } from "@/components/pagination/pagination-controls";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { AccessDenied } from "@/components/feedback/access-denied";
 import { useMe } from "@/features/auth/hooks";
 import { dayRangeFromDateInput, todayDateInputValue } from "@/lib/date/iso-day-range";
-import { OwnerArenaNav } from "@/features/owner/components/owner-arena-nav";
+import { OWNER_INPUT_CLASS } from "@/features/owner/components/owner-constants";
+import { OwnerArenaNavigation } from "@/features/owner/components/owner-arena-navigation";
 import { OwnerPageHeader } from "@/features/owner/components/owner-page-header";
 import { OwnerSectionCard } from "@/features/owner/components/owner-section-card";
+import { OwnerSuccessBanner } from "@/features/owner/components/owner-success-banner";
+import { OwnerSlotStatusBadge } from "@/features/owner-arenas/components/owner-slot-status-badge";
 import { formatOwnerDateTime, formatOwnerMoney } from "@/features/owner/utils";
 import { useOwnerArenaSpaces } from "@/features/owner-arenas/hooks";
 import {
@@ -24,7 +28,14 @@ import { createSlot, listSlotsBySpace } from "@/features/slots/api";
 import { getApiErrorMessage } from "@/lib/api/error-messages";
 
 const SLOTS_LIMIT = 50;
-const inputClass = "border-input bg-background min-h-11 w-full rounded-md border px-3 py-2 text-sm";
+
+const defaultSlotForm: CreateSlotFormValues = {
+  startAtLocal: "",
+  endAtLocal: "",
+  price: 0,
+  allowsRecurring: false,
+  notes: ""
+};
 
 type OwnerSpaceSlotsViewProps = {
   arena: Arena;
@@ -39,14 +50,9 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
   const [dateValue, setDateValue] = useState(todayDateInputValue);
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
-  const [slotForm, setSlotForm] = useState<CreateSlotFormValues>({
-    startAtLocal: "",
-    endAtLocal: "",
-    price: 0,
-    allowsRecurring: false,
-    notes: ""
-  });
+  const [slotForm, setSlotForm] = useState<CreateSlotFormValues>(defaultSlotForm);
   const [message, setMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const range = useMemo(() => dayRangeFromDateInput(dateValue), [dateValue]);
 
@@ -68,6 +74,8 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["owner", "slots", spaceId] });
       setShowCreate(false);
+      setSlotForm(defaultSlotForm);
+      setSuccessMessage("Horário criado com sucesso.");
     }
   });
 
@@ -78,6 +86,7 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
   function handleCreateSlot(e: React.FormEvent) {
     e.preventDefault();
     setMessage(null);
+    setSuccessMessage(null);
     const parsed = createSlotFormSchema.safeParse(slotForm);
     if (!parsed.success) {
       setMessage(parsed.error.issues[0]?.message ?? "Dados inválidos");
@@ -91,17 +100,25 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
   return (
     <div className="space-y-6 overflow-x-hidden">
       <OwnerPageHeader
-        title={space?.name ?? "Horários"}
-        description="Horários com status AVAILABLE nesta data — reservas ocupadas aparecem em Reservas/Agenda."
-        actions={<OwnerArenaNav arenaId={arena.id} />}
+        title={space?.name ?? "Horários disponíveis"}
+        description="Horários retornados pela API para este espaço na data selecionada."
       />
+
+      <OwnerArenaNavigation arenaId={arena.id} />
+
+      <OwnerSectionCard>
+        <p className="text-muted-foreground text-sm">
+          Esta tela mostra horários disponíveis para reserva. Reservas já realizadas aparecem na
+          agenda e em Reservas recebidas.
+        </p>
+      </OwnerSectionCard>
 
       <div className="space-y-2">
         <Label htmlFor="slot-date">Data</Label>
         <input
           id="slot-date"
           type="date"
-          className={inputClass}
+          className={OWNER_INPUT_CLASS}
           value={dateValue}
           onChange={(e) => {
             setDateValue(e.target.value);
@@ -112,81 +129,117 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
 
       <Button
         type="button"
-        variant="outline"
-        className="min-h-11"
+        className="min-h-11 w-full sm:w-auto"
         onClick={() => setShowCreate((v) => !v)}
       >
         {showCreate ? "Fechar criação" : "Criar horário"}
       </Button>
 
+      {successMessage ? <OwnerSuccessBanner message={successMessage} /> : null}
+      {message ? (
+        <p className="text-destructive text-sm" role="alert">
+          {message}
+        </p>
+      ) : null}
+
       {showCreate ? (
-        <OwnerSectionCard title="Novo horário (POST /spaces/:spaceId/slots)">
+        <OwnerSectionCard title="Novo horário">
           <form className="space-y-4" onSubmit={handleCreateSlot}>
             <div className="space-y-2">
-              <Label>Início</Label>
+              <Label htmlFor="slot-start">Início *</Label>
               <input
+                id="slot-start"
                 type="datetime-local"
-                className={inputClass}
+                className={OWNER_INPUT_CLASS}
                 value={slotForm.startAtLocal}
                 onChange={(e) => setSlotForm((f) => ({ ...f, startAtLocal: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
-              <Label>Término</Label>
+              <Label htmlFor="slot-end">Término *</Label>
               <input
+                id="slot-end"
                 type="datetime-local"
-                className={inputClass}
+                className={OWNER_INPUT_CLASS}
                 value={slotForm.endAtLocal}
                 onChange={(e) => setSlotForm((f) => ({ ...f, endAtLocal: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
-              <Label>Preço (R$)</Label>
+              <Label htmlFor="slot-price">Preço (R$) *</Label>
               <input
+                id="slot-price"
                 type="number"
                 min={0}
                 step="0.01"
-                className={inputClass}
+                className={OWNER_INPUT_CLASS}
                 value={slotForm.price}
                 onChange={(e) => setSlotForm((f) => ({ ...f, price: Number(e.target.value) }))}
               />
             </div>
-            <label className="flex min-h-11 items-center gap-2 text-sm">
+            <div className="space-y-2">
+              <Label htmlFor="slot-notes">Observações</Label>
+              <textarea
+                id="slot-notes"
+                className={`${OWNER_INPUT_CLASS} min-h-20`}
+                value={slotForm.notes ?? ""}
+                onChange={(e) => setSlotForm((f) => ({ ...f, notes: e.target.value }))}
+              />
+            </div>
+            <label className="flex min-h-11 items-start gap-2 text-sm">
               <input
                 type="checkbox"
+                className="mt-1"
                 checked={slotForm.allowsRecurring}
                 onChange={(e) => setSlotForm((f) => ({ ...f, allowsRecurring: e.target.checked }))}
               />
-              Permite recorrência no slot
+              <span>
+                Permite recorrência neste horário (flag informativa — sem fluxo de recorrência nesta
+                versão)
+              </span>
             </label>
-            <Button type="submit" className="min-h-11" disabled={createMutation.isPending}>
+            <Button type="submit" className="min-h-11 w-full" disabled={createMutation.isPending}>
               {createMutation.isPending ? "Criando…" : "Criar horário"}
             </Button>
           </form>
         </OwnerSectionCard>
       ) : null}
 
-      {message ? <p className="text-destructive text-sm">{message}</p> : null}
-
-      {slotsQuery.isLoading ? <p className="text-muted-foreground text-sm">Carregando…</p> : null}
+      {slotsQuery.isLoading ? <CardsSkeleton count={3} /> : null}
       {slotsQuery.isError ? (
-        <p className="text-destructive text-sm">{getApiErrorMessage(slotsQuery.error)}</p>
+        <ErrorState
+          title="Erro ao carregar horários"
+          error={slotsQuery.error}
+          onRetry={() => void slotsQuery.refetch()}
+        />
       ) : null}
 
       {slotsQuery.isSuccess && slotsQuery.data.data.length === 0 ? (
-        <p className="text-muted-foreground text-sm">Nenhum horário disponível nesta data.</p>
+        <EmptyState
+          title="Nenhum horário disponível nesta data"
+          description="Crie um horário ou escolha outra data."
+        />
       ) : null}
 
-      <ul className="flex flex-col gap-2">
+      <ul className="space-y-3">
         {slotsQuery.data?.data.map((slot) => (
-          <li key={slot.id} className="rounded-lg border px-3 py-2 text-sm">
-            <p className="font-medium">
-              {formatOwnerDateTime(slot.startAt)} — {formatOwnerDateTime(slot.endAt)}
-            </p>
-            <p>
-              {formatOwnerMoney(slot.price)} · {slot.status}
-            </p>
-            {slot.notes ? <p className="text-muted-foreground text-xs">{slot.notes}</p> : null}
+          <li key={slot.id}>
+            <article className="space-y-2 rounded-xl border p-4 text-sm shadow-xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-semibold">
+                  {formatOwnerDateTime(slot.startAt)} — {formatOwnerDateTime(slot.endAt)}
+                </p>
+                <OwnerSlotStatusBadge status={slot.status} />
+              </div>
+              <p className="font-medium">{formatOwnerMoney(slot.price)}</p>
+              {slot.allowsRecurring ? (
+                <p className="text-muted-foreground text-xs">Recorrência permitida no slot</p>
+              ) : null}
+              {slot.notes ? (
+                <p className="text-muted-foreground break-words">{slot.notes}</p>
+              ) : null}
+              <p className="text-muted-foreground font-mono text-xs break-all">ID: {slot.id}</p>
+            </article>
           </li>
         ))}
       </ul>

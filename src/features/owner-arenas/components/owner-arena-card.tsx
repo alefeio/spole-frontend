@@ -16,9 +16,9 @@ export function OwnerArenaCard({ arena }: OwnerArenaCardProps) {
       : (arena.city ?? arena.state ?? "Local não informado");
 
   return (
-    <article className="space-y-4 rounded-xl border p-4">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="min-w-0 space-y-1">
+    <article className="space-y-4 rounded-xl border p-4 shadow-xs">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-1">
           <h2 className="text-lg font-semibold break-words">{arena.name}</h2>
           <p className="text-muted-foreground text-sm">{location}</p>
           {arena.slug ? (
@@ -28,19 +28,19 @@ export function OwnerArenaCard({ arena }: OwnerArenaCardProps) {
         <OwnerArenaStatusBadge status={arena.status} />
       </div>
 
-      <dl className="grid gap-2 text-xs sm:grid-cols-2">
+      <dl className="grid gap-2 border-t pt-3 text-xs sm:grid-cols-2">
         <div>
           <dt className="text-muted-foreground">Criada em</dt>
-          <dd>{formatOwnerDateTime(arena.createdAt)}</dd>
+          <dd className="font-medium">{formatOwnerDateTime(arena.createdAt)}</dd>
         </div>
         <div>
           <dt className="text-muted-foreground">Atualizada em</dt>
-          <dd>{formatOwnerDateTime(arena.updatedAt)}</dd>
+          <dd className="font-medium">{formatOwnerDateTime(arena.updatedAt)}</dd>
         </div>
       </dl>
 
-      <div className="grid gap-2 sm:grid-cols-2">
-        <Button asChild className="min-h-11">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <Button asChild className="min-h-11 sm:col-span-2">
           <Link href={base}>Ver detalhes</Link>
         </Button>
         <Button asChild variant="outline" className="min-h-11">
@@ -49,7 +49,7 @@ export function OwnerArenaCard({ arena }: OwnerArenaCardProps) {
         <Button asChild variant="outline" className="min-h-11">
           <Link href={`${base}/reservations`}>Reservas</Link>
         </Button>
-        <Button asChild variant="outline" className="min-h-11">
+        <Button asChild variant="outline" className="min-h-11 sm:col-span-2">
           <Link href={`${base}/agenda`}>Agenda</Link>
         </Button>
       </div>

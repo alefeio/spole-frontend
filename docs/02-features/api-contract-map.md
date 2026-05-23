@@ -621,7 +621,7 @@ Mapeamento sugerido (App Router) — rotas de UI a definir na implementação.
 | Reservar horário        | `POST /reservations`, `GET /reservations/me`, `GET /reservations/:id`                     | Organizador                          |
 | Pagar reserva de arena  | `POST /reservations/:id/payments`, polling `GET /payments/:id`                            | Autenticado — **UI mock Sprint 09+** |
 | Painel arena — reservas | `GET /arenas/:arenaId/reservations`                                                       | Dono arena                           |
-| Painel dono (13A/13B)   | `/owner/*` — hub, `GET /users/me/arenas`, criar/editar arena, espaços, slots, reservas    | `arena_owner`                        |
+| Painel dono (13A–13C)   | `/owner/*` — hub, listagem, navegação contextual, espaços, slots, reservas, agenda        | `arena_owner`                        |
 | Admin — categorias      | `POST/PATCH/DELETE /categories`                                                           | `admin`                              |
 | Health (ops)            | `GET /health`                                                                             | Interno                              |
 

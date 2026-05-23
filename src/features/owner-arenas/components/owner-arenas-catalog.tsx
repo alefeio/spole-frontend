@@ -67,6 +67,7 @@ export function OwnerArenasCatalog() {
       />
 
       <OwnerArenasFilters
+        key={searchParams.toString()}
         params={params}
         hasFilters={hasFilters}
         onChange={updateUrl}
@@ -87,6 +88,10 @@ export function OwnerArenasCatalog() {
 
       {query.isSuccess && query.data.data.length > 0 ? (
         <>
+          <p className="text-muted-foreground text-sm">
+            {query.data.meta.total}{" "}
+            {query.data.meta.total === 1 ? "arena encontrada" : "arenas encontradas"}
+          </p>
           <OwnerArenasList arenas={query.data.data} />
           <OwnerArenasPagination
             meta={query.data.meta}

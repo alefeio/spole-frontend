@@ -5,10 +5,18 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { OWNER_INPUT_CLASS } from "@/features/owner/components/owner-constants";
 import { OwnerPageHeader } from "@/features/owner/components/owner-page-header";
 import { OwnerSectionCard } from "@/features/owner/components/owner-section-card";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const FLOW_STEPS = [
+  "Cadastre ou abra sua arena",
+  "Crie espaços (quadras, salas, etc.)",
+  "Cadastre horários disponíveis em cada espaço",
+  "Acompanhe reservas recebidas na agenda"
+] as const;
 
 export function OwnerHub() {
   const router = useRouter();
@@ -29,7 +37,7 @@ export function OwnerHub() {
     <div className="space-y-8 overflow-x-hidden">
       <OwnerPageHeader
         title="Painel da arena"
-        description="Gerencie suas arenas, espaços, horários disponíveis e reservas recebidas."
+        description="Operação diária: arenas, espaços, horários disponíveis e reservas recebidas."
       />
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -37,9 +45,9 @@ export function OwnerHub() {
           href="/owner/arenas"
           className="border-primary/30 bg-primary/5 hover:bg-primary/10 flex min-h-11 flex-col justify-center rounded-xl border-2 p-4 transition-colors"
         >
-          <p className="font-semibold">Minhas arenas</p>
+          <p className="text-lg font-semibold">Minhas arenas</p>
           <p className="text-muted-foreground mt-1 text-sm">
-            Listagem real com filtros, paginação e atalhos para cada arena
+            Listagem com filtros e atalhos para cada arena
           </p>
         </Link>
 
@@ -49,19 +57,29 @@ export function OwnerHub() {
         >
           <p className="font-semibold">Criar nova arena</p>
           <p className="text-muted-foreground mt-1 text-sm">
-            Cadastro completo com endereço e política
+            Cadastro com endereço e política de reserva
           </p>
         </Link>
       </div>
 
+      <OwnerSectionCard title="Como começar">
+        <ol className="list-decimal space-y-2 pl-5 text-sm">
+          {FLOW_STEPS.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </OwnerSectionCard>
+
       <OwnerSectionCard title="Abrir arena por ID">
-        <p className="text-muted-foreground text-sm">Suporte quando você já tem o UUID da arena.</p>
+        <p className="text-muted-foreground text-sm">
+          Recurso de suporte quando você já possui o identificador da arena.
+        </p>
         <div className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="open-arena-id">ID da arena</Label>
             <input
               id="open-arena-id"
-              className="border-input bg-background min-h-11 w-full rounded-md border px-3 py-2 font-mono text-sm break-all"
+              className={`${OWNER_INPUT_CLASS} font-mono break-all`}
               value={arenaId}
               placeholder="00000000-0000-0000-0000-000000000000"
               onChange={(e) => setArenaId(e.target.value)}

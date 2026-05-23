@@ -57,6 +57,16 @@ export function buildOwnerQueryString(
   return suffix ? `${basePath}?${suffix}` : basePath;
 }
 
+export function sortReservationsBySlotStart<T extends { slot?: { startAt?: string } | null }>(
+  list: T[]
+): T[] {
+  return [...list].sort((a, b) => {
+    const ta = a.slot?.startAt ? new Date(a.slot.startAt).getTime() : 0;
+    const tb = b.slot?.startAt ? new Date(b.slot.startAt).getTime() : 0;
+    return ta - tb;
+  });
+}
+
 export function todayDateInputValue(): string {
   const d = new Date();
   const y = d.getFullYear();

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EmptyState } from "@/components/feedback/section-state";
 import { Button } from "@/components/ui/button";
 
 type OwnerArenasEmptyStateProps = {
@@ -7,26 +8,31 @@ type OwnerArenasEmptyStateProps = {
 };
 
 export function OwnerArenasEmptyState({ hasFilters, onClearFilters }: OwnerArenasEmptyStateProps) {
-  return (
-    <section className="space-y-4 rounded-xl border border-dashed p-6 text-center">
-      <h2 className="text-lg font-semibold">
-        {hasFilters ? "Nenhuma arena com esses filtros" : "Você ainda não tem arenas cadastradas"}
-      </h2>
-      <p className="text-muted-foreground text-sm">
-        {hasFilters
-          ? "Tente outros filtros ou limpe a busca."
-          : "Crie sua primeira arena para começar a receber reservas."}
-      </p>
-      <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
-        {hasFilters && onClearFilters ? (
+  if (hasFilters) {
+    return (
+      <div className="space-y-4">
+        <EmptyState
+          title="Nenhuma arena com esses filtros"
+          description="Tente outros termos ou limpe os filtros."
+        />
+        {onClearFilters ? (
           <Button type="button" variant="outline" className="min-h-11" onClick={onClearFilters}>
             Limpar filtros
           </Button>
         ) : null}
-        <Button asChild className="min-h-11">
-          <Link href="/owner/arenas/new">Criar primeira arena</Link>
-        </Button>
       </div>
-    </section>
+    );
+  }
+
+  return (
+    <div className="space-y-4 text-center">
+      <EmptyState
+        title="Você ainda não tem arenas cadastradas"
+        description="Crie sua primeira arena para começar a receber reservas."
+      />
+      <Button asChild className="min-h-11">
+        <Link href="/owner/arenas/new">Criar primeira arena</Link>
+      </Button>
+    </div>
   );
 }
