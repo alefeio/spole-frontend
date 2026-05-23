@@ -29,18 +29,20 @@ export function OwnerHub() {
     <div className="space-y-8 overflow-x-hidden">
       <OwnerPageHeader
         title="Painel da arena"
-        description="Gerencie sua arena, espaços, horários disponíveis e reservas recebidas."
+        description="Gerencie suas arenas, espaços, horários disponíveis e reservas recebidas."
       />
 
-      <OwnerSectionCard>
-        <p className="text-muted-foreground text-sm">
-          A listagem completa das suas arenas será adicionada quando a API disponibilizar o endpoint
-          de minhas arenas (<code className="text-xs">GET /users/me/arenas</code>). Por enquanto,
-          crie uma nova arena ou abra uma arena pelo ID que você já possui.
-        </p>
-      </OwnerSectionCard>
-
       <div className="grid gap-4 sm:grid-cols-2">
+        <Link
+          href="/owner/arenas"
+          className="border-primary/30 bg-primary/5 hover:bg-primary/10 flex min-h-11 flex-col justify-center rounded-xl border-2 p-4 transition-colors"
+        >
+          <p className="font-semibold">Minhas arenas</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Listagem real com filtros, paginação e atalhos para cada arena
+          </p>
+        </Link>
+
         <Link
           href="/owner/arenas/new"
           className="hover:bg-muted/40 flex min-h-11 flex-col justify-center rounded-xl border p-4 transition-colors"
@@ -50,26 +52,32 @@ export function OwnerHub() {
             Cadastro completo com endereço e política
           </p>
         </Link>
-
-        <OwnerSectionCard title="Abrir arena por ID">
-          <div className="space-y-3">
-            <div className="space-y-2">
-              <Label htmlFor="open-arena-id">ID da arena</Label>
-              <input
-                id="open-arena-id"
-                className="border-input bg-background min-h-11 w-full rounded-md border px-3 py-2 font-mono text-sm"
-                value={arenaId}
-                placeholder="00000000-0000-0000-0000-000000000000"
-                onChange={(e) => setArenaId(e.target.value)}
-              />
-              {openError ? <p className="text-destructive text-sm">{openError}</p> : null}
-            </div>
-            <Button type="button" className="min-h-11 w-full" onClick={handleOpenArena}>
-              Abrir arena
-            </Button>
-          </div>
-        </OwnerSectionCard>
       </div>
+
+      <OwnerSectionCard title="Abrir arena por ID">
+        <p className="text-muted-foreground text-sm">Suporte quando você já tem o UUID da arena.</p>
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <Label htmlFor="open-arena-id">ID da arena</Label>
+            <input
+              id="open-arena-id"
+              className="border-input bg-background min-h-11 w-full rounded-md border px-3 py-2 font-mono text-sm break-all"
+              value={arenaId}
+              placeholder="00000000-0000-0000-0000-000000000000"
+              onChange={(e) => setArenaId(e.target.value)}
+            />
+            {openError ? <p className="text-destructive text-sm">{openError}</p> : null}
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11 w-full"
+            onClick={handleOpenArena}
+          >
+            Abrir arena
+          </Button>
+        </div>
+      </OwnerSectionCard>
     </div>
   );
 }

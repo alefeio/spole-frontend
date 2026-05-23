@@ -74,9 +74,15 @@ export default function AccountPage() {
       {user.role === "arena_owner" ? (
         <section className="grid gap-3 sm:grid-cols-2">
           <SummaryCard
+            title="Minhas arenas"
+            value={0}
+            description="Listagem real das suas arenas com filtros"
+            href="/owner/arenas"
+          />
+          <SummaryCard
             title="Painel da arena"
             value={0}
-            description="Reservas recebidas, espaços e horários"
+            description="Visão geral, criar arena e atalhos"
             href="/owner"
           />
         </section>
@@ -134,6 +140,16 @@ export default function AccountPage() {
         <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
           <Link href="/account/notifications">Ver notificações</Link>
         </Button>
+        {user.role === "arena_owner" ? (
+          <>
+            <Button asChild className="min-h-11 sm:min-h-9">
+              <Link href="/owner/arenas">Minhas arenas</Link>
+            </Button>
+            <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
+              <Link href="/owner">Painel da arena</Link>
+            </Button>
+          </>
+        ) : null}
       </section>
     </div>
   );

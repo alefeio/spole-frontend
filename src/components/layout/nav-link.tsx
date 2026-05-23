@@ -22,6 +22,12 @@ function isActivePath(pathname: string, href: string): boolean {
   if (href === "/account") return pathname === "/account";
   if (href === "/admin") return pathname === "/admin";
   if (href === "/owner") return pathname === "/owner";
+  if (href === "/owner/arenas") {
+    return (
+      pathname === "/owner/arenas" ||
+      (pathname.startsWith("/owner/arenas/") && pathname !== "/owner/arenas/new")
+    );
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 

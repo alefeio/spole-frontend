@@ -56,7 +56,13 @@ export default function DashboardPage() {
             title="Painel da arena"
             value={0}
             href="/owner"
-            hint="Gerir arena, espaços e reservas recebidas"
+            hint="Visão geral do dono de arena"
+          />
+          <DashboardCard
+            title="Minhas arenas"
+            value={0}
+            href="/owner/arenas"
+            hint="Listagem real com filtros e paginação"
           />
         </section>
       ) : null}
@@ -130,9 +136,14 @@ export default function DashboardPage() {
           <Link href="/arenas">Arenas</Link>
         </Button>
         {user?.role === "arena_owner" ? (
-          <Button asChild className="min-h-11 sm:min-h-9">
-            <Link href="/owner">Painel da arena</Link>
-          </Button>
+          <>
+            <Button asChild className="min-h-11 sm:min-h-9">
+              <Link href="/owner/arenas">Minhas arenas</Link>
+            </Button>
+            <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
+              <Link href="/owner">Painel da arena</Link>
+            </Button>
+          </>
         ) : null}
         {user?.role === "admin" ? (
           <Button asChild variant="outline" className="min-h-11 sm:min-h-9">

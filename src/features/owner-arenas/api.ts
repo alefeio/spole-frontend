@@ -5,8 +5,41 @@ import type { ReservationListItem } from "@/features/reservations/types";
 import type {
   CreateArenaPayload,
   CreateArenaResponse,
+  OwnerArenaListItem,
+  OwnerArenasListParams,
+  OwnerArenasListResponse,
   PatchArenaPayload
 } from "@/features/owner-arenas/types";
+
+export async function listMyArenas(
+  params: OwnerArenasListParams = {}
+): Promise<OwnerArenasListResponse> {
+  const { data, meta } = await apiClient<OwnerArenaListItem[]>(endpoints.users.myArenas, {
+    query: {
+      page: params.page,
+      limit: params.limit,
+      status: params.status,
+      city: params.city,
+      q: params.q,
+      sort: params.sort,
+      order: params.order
+    }
+  });
+
+  return {
+    data,
+    meta: {
+      page: Number(meta?.page ?? params.page ?? 1),
+      limit: Number(meta?.limit ?? params.limit ?? 10),
+      total: Number(meta?.total ?? data.length),
+      sort:
+        meta?.sort === "name" || meta?.sort === "createdAt" || meta?.sort === "updatedAt"
+          ? meta.sort
+          : params.sort,
+      order: meta?.order === "asc" || meta?.order === "desc" ? meta.order : params.order
+    }
+  };
+}
 
 export async function createArena(payload: CreateArenaPayload): Promise<CreateArenaResponse> {
   const { data } = await apiClient<CreateArenaResponse>(endpoints.arenas.create, {

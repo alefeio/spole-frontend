@@ -5,18 +5,33 @@ import {
   createArena,
   createOwnerArenaSpace,
   getOwnerArenaById,
+  listMyArenas,
   listOwnerArenaReservations,
   listOwnerArenaSpaces,
   patchArena
 } from "@/features/owner-arenas/api";
-import type { CreateArenaPayload, PatchArenaPayload } from "@/features/owner-arenas/types";
+import type {
+  CreateArenaPayload,
+  OwnerArenasListParams,
+  PatchArenaPayload
+} from "@/features/owner-arenas/types";
 
 export const ownerArenasKeys = {
   all: ["owner", "arenas"] as const,
+  myLists: () => [...ownerArenasKeys.all, "my-list"] as const,
+  myList: (params: OwnerArenasListParams) => [...ownerArenasKeys.myLists(), params] as const,
   detail: (arenaId: string) => [...ownerArenasKeys.all, "detail", arenaId] as const,
   spaces: (arenaId: string) => [...ownerArenasKeys.all, "spaces", arenaId] as const,
   reservations: (arenaId: string) => [...ownerArenasKeys.all, "reservations", arenaId] as const
 };
+
+export function useMyArenas(params: OwnerArenasListParams) {
+  return useQuery({
+    queryKey: ownerArenasKeys.myList(params),
+    queryFn: () => listMyArenas(params),
+    placeholderData: (prev) => prev
+  });
+}
 
 export function useOwnerArena(arenaId: string) {
   return useQuery({
@@ -31,7 +46,7 @@ export function useCreateArena() {
   return useMutation({
     mutationFn: (payload: CreateArenaPayload) => createArena(payload),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ownerArenasKeys.all });
+      void queryClient.invalidateQueries({ queryKey: ownerArenasKeys.myLists() });
     }
   });
 }
@@ -43,6 +58,7 @@ export function usePatchArena() {
       patchArena(arenaId, payload),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: ownerArenasKeys.detail(variables.arenaId) });
+      void queryClient.invalidateQueries({ queryKey: ownerArenasKeys.myLists() });
     }
   });
 }

@@ -11,6 +11,7 @@ type OwnerLayoutProps = {
 
 const ownerNavItems: NavItem[] = [
   { href: "/owner", label: "Visão geral" },
+  { href: "/owner/arenas", label: "Minhas arenas" },
   { href: "/owner/arenas/new", label: "Nova arena" }
 ];
 

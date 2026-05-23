@@ -93,7 +93,7 @@
 
 `GET /events` adiciona em `meta`: `sort` (`startAt`), `order` (`asc` | `desc`).
 
-Endpoints paginados hoje: `GET /events`, `GET /users/me/events`, `GET /arenas/:arenaId/slots`, `GET /spaces/:spaceId/slots`, `GET /users/me/notifications`, `GET /users/me/bookings`, `GET /users/me/payments`.
+Endpoints paginados hoje: `GET /events`, `GET /users/me/events`, `GET /users/me/arenas`, `GET /arenas/:arenaId/slots`, `GET /spaces/:spaceId/slots`, `GET /users/me/notifications`, `GET /users/me/bookings`, `GET /users/me/payments`.
 
 Listagens **sem** paginação na API atual: `GET /categories`, `GET /reservations/me`, `GET /users/me/participants`, `GET /events/:eventId/participants`, `GET /arenas/:arenaId/reservations`, `GET /arenas/:arenaId/spaces`.
 
@@ -194,6 +194,7 @@ Legenda de auth: **Público** | **JWT** (qualquer role autenticada salvo indica�
 | ------ | ------------------------- | --------------------- | ---------------------------- |
 | GET    | `/users/me`               | JWT                   | Perfil autenticado           |
 | GET    | `/users/me/events`        | JWT + filtros/página  | Meus eventos (organizador)   |
+| GET    | `/users/me/arenas`        | JWT + `arena_owner`   | Minhas arenas (dono)         |
 | GET    | `/users/me/participants`  | JWT                   | Minhas inscrições em eventos |
 | GET    | `/users/me/notifications` | JWT + `page`, `limit` | Notificações                 |
 | GET    | `/users/me/bookings`      | JWT + `page`, `limit` | Meus bookings                |
@@ -228,6 +229,22 @@ Lista paginada de bookings (estados: `RESERVED`, `EXPIRED`, `CANCELLED`, `COMPLE
 #### `GET /users/me/payments` — `data` + `meta`
 
 Lista paginada de pagamentos do usuário.
+
+#### `GET /users/me/arenas` — `data` + `meta`
+
+Lista paginada das arenas em que o usuário autenticado é `ownerId`. Exige role `arena_owner`. Ownership é fixo no servidor (query `ownerId` é ignorada).
+
+| Query    | Descrição                                                       |
+| -------- | --------------------------------------------------------------- |
+| `page`   | Página (default 1)                                              |
+| `limit`  | Itens por página                                                |
+| `q`      | Busca em nome/slug/cidade                                       |
+| `status` | `ACTIVE` \| `INACTIVE`                                          |
+| `city`   | Filtro por cidade                                               |
+| `sort`   | `name` \| `createdAt` \| `updatedAt` (default API: `updatedAt`) |
+| `order`  | `asc` \| `desc` (default `desc`)                                |
+
+`data[]` (enxuto): `id`, `ownerId`, `name`, `slug`, `status`, `city`, `state`, `createdAt`, `updatedAt`.
 
 #### `GET /users/me/events` — `data` + `meta`
 
@@ -604,7 +621,7 @@ Mapeamento sugerido (App Router) — rotas de UI a definir na implementação.
 | Reservar horário        | `POST /reservations`, `GET /reservations/me`, `GET /reservations/:id`                     | Organizador                          |
 | Pagar reserva de arena  | `POST /reservations/:id/payments`, polling `GET /payments/:id`                            | Autenticado — **UI mock Sprint 09+** |
 | Painel arena — reservas | `GET /arenas/:arenaId/reservations`                                                       | Dono arena                           |
-| Painel dono (13A)       | `/owner/*` — hub, criar arena, espaços, slots, reservas (sem `GET /users/me/arenas`)      | `arena_owner`                        |
+| Painel dono (13A/13B)   | `/owner/*` — hub, `GET /users/me/arenas`, criar/editar arena, espaços, slots, reservas    | `arena_owner`                        |
 | Admin — categorias      | `POST/PATCH/DELETE /categories`                                                           | `admin`                              |
 | Health (ops)            | `GET /health`                                                                             | Interno                              |
 

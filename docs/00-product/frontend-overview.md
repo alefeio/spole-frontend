@@ -24,28 +24,28 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 
 ## 4. Escopo entregue (Sprints 00–12A)
 
-| Área                | Entregas                                                             |
-| ------------------- | -------------------------------------------------------------------- |
-| Foundation          | Next.js, layout, apiClient, auth token, guards                       |
-| Auth                | Login, registro, sessão, redirect                                    |
-| Eventos             | Catálogo, detalhe, eventos privados, participação gratuita           |
-| Bookings / checkout | Reserva temporária, checkout mock, pagamento de evento pago          |
-| Conta               | Perfil, inscrições, bookings, pagamentos, notificações               |
-| Arenas              | Hub por ID, detalhe, espaços, slots, reserva SINGLE                  |
-| Reserva + pagamento | Lista/detalhe, cancelamento, checkout mock de reserva                |
-| Hardening (10)      | Request id, 429, idempotência, polling centralizado, cache terminal  |
-| Organizador (11)    | CRUD mínimo de eventos, listagem `GET /users/me/events`              |
-| Admin (12A)         | Hub `/admin`, listagens operacionais, ações de status com motivo     |
-| Dono de arena (13A) | Hub `/owner`, criar/editar arena, espaços, slots, reservas recebidas |
+| Área                    | Entregas                                                                                    |
+| ----------------------- | ------------------------------------------------------------------------------------------- |
+| Foundation              | Next.js, layout, apiClient, auth token, guards                                              |
+| Auth                    | Login, registro, sessão, redirect                                                           |
+| Eventos                 | Catálogo, detalhe, eventos privados, participação gratuita                                  |
+| Bookings / checkout     | Reserva temporária, checkout mock, pagamento de evento pago                                 |
+| Conta                   | Perfil, inscrições, bookings, pagamentos, notificações                                      |
+| Arenas                  | Hub por ID, detalhe, espaços, slots, reserva SINGLE                                         |
+| Reserva + pagamento     | Lista/detalhe, cancelamento, checkout mock de reserva                                       |
+| Hardening (10)          | Request id, 429, idempotência, polling centralizado, cache terminal                         |
+| Organizador (11)        | CRUD mínimo de eventos, listagem `GET /users/me/events`                                     |
+| Admin (12A)             | Hub `/admin`, listagens operacionais, ações de status com motivo                            |
+| Dono de arena (13A/13B) | Hub `/owner`, listagem `GET /users/me/arenas`, criar/editar arena, espaços, slots, reservas |
 
 ## 5. Perfis e áreas da UI
 
-| Perfil        | Áreas no frontend atual                                            |
-| ------------- | ------------------------------------------------------------------ |
-| Participante  | Eventos, inscrição, checkout pago, conta, arenas, reservas         |
-| Organizador   | `/account/events` — criar, editar, publicar, cancelar              |
-| Dono de arena | `/owner/*` — operação da própria arena (sem listagem global ainda) |
-| Admin         | `/admin/*` — operação da plataforma (separado do owner)            |
+| Perfil        | Áreas no frontend atual                                      |
+| ------------- | ------------------------------------------------------------ |
+| Participante  | Eventos, inscrição, checkout pago, conta, arenas, reservas   |
+| Organizador   | `/account/events` — criar, editar, publicar, cancelar        |
+| Dono de arena | `/owner/*` — listagem em `/owner/arenas`, operação por arena |
+| Admin         | `/admin/*` — operação da plataforma (separado do owner)      |
 
 ## 6. Integração com a API
 
@@ -59,7 +59,7 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 - **Recorrência** semanal e pagamento por ocorrência.
 - **Gateway real** (PIX/cartão de produção).
 - **Webhook no browser** — confirmação mock via backend em dev.
-- **Listagem minhas arenas** (`GET /users/me/arenas`), dashboard analítico admin, CRUD completo de arenas/slots.
+- Dashboard analítico admin, CRUD completo de arenas/slots além do já exposto.
 - **`PATCH /users/me`**, módulo `/search`, listagem global `GET /arenas`.
 
 ## 8. Próximos passos sugeridos
