@@ -10,12 +10,15 @@ import { useMe } from "@/features/auth/hooks";
 import { OWNER_INPUT_CLASS } from "@/features/owner/components/owner-constants";
 import { OwnerArenaNavigation } from "@/features/owner/components/owner-arena-navigation";
 import { OwnerPageHeader } from "@/features/owner/components/owner-page-header";
+import { OwnerClientFilterNotice } from "@/features/owner-arenas/components/owner-client-filter-notice";
+import { OwnerDatePresets } from "@/features/owner-arenas/components/owner-date-presets";
 import { OwnerReservationStatusBadge } from "@/features/owner-arenas/components/owner-reservation-status-badge";
 import {
-  formatOwnerDateTime,
-  isSameCalendarDay,
+  filterReservationsByDate,
+  filterReservationsByStatus,
   sortReservationsBySlotStart
-} from "@/features/owner/utils";
+} from "@/features/owner-arenas/utils/owner-reservation-filters";
+import { formatOwnerDateTime } from "@/features/owner/utils";
 import { useOwnerArenaReservations } from "@/features/owner-arenas/hooks";
 import type { Arena } from "@/features/arenas/types";
 
@@ -28,13 +31,12 @@ export function OwnerArenaReservationsView({ arena }: OwnerArenaReservationsView
   const query = useOwnerArenaReservations(arena.id);
   const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const base = `/owner/arenas/${arena.id}`;
 
   const filtered = useMemo(() => {
     let list = query.data ?? [];
-    if (statusFilter) list = list.filter((r) => r.status === statusFilter);
-    if (dateFilter) {
-      list = list.filter((r) => r.slot?.startAt && isSameCalendarDay(r.slot.startAt, dateFilter));
-    }
+    list = filterReservationsByStatus(list, statusFilter);
+    list = filterReservationsByDate(list, dateFilter);
     return sortReservationsBySlotStart(list);
   }, [query.data, statusFilter, dateFilter]);
 
@@ -48,16 +50,20 @@ export function OwnerArenaReservationsView({ arena }: OwnerArenaReservationsView
       ? "Nenhuma reserva com esse status"
       : "Nenhuma reserva recebida ainda";
 
+  const agendaHref = dateFilter ? `${base}/agenda?date=${dateFilter}` : `${base}/agenda`;
+
   return (
     <div className="space-y-6 overflow-x-hidden">
       <OwnerPageHeader
         title="Reservas recebidas"
-        description="Lista carregada da API. Filtros de data e status são aplicados no navegador."
+        description="Todas as reservas da arena carregadas de uma vez pela API."
       />
 
       <OwnerArenaNavigation arenaId={arena.id} />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <OwnerClientFilterNotice />
+
+      <div className="space-y-4 rounded-xl border p-4">
         <div className="space-y-2">
           <Label htmlFor="res-date">Data do horário</Label>
           <input
@@ -67,6 +73,7 @@ export function OwnerArenaReservationsView({ arena }: OwnerArenaReservationsView
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
           />
+          <OwnerDatePresets value={dateFilter} onChange={setDateFilter} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="res-status">Status</Label>
@@ -83,7 +90,26 @@ export function OwnerArenaReservationsView({ arena }: OwnerArenaReservationsView
             <option value="CONSUMED">Consumida</option>
           </select>
         </div>
+        {(dateFilter || statusFilter) && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="min-h-11"
+            onClick={() => {
+              setDateFilter("");
+              setStatusFilter("");
+            }}
+          >
+            Limpar filtros
+          </Button>
+        )}
       </div>
+
+      {dateFilter ? (
+        <Button asChild variant="outline" className="min-h-11 w-full sm:w-auto">
+          <Link href={agendaHref}>Ver agenda desta data</Link>
+        </Button>
+      ) : null}
 
       {query.isLoading ? <CardsSkeleton count={3} /> : null}
       {query.isError ? (
@@ -114,7 +140,7 @@ export function OwnerArenaReservationsView({ arena }: OwnerArenaReservationsView
                 <span className="text-muted-foreground text-xs">{reservation.type}</span>
               </div>
               {reservation.slot ? (
-                <p className="text-sm font-medium">
+                <p className="text-base font-semibold">
                   {formatOwnerDateTime(reservation.slot.startAt)} —{" "}
                   {formatOwnerDateTime(reservation.slot.endAt)}
                 </p>
@@ -133,17 +159,24 @@ export function OwnerArenaReservationsView({ arena }: OwnerArenaReservationsView
               <p className="font-mono text-xs break-all">Slot: {reservation.slotId}</p>
               <p className="font-mono text-xs break-all">Organizador: {reservation.organizerId}</p>
               <Button asChild variant="outline" className="min-h-11 w-full">
-                <Link href={`/owner/arenas/${arena.id}/reservations/${reservation.id}`}>
-                  Ver detalhe
-                </Link>
+                <Link href={`${base}/reservations/${reservation.id}`}>Ver detalhe</Link>
               </Button>
             </article>
           </li>
         ))}
       </ul>
 
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Button asChild variant="outline" className="min-h-11">
+          <Link href={`${base}/agenda`}>Agenda do dia</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11">
+          <Link href={`${base}/spaces`}>Espaços e horários</Link>
+        </Button>
+      </div>
+
       <Button asChild variant="ghost" className="min-h-11 px-0">
-        <Link href={`/owner/arenas/${arena.id}`}>← Visão geral da arena</Link>
+        <Link href={base}>← Visão geral da arena</Link>
       </Button>
     </div>
   );

@@ -24,19 +24,19 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 
 ## 4. Escopo entregue (Sprints 00–12A)
 
-| Área                    | Entregas                                                                       |
-| ----------------------- | ------------------------------------------------------------------------------ |
-| Foundation              | Next.js, layout, apiClient, auth token, guards                                 |
-| Auth                    | Login, registro, sessão, redirect                                              |
-| Eventos                 | Catálogo, detalhe, eventos privados, participação gratuita                     |
-| Bookings / checkout     | Reserva temporária, checkout mock, pagamento de evento pago                    |
-| Conta                   | Perfil, inscrições, bookings, pagamentos, notificações                         |
-| Arenas                  | Hub por ID, detalhe, espaços, slots, reserva SINGLE                            |
-| Reserva + pagamento     | Lista/detalhe, cancelamento, checkout mock de reserva                          |
-| Hardening (10)          | Request id, 429, idempotência, polling centralizado, cache terminal            |
-| Organizador (11)        | CRUD mínimo de eventos, listagem `GET /users/me/events`                        |
-| Admin (12A)             | Hub `/admin`, listagens operacionais, ações de status com motivo               |
-| Dono de arena (13A–13C) | Hub `/owner`, listagem, navegação contextual, espaços, slots, reservas, agenda |
+| Área                   | Entregas                                                                    |
+| ---------------------- | --------------------------------------------------------------------------- |
+| Foundation             | Next.js, layout, apiClient, auth token, guards                              |
+| Auth                   | Login, registro, sessão, redirect                                           |
+| Eventos                | Catálogo, detalhe, eventos privados, participação gratuita                  |
+| Bookings / checkout    | Reserva temporária, checkout mock, pagamento de evento pago                 |
+| Conta                  | Perfil, inscrições, bookings, pagamentos, notificações                      |
+| Arenas                 | Hub por ID, detalhe, espaços, slots, reserva SINGLE                         |
+| Reserva + pagamento    | Lista/detalhe, cancelamento, checkout mock de reserva                       |
+| Hardening (10)         | Request id, 429, idempotência, polling centralizado, cache terminal         |
+| Organizador (11)       | CRUD mínimo de eventos, listagem `GET /users/me/events`                     |
+| Admin (12A)            | Hub `/admin`, listagens operacionais, ações de status com motivo            |
+| Dono de arena (13A–14) | Hub `/owner`, listagem, espaços, slots, reservas, agenda operacional diária |
 
 ## 5. Perfis e áreas da UI
 

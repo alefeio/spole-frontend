@@ -66,7 +66,8 @@ const CODE_MESSAGES: Record<string, string> = {
   INVALID_EVENT_STATUS: "Apenas cancelamento de evento é suportado nesta ação.",
   ARENA_SLUG_CONFLICT:
     "Não foi possível gerar um identificador único para a arena. Tente outro nome.",
-  SLOT_OVERLAP: "Este horário sobrepõe outro horário disponível no mesmo espaço.",
+  SLOT_OVERLAP:
+    "Já existe um horário disponível que cruza com esse intervalo. Ajuste o início ou o fim do horário.",
   ARENA_CREATE_FAILED: "Não foi possível criar a arena. Tente novamente.",
   SPACE_CREATE_FAILED: "Não foi possível criar o espaço. Tente novamente.",
   SLOT_CREATE_FAILED: "Não foi possível criar o horário. Tente novamente."

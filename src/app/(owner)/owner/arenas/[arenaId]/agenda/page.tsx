@@ -1,6 +1,7 @@
 "use client";
 
-import { use } from "react";
+import { Suspense, use } from "react";
+import { CardsSkeleton } from "@/components/feedback/section-state";
 import { OwnerArenaAgendaView } from "@/features/owner-arenas/components/owner-arena-agenda-view";
 import { OwnerArenaRouteShell } from "@/features/owner-arenas/components/owner-arena-route-shell";
 
@@ -12,7 +13,11 @@ export default function OwnerArenaAgendaPage({ params }: OwnerArenaAgendaPagePro
   const { arenaId } = use(params);
   return (
     <OwnerArenaRouteShell arenaId={arenaId}>
-      {(arena) => <OwnerArenaAgendaView arena={arena} />}
+      {(arena) => (
+        <Suspense fallback={<CardsSkeleton count={2} />}>
+          <OwnerArenaAgendaView arena={arena} />
+        </Suspense>
+      )}
     </OwnerArenaRouteShell>
   );
 }

@@ -10,6 +10,8 @@ import {
   listOwnerArenaSpaces,
   patchArena
 } from "@/features/owner-arenas/api";
+import { listSlotsBySpace } from "@/features/slots/api";
+import type { SlotListParams } from "@/features/slots/types";
 import type {
   CreateArenaPayload,
   OwnerArenasListParams,
@@ -22,7 +24,9 @@ export const ownerArenasKeys = {
   myList: (params: OwnerArenasListParams) => [...ownerArenasKeys.myLists(), params] as const,
   detail: (arenaId: string) => [...ownerArenasKeys.all, "detail", arenaId] as const,
   spaces: (arenaId: string) => [...ownerArenasKeys.all, "spaces", arenaId] as const,
-  reservations: (arenaId: string) => [...ownerArenasKeys.all, "reservations", arenaId] as const
+  reservations: (arenaId: string) => [...ownerArenasKeys.all, "reservations", arenaId] as const,
+  spaceSlots: (spaceId: string, params: SlotListParams) =>
+    [...ownerArenasKeys.all, "slots", spaceId, params] as const
 };
 
 export function useMyArenas(params: OwnerArenasListParams) {
@@ -92,5 +96,13 @@ export function useOwnerArenaReservations(arenaId: string) {
     queryKey: ownerArenasKeys.reservations(arenaId),
     queryFn: () => listOwnerArenaReservations(arenaId),
     enabled: Boolean(arenaId)
+  });
+}
+
+export function useOwnerSpaceSlots(spaceId: string, params: SlotListParams) {
+  return useQuery({
+    queryKey: ownerArenasKeys.spaceSlots(spaceId, params),
+    queryFn: () => listSlotsBySpace(spaceId, params),
+    enabled: Boolean(spaceId)
   });
 }

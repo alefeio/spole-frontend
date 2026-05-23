@@ -2,30 +2,37 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AccessDenied } from "@/components/feedback/access-denied";
 import { CardsSkeleton, EmptyState, ErrorState } from "@/components/feedback/section-state";
 import { PaginationControls } from "@/components/pagination/pagination-controls";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useMe } from "@/features/auth/hooks";
-import { dayRangeFromDateInput, todayDateInputValue } from "@/lib/date/iso-day-range";
 import { OWNER_INPUT_CLASS } from "@/features/owner/components/owner-constants";
 import { OwnerArenaNavigation } from "@/features/owner/components/owner-arena-navigation";
 import { OwnerPageHeader } from "@/features/owner/components/owner-page-header";
 import { OwnerSectionCard } from "@/features/owner/components/owner-section-card";
 import { OwnerSuccessBanner } from "@/features/owner/components/owner-success-banner";
+import { OwnerSlotOverlapHelp } from "@/features/owner-arenas/components/owner-slot-overlap-help";
 import { OwnerSlotStatusBadge } from "@/features/owner-arenas/components/owner-slot-status-badge";
-import { formatOwnerDateTime, formatOwnerMoney } from "@/features/owner/utils";
-import { useOwnerArenaSpaces } from "@/features/owner-arenas/hooks";
+import { OwnerSlotListToolbar } from "@/features/owner-arenas/components/slots/owner-slot-list-toolbar";
+import {
+  ownerArenasKeys,
+  useOwnerArenaSpaces,
+  useOwnerSpaceSlots
+} from "@/features/owner-arenas/hooks";
 import {
   createSlotFormSchema,
   createSlotFormToPayload,
   type CreateSlotFormValues
 } from "@/features/owner-arenas/schemas";
+import { buildDayRange, getTodayDate } from "@/features/owner-arenas/utils/owner-date-presets";
+import { formatOwnerDateTime, formatOwnerMoney } from "@/features/owner/utils";
 import type { Arena } from "@/features/arenas/types";
-import { createSlot, listSlotsBySpace } from "@/features/slots/api";
+import { createSlot } from "@/features/slots/api";
 import { getApiErrorMessage } from "@/lib/api/error-messages";
+import { ApiError } from "@/lib/api/errors";
 
 const SLOTS_LIMIT = 50;
 
@@ -37,6 +44,9 @@ const defaultSlotForm: CreateSlotFormValues = {
   notes: ""
 };
 
+const SLOTS_INFO_COPY =
+  "Esta tela mostra horários disponíveis para reserva. Horários que já receberam reserva aparecem em Reservas recebidas e na Agenda.";
+
 type OwnerSpaceSlotsViewProps = {
   arena: Arena;
   spaceId: string;
@@ -47,37 +57,44 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
   const queryClient = useQueryClient();
   const spacesQuery = useOwnerArenaSpaces(arena.id);
   const space = spacesQuery.data?.find((s) => s.id === spaceId);
-  const [dateValue, setDateValue] = useState(todayDateInputValue);
+  const [dateValue, setDateValue] = useState(getTodayDate);
   const [page, setPage] = useState(1);
   const [showCreate, setShowCreate] = useState(false);
   const [slotForm, setSlotForm] = useState<CreateSlotFormValues>(defaultSlotForm);
   const [message, setMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const range = useMemo(() => dayRangeFromDateInput(dateValue), [dateValue]);
+  const range = useMemo(() => buildDayRange(dateValue), [dateValue]);
+  const slotParams = useMemo(
+    () => ({
+      page,
+      limit: SLOTS_LIMIT,
+      dateFrom: range.dateFrom,
+      dateTo: range.dateTo
+    }),
+    [page, range.dateFrom, range.dateTo]
+  );
 
-  const slotsQuery = useQuery({
-    queryKey: ["owner", "slots", spaceId, page, range.dateFrom, range.dateTo],
-    queryFn: () =>
-      listSlotsBySpace(spaceId, {
-        page,
-        limit: SLOTS_LIMIT,
-        dateFrom: range.dateFrom,
-        dateTo: range.dateTo
-      }),
-    enabled: Boolean(spaceId)
-  });
+  const slotsQuery = useOwnerSpaceSlots(spaceId, slotParams);
+  const base = `/owner/arenas/${arena.id}`;
 
   const createMutation = useMutation({
     mutationFn: (payload: ReturnType<typeof createSlotFormToPayload>) =>
       createSlot(spaceId, payload),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["owner", "slots", spaceId] });
+      void queryClient.invalidateQueries({
+        queryKey: [...ownerArenasKeys.all, "slots", spaceId]
+      });
       setShowCreate(false);
       setSlotForm(defaultSlotForm);
       setSuccessMessage("Horário criado com sucesso.");
+      setMessage(null);
     }
   });
+
+  const showOverlapHelp =
+    (createMutation.error instanceof ApiError && createMutation.error.code === "SLOT_OVERLAP") ||
+    Boolean(message?.includes("cruza com esse intervalo"));
 
   if (me.isSuccess && me.data && me.data.id !== arena.ownerId) {
     return <AccessDenied title="Arena de outro dono" description="Acesso negado." />;
@@ -97,53 +114,39 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
     });
   }
 
+  function handleDateChange(next: string) {
+    setDateValue(next);
+    setPage(1);
+  }
+
   return (
     <div className="space-y-6 overflow-x-hidden">
       <OwnerPageHeader
         title={space?.name ?? "Horários disponíveis"}
-        description="Horários retornados pela API para este espaço na data selecionada."
+        description="Crie um horário disponível para reserva neste espaço."
       />
 
       <OwnerArenaNavigation arenaId={arena.id} />
 
       <OwnerSectionCard>
-        <p className="text-muted-foreground text-sm">
-          Esta tela mostra horários disponíveis para reserva. Reservas já realizadas aparecem na
-          agenda e em Reservas recebidas.
-        </p>
+        <p className="text-muted-foreground text-sm">{SLOTS_INFO_COPY}</p>
       </OwnerSectionCard>
 
-      <div className="space-y-2">
-        <Label htmlFor="slot-date">Data</Label>
-        <input
-          id="slot-date"
-          type="date"
-          className={OWNER_INPUT_CLASS}
-          value={dateValue}
-          onChange={(e) => {
-            setDateValue(e.target.value);
-            setPage(1);
-          }}
-        />
-      </div>
-
-      <Button
-        type="button"
-        className="min-h-11 w-full sm:w-auto"
-        onClick={() => setShowCreate((v) => !v)}
-      >
-        {showCreate ? "Fechar criação" : "Criar horário"}
-      </Button>
+      <OwnerSlotListToolbar
+        dateValue={dateValue}
+        onDateChange={handleDateChange}
+        showCreate={showCreate}
+        onToggleCreate={() => setShowCreate((v) => !v)}
+      />
 
       {successMessage ? <OwnerSuccessBanner message={successMessage} /> : null}
-      {message ? (
-        <p className="text-destructive text-sm" role="alert">
-          {message}
-        </p>
-      ) : null}
 
       {showCreate ? (
-        <OwnerSectionCard title="Novo horário">
+        <OwnerSectionCard title="Novo horário (criação unitária)">
+          <p className="text-muted-foreground mb-4 text-sm">
+            Preencha início, término e preço. Cada envio cria um único horário disponível — sem
+            repetição automática ou criação em lote.
+          </p>
           <form className="space-y-4" onSubmit={handleCreateSlot}>
             <div className="space-y-2">
               <Label htmlFor="slot-start">Início *</Label>
@@ -194,16 +197,23 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
                 onChange={(e) => setSlotForm((f) => ({ ...f, allowsRecurring: e.target.checked }))}
               />
               <span>
-                Permite recorrência neste horário (flag informativa — sem fluxo de recorrência nesta
-                versão)
+                Permite recorrência neste horário (apenas flag informativa — sem fluxo de
+                recorrência nesta versão).
               </span>
             </label>
             <Button type="submit" className="min-h-11 w-full" disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Criando…" : "Criar horário"}
+              {createMutation.isPending ? "Criando…" : "Criar horário disponível"}
             </Button>
           </form>
         </OwnerSectionCard>
       ) : null}
+
+      {message && !showOverlapHelp ? (
+        <p className="text-destructive text-sm" role="alert">
+          {message}
+        </p>
+      ) : null}
+      <OwnerSlotOverlapHelp visible={showOverlapHelp} />
 
       {slotsQuery.isLoading ? <CardsSkeleton count={3} /> : null}
       {slotsQuery.isError ? (
@@ -217,7 +227,7 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
       {slotsQuery.isSuccess && slotsQuery.data.data.length === 0 ? (
         <EmptyState
           title="Nenhum horário disponível nesta data"
-          description="Crie um horário ou escolha outra data."
+          description="Crie um horário ou escolha outra data. Horários já reservados não aparecem aqui."
         />
       ) : null}
 
@@ -253,9 +263,17 @@ export function OwnerSpaceSlotsView({ arena, spaceId }: OwnerSpaceSlotsViewProps
         />
       ) : null}
 
-      <Button asChild variant="ghost" className="min-h-11 px-0">
-        <Link href={`/owner/arenas/${arena.id}/spaces`}>← Espaços</Link>
-      </Button>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Button asChild variant="outline" className="min-h-11">
+          <Link href={`${base}/agenda`}>Ver agenda</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11">
+          <Link href={`${base}/reservations`}>Ver reservas recebidas</Link>
+        </Button>
+        <Button asChild variant="ghost" className="min-h-11 sm:col-span-2">
+          <Link href={`${base}/spaces`}>← Voltar aos espaços</Link>
+        </Button>
+      </div>
     </div>
   );
 }

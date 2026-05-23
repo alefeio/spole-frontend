@@ -104,9 +104,20 @@ export function OwnerReservationDetailView({
         </p>
       </OwnerSectionCard>
 
-      <Button asChild variant="ghost" className="min-h-11 px-0">
-        <Link href={`${base}/reservations`}>← Reservas recebidas</Link>
-      </Button>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <Button asChild variant="outline" className="min-h-11">
+          <Link href={`${base}/agenda`}>Agenda do dia</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11">
+          <Link href={`${base}/reservations`}>Todas as reservas</Link>
+        </Button>
+        <Button asChild variant="outline" className="min-h-11 sm:col-span-2">
+          <Link href={`${base}/spaces`}>Espaços e horários</Link>
+        </Button>
+        <Button asChild variant="ghost" className="min-h-11 sm:col-span-2">
+          <Link href={base}>Visão geral da arena</Link>
+        </Button>
+      </div>
     </div>
   );
 }

@@ -16,16 +16,7 @@ export function formatOwnerMoney(value: number | null | undefined): string {
   return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 }
 
-export function isSameCalendarDay(isoA: string, dateInput: string): boolean {
-  const a = new Date(isoA);
-  const b = new Date(`${dateInput}T12:00:00`);
-  if (Number.isNaN(a.getTime()) || Number.isNaN(b.getTime())) return false;
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
+export { isSameOwnerCalendarDay as isSameCalendarDay } from "@/features/owner-arenas/utils/owner-date-presets";
 
 export const OWNER_ARENAS_DEFAULT_LIMIT = 10;
 
@@ -57,20 +48,6 @@ export function buildOwnerQueryString(
   return suffix ? `${basePath}?${suffix}` : basePath;
 }
 
-export function sortReservationsBySlotStart<T extends { slot?: { startAt?: string } | null }>(
-  list: T[]
-): T[] {
-  return [...list].sort((a, b) => {
-    const ta = a.slot?.startAt ? new Date(a.slot.startAt).getTime() : 0;
-    const tb = b.slot?.startAt ? new Date(b.slot.startAt).getTime() : 0;
-    return ta - tb;
-  });
-}
+export { sortReservationsBySlotStart } from "@/features/owner-arenas/utils/owner-reservation-filters";
 
-export function todayDateInputValue(): string {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
+export { getTodayDate as todayDateInputValue } from "@/features/owner-arenas/utils/owner-date-presets";

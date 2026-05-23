@@ -18,7 +18,7 @@ function buildItems(arenaId: string): NavItem[] {
   const base = `/owner/arenas/${arenaId}`;
   return [
     {
-      label: "Visão geral",
+      label: "Geral",
       href: base,
       isActive: (pathname) => pathname === base
     },
@@ -35,8 +35,7 @@ function buildItems(arenaId: string): NavItem[] {
     {
       label: "Reservas",
       href: `${base}/reservations`,
-      isActive: (pathname) =>
-        pathname.startsWith(`${base}/reservations`) && !pathname.includes("/agenda")
+      isActive: (pathname) => pathname.startsWith(`${base}/reservations`)
     },
     {
       label: "Agenda",
