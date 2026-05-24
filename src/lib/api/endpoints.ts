@@ -29,7 +29,9 @@ export const endpoints = {
     byId: (id: string) => `/events/${id}` as const,
     participants: (eventId: string) => `/events/${eventId}/participants` as const,
     joinFree: (eventId: string) => `/events/${eventId}/participants/free` as const,
-    bookings: (eventId: string) => `/events/${eventId}/bookings` as const
+    bookings: (eventId: string) => `/events/${eventId}/bookings` as const,
+    payments: (eventId: string) => `/events/${eventId}/payments` as const,
+    summary: (eventId: string) => `/events/${eventId}/summary` as const
   },
   bookings: {
     cancel: (id: string) => `/bookings/${id}/cancel` as const
@@ -50,6 +52,7 @@ export const endpoints = {
     cancel: (id: string) => `/reservations/${id}/cancel` as const
   },
   arenas: {
+    list: "/arenas",
     create: "/arenas",
     byId: (id: string) => `/arenas/${id}` as const,
     slots: (arenaId: string) => `/arenas/${arenaId}/slots` as const,

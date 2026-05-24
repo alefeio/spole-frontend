@@ -93,7 +93,7 @@
 
 `GET /events` adiciona em `meta`: `sort` (`startAt`), `order` (`asc` | `desc`).
 
-Endpoints paginados hoje: `GET /events`, `GET /users/me/events`, `GET /users/me/arenas`, `GET /arenas/:arenaId/slots`, `GET /spaces/:spaceId/slots`, `GET /users/me/notifications`, `GET /users/me/bookings`, `GET /users/me/payments`.
+Endpoints paginados hoje: `GET /events`, `GET /arenas`, `GET /users/me/events`, `GET /users/me/arenas`, `GET /events/:eventId/bookings`, `GET /events/:eventId/payments`, `GET /arenas/:arenaId/slots`, `GET /spaces/:spaceId/slots`, `GET /users/me/notifications`, `GET /users/me/bookings`, `GET /users/me/payments`.
 
 Listagens **sem** paginação na API atual: `GET /categories`, `GET /reservations/me`, `GET /users/me/participants`, `GET /events/:eventId/participants`, `GET /arenas/:arenaId/reservations`, `GET /arenas/:arenaId/spaces`.
 
@@ -313,6 +313,14 @@ Item típico em `data`: `id`, `title`, `status`, `visibility`, `type`, `sourceTy
 | PATCH  | `/events/:id` | JWT (dono ou admin)                    | Atualizar                |
 | DELETE | `/events/:id` | JWT (dono ou admin)                    | Cancelar logicamente     |
 
+**Operação do organizador** (dono do evento ou admin; não usar rotas `/admin/*`):
+
+| Método | Rota                        | Auth                                   | Descrição                              |
+| ------ | --------------------------- | -------------------------------------- | -------------------------------------- |
+| GET    | `/events/:eventId/summary`  | JWT `user` \| `arena_owner` \| `admin` | Resumo (capacidade, bookings, receita) |
+| GET    | `/events/:eventId/bookings` | JWT (idem)                             | Bookings do evento (paginado)          |
+| GET    | `/events/:eventId/payments` | JWT (idem)                             | Pagamentos do evento (paginado)        |
+
 #### `GET /events/:id` — query
 
 | Param         | Uso                                                          |
@@ -498,6 +506,7 @@ Apenas `status: PAID` é aceito para concluir fluxo.
 
 | Método | Rota                            | Auth                         | Descrição                   |
 | ------ | ------------------------------- | ---------------------------- | --------------------------- |
+| GET    | `/arenas`                       | Público                      | Catálogo (ACTIVE; paginado) |
 | POST   | `/arenas`                       | JWT `arena_owner` \| `admin` | Criar arena                 |
 | GET    | `/arenas/:id`                   | Público                      | Detalhe                     |
 | PATCH  | `/arenas/:id`                   | JWT dono da arena ou admin   | Atualizar                   |
@@ -505,7 +514,11 @@ Apenas `status: PAID` é aceito para concluir fluxo.
 | GET    | `/arenas/:arenaId/reservations` | JWT dono da arena ou admin   | Reservas da arena           |
 | GET    | `/arenas/:arenaId/spaces`       | Público                      | Espaços (via módulo spaces) |
 
-> **`GET /arenas` (listagem global) não existe.**
+#### `GET /arenas` — query
+
+`page`, `limit`, `q` (nome/slug/endereço), `city`, `state` (UF 2 letras), `district`, `sort` (`name` \| `createdAt` \| `updatedAt`), `order` (`asc` \| `desc`).
+
+**Resposta `data[]` (item público):** `id`, `name`, `slug`, `status`, `city`, `state`, `district`, `addressName`, `createdAt`.
 
 #### `POST /arenas` — body
 
@@ -615,7 +628,9 @@ Mapeamento sugerido (App Router) — rotas de UI a definir na implementação.
 | Meus pagamentos         | `GET /users/me/payments`, `GET /payments/:id`                                             | Autenticado                          |
 | Notificações            | `GET /users/me/notifications`, `PATCH /notifications/:id/read`                            | Autenticado                          |
 | Participantes do evento | `GET /events/:eventId/participants`                                                       | Organizador                          |
-| Explorar arena          | `GET /arenas/:id`, `GET /arenas/:id/spaces`, `GET /arenas/:id/slots`                      | Todos / organizador                  |
+| Catálogo de arenas      | `GET /arenas` (q, city, state, district, page, limit, sort, order)                        | Público                              |
+| Explorar arena          | `GET /arenas/:id`, `GET /arenas/:id/spaces`, `GET /spaces/:spaceId/slots`                 | Todos                                |
+| Operação do evento      | `GET /events/:eventId/summary`, `.../bookings`, `.../payments`                            | Organizador (não usar `/admin/*`)    |
 | Cadastro de arena       | `POST /arenas`, `PATCH /arenas/:id`                                                       | `arena_owner`                        |
 | Espaços e slots         | `POST /arenas/:id/spaces`, `POST /spaces/:id/slots`                                       | Dono arena                           |
 | Reservar horário        | `POST /reservations`, `GET /reservations/me`, `GET /reservations/:id`                     | Organizador                          |
@@ -630,21 +645,21 @@ Mapeamento sugerido (App Router) — rotas de UI a definir na implementação.
 
 ## 8. Pontos pendentes ou instáveis
 
-| Item                                        | Situação                                            | Impacto no frontend                                                          |
-| ------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Pagamento de reserva de arena               | API mock + UI checkout (Sprints 09–10)              | Confirmação via webhook **no backend**; polling `GET /payments/:id` no front |
-| Recorrência semanal                         | API parcial (`RECURRING`, ocorrências)              | UI operacional de recorrência **fora** do MVP web                            |
-| Webhooks de pagamento                       | Somente backend                                     | Front **não** chama webhooks                                                 |
-| `GET /arenas` (lista global)                | Não existe                                          | Hub `/arenas` por ID; sem catálogo de arenas                                 |
-| `GET /arenas/:arenaId/reservations` filtros | Lista completa; sem `dateFrom`/`status` no servidor | Filtros **client-side** no painel dono (Sprint 14)                           |
-| Ações do dono sobre reserva                 | Sem rotas de cancelar/confirmar/consumir pelo dono  | Detalhe de reserva owner **somente leitura**                                 |
-| Edição / exclusão de slot                   | Sem `PATCH`/`DELETE` em slots                       | Dono: POST unitário apenas                                                   |
-| Bookings pagos do evento (organizador)      | API expõe bookings; sem painel dedicado no produto  | Aviso no detalhe do evento organizador                                       |
-| `PATCH /users/me`                           | Não existe                                          | Sem edição de perfil                                                         |
-| Search dedicado                             | Futuro; hoje `GET /events?q=...`                    | Não usar `/search`                                                           |
-| Gateway real / split / antifraude           | Fora do MVP                                         | Não modelar na UI                                                            |
-| Admin UI                                    | **Implementado** (`/admin/*`, Sprint 12A)           | Separado de `/owner/*`; não misturar papéis                                  |
-| Painel dono                                 | **Implementado** (`/owner/*`, Sprints 13–14)        | `arena_owner` only; admin usa `/admin`                                       |
+| Item                                        | Situação                                                                   | Impacto no frontend                                                          |
+| ------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Pagamento de reserva de arena               | API mock + UI checkout (Sprints 09–10)                                     | Confirmação via webhook **no backend**; polling `GET /payments/:id` no front |
+| Recorrência semanal                         | API parcial (`RECURRING`, ocorrências)                                     | UI operacional de recorrência **fora** do MVP web                            |
+| Webhooks de pagamento                       | Somente backend                                                            | Front **não** chama webhooks                                                 |
+| `GET /arenas` (lista global)                | **Implementado** (Sprint 16) — apenas arenas ACTIVE                        | Filtros: q, city, state, district, sort, order, page, limit                  |
+| `GET /arenas/:arenaId/reservations` filtros | Lista completa; sem `dateFrom`/`status` no servidor                        | Filtros **client-side** no painel dono (Sprint 14)                           |
+| Ações do dono sobre reserva                 | Sem rotas de cancelar/confirmar/consumir pelo dono                         | Detalhe de reserva owner **somente leitura**                                 |
+| Edição / exclusão de slot                   | Sem `PATCH`/`DELETE` em slots                                              | Dono: POST unitário apenas                                                   |
+| Operação do organizador por evento          | `GET /events/:eventId/summary`, `.../bookings`, `.../payments` (Sprint 16) | Não usar `/admin/bookings` nem `/admin/payments` para o organizador          |
+| `PATCH /users/me`                           | Não existe                                                                 | Sem edição de perfil                                                         |
+| Search dedicado                             | Futuro; hoje `GET /events?q=...`                                           | Não usar `/search`                                                           |
+| Gateway real / split / antifraude           | Fora do MVP                                                                | Não modelar na UI                                                            |
+| Admin UI                                    | **Implementado** (`/admin/*`, Sprint 12A)                                  | Separado de `/owner/*`; não misturar papéis                                  |
+| Painel dono                                 | **Implementado** (`/owner/*`, Sprints 13–14)                               | `arena_owner` only; admin usa `/admin`                                       |
 
 ---
 

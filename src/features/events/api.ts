@@ -10,7 +10,12 @@ import type {
   EventDetailsParams,
   EventListParams,
   EventListResponse,
+  EventBookingsListParams,
+  EventBookingsListResponse,
+  EventOperationsSummary,
   EventParticipant,
+  EventPaymentsListParams,
+  EventPaymentsListResponse,
   FreeEventParticipation,
   JoinFreeEventParams,
   OrganizerEventDetail,
@@ -150,4 +155,63 @@ export async function cancelEvent(eventId: string): Promise<CancelEventResponse>
 export async function listEventParticipants(eventId: string): Promise<EventParticipant[]> {
   const { data } = await apiClient<EventParticipant[]>(endpoints.events.participants(eventId));
   return data;
+}
+
+export async function getEventSummary(eventId: string): Promise<EventOperationsSummary> {
+  const { data } = await apiClient<EventOperationsSummary>(endpoints.events.summary(eventId));
+  return data;
+}
+
+export async function listEventBookings(
+  eventId: string,
+  params: EventBookingsListParams = {}
+): Promise<EventBookingsListResponse> {
+  const { data, meta } = await apiClient<EventBookingsListResponse["data"]>(
+    endpoints.events.bookings(eventId),
+    {
+      query: {
+        page: params.page,
+        limit: params.limit,
+        status: params.status,
+        sort: params.sort,
+        order: params.order
+      }
+    }
+  );
+
+  return {
+    data,
+    meta: {
+      page: Number(meta?.page ?? params.page ?? 1),
+      limit: Number(meta?.limit ?? params.limit ?? 10),
+      total: Number(meta?.total ?? data.length)
+    }
+  };
+}
+
+export async function listEventPayments(
+  eventId: string,
+  params: EventPaymentsListParams = {}
+): Promise<EventPaymentsListResponse> {
+  const { data, meta } = await apiClient<EventPaymentsListResponse["data"]>(
+    endpoints.events.payments(eventId),
+    {
+      query: {
+        page: params.page,
+        limit: params.limit,
+        status: params.status,
+        sort: params.sort,
+        order: params.order
+      }
+    }
+  );
+
+  return {
+    data,
+    meta: {
+      page: Number(meta?.page ?? params.page ?? 1),
+      limit: Number(meta?.limit ?? params.limit ?? 10),
+      total: Number(meta?.total ?? data.length)
+    }
+  };
 }

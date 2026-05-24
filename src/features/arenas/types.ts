@@ -42,3 +42,37 @@ export type ArenaSpace = {
   capacitySuggestion: number | null;
   status: string;
 };
+
+export type PublicArenaListItem = {
+  id: string;
+  name: string;
+  slug: string;
+  status: string;
+  city: string | null;
+  state: string | null;
+  district: string | null;
+  addressName: string;
+  createdAt: string;
+};
+
+export type PublicArenasListParams = {
+  page?: number;
+  limit?: number;
+  q?: string;
+  city?: string;
+  state?: string;
+  district?: string;
+  sort?: "name" | "createdAt" | "updatedAt";
+  order?: "asc" | "desc";
+};
+
+export type PublicArenasListMeta = {
+  page: number;
+  limit: number;
+  total: number;
+};
+
+export type PublicArenasListResponse = {
+  data: PublicArenaListItem[];
+  meta: PublicArenasListMeta;
+};

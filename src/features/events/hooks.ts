@@ -5,17 +5,22 @@ import {
   cancelEvent,
   createEvent,
   getEventById,
+  getEventSummary,
   joinFreeEvent,
   listCategories,
+  listEventBookings,
   listEventParticipants,
+  listEventPayments,
   listEvents,
   listMyEvents,
   updateEvent
 } from "@/features/events/api";
 import type {
   CreateEventPayload,
+  EventBookingsListParams,
   EventDetailsParams,
   EventListParams,
+  EventPaymentsListParams,
   JoinFreeEventParams,
   OrganizerEventsListParams,
   UpdateEventPayload
@@ -32,6 +37,11 @@ export const eventsKeys = {
     [...eventsKeys.details(), eventId, params] as const,
   categories: () => [...eventsKeys.all, "categories"] as const,
   participants: (eventId: string) => [...eventsKeys.all, "participants", eventId] as const,
+  summary: (eventId: string) => [...eventsKeys.all, "summary", eventId] as const,
+  bookings: (eventId: string, params: EventBookingsListParams) =>
+    [...eventsKeys.all, "bookings", eventId, params] as const,
+  payments: (eventId: string, params: EventPaymentsListParams) =>
+    [...eventsKeys.all, "payments", eventId, params] as const,
   mine: () => [...eventsKeys.all, "mine"] as const,
   mineList: (params: OrganizerEventsListParams) => [...eventsKeys.mine(), params] as const
 };
@@ -137,6 +147,71 @@ export function useEventParticipants(eventId: string) {
     queryKey: eventsKeys.participants(eventId),
     queryFn: () => listEventParticipants(eventId),
     enabled: Boolean(eventId),
+    retry: (failureCount, error) => {
+      if (error instanceof Error && "status" in error) {
+        const status = (error as { status?: number }).status;
+        if (status === 403 || status === 404) return false;
+      }
+      return failureCount < 1;
+    }
+  });
+}
+
+export function useEventSummary(eventId: string) {
+  return useQuery({
+    queryKey: eventsKeys.summary(eventId),
+    queryFn: () => getEventSummary(eventId),
+    enabled: Boolean(eventId),
+    retry: (failureCount, error) => {
+      if (error instanceof Error && "status" in error) {
+        const status = (error as { status?: number }).status;
+        if (status === 403 || status === 404) return false;
+      }
+      return failureCount < 1;
+    }
+  });
+}
+
+const DEFAULT_OPS_LIMIT = 10;
+
+export function useEventBookings(eventId: string, params: EventBookingsListParams = {}) {
+  const resolved = {
+    page: params.page ?? 1,
+    limit: params.limit ?? DEFAULT_OPS_LIMIT,
+    status: params.status,
+    sort: params.sort,
+    order: params.order
+  };
+
+  return useQuery({
+    queryKey: eventsKeys.bookings(eventId, resolved),
+    queryFn: () => listEventBookings(eventId, resolved),
+    enabled: Boolean(eventId),
+    placeholderData: (prev) => prev,
+    retry: (failureCount, error) => {
+      if (error instanceof Error && "status" in error) {
+        const status = (error as { status?: number }).status;
+        if (status === 403 || status === 404) return false;
+      }
+      return failureCount < 1;
+    }
+  });
+}
+
+export function useEventPayments(eventId: string, params: EventPaymentsListParams = {}) {
+  const resolved = {
+    page: params.page ?? 1,
+    limit: params.limit ?? DEFAULT_OPS_LIMIT,
+    status: params.status,
+    sort: params.sort,
+    order: params.order
+  };
+
+  return useQuery({
+    queryKey: eventsKeys.payments(eventId, resolved),
+    queryFn: () => listEventPayments(eventId, resolved),
+    enabled: Boolean(eventId),
+    placeholderData: (prev) => prev,
     retry: (failureCount, error) => {
       if (error instanceof Error && "status" in error) {
         const status = (error as { status?: number }).status;

@@ -82,7 +82,7 @@ docs/            # Documentação do frontend
 1. **Não** chamar `fetch` em páginas ou componentes — usar `src/lib/api/client.ts` via `src/features/*/api.ts`.
 2. Contrato HTTP: [`docs/02-features/api-contract-map.md`](./docs/02-features/api-contract-map.md).
 3. Sprints **00–15**: MVP web (participante, organizador, admin, dono de arena, hardening e QA operacional).
-4. Fora de escopo imediato: recorrência operacional, gateway real, webhook no browser, `/search`, `PATCH /users/me`, `GET /arenas` global.
+4. Fora de escopo imediato: recorrência operacional, gateway real, webhook no browser, `/search`, `PATCH /users/me`.
 
 ## Troubleshooting
 
@@ -152,3 +152,4 @@ Checklist operacional do MVP: [`docs/03-qa/mvp-operational-checklist.md`](./docs
 - [Sprint 13C — Refinamento painel dono](./docs/01-sprints/sprint-13c-owner-panel-refinement.md)
 - [Sprint 14 — Horários e agenda do dono](./docs/01-sprints/sprint-14-owner-slots-agenda.md)
 - [Sprint 15 — QA e hardening do MVP](./docs/01-sprints/sprint-15-mvp-qa-hardening.md)
+- [Sprint 16 — Arenas públicas e operação do evento](./docs/01-sprints/sprint-16-read-models-discovery-operations.md)

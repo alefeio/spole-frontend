@@ -211,3 +211,74 @@ export type EventParticipant = {
   status: string;
   createdAt: string;
 };
+
+export type EventOperationsSummary = {
+  eventId: string;
+  capacity: number;
+  confirmedParticipants: number;
+  activeBookings: number;
+  completedBookings: number;
+  cancelledBookings: number;
+  expiredBookings: number;
+  paidPaymentsCount: number;
+  pendingPaymentsCount: number;
+  grossRevenue: number;
+  netRevenue: number;
+  remainingSpots: number;
+};
+
+export type EventBookingListItem = {
+  id: string;
+  userId: string;
+  status: string;
+  reservedAt: string;
+  expiresAt: string;
+  purchaseCompletedAt: string | null;
+};
+
+export type EventBookingsListParams = {
+  page?: number;
+  limit?: number;
+  status?: "RESERVED" | "EXPIRED" | "CANCELLED" | "COMPLETED";
+  sort?: "reservedAt" | "createdAt";
+  order?: "asc" | "desc";
+};
+
+export type EventBookingsListResponse = {
+  data: EventBookingListItem[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+};
+
+export type EventPaymentListItem = {
+  id: string;
+  bookingId: string;
+  status: string;
+  grossAmount: number;
+  feeAmount: number;
+  netAmount: number;
+  method: string;
+  provider: string;
+  providerReference: string;
+  paidAt: string | null;
+};
+
+export type EventPaymentsListParams = {
+  page?: number;
+  limit?: number;
+  status?: "PENDING" | "PAID" | "FAILED" | "CANCELLED";
+  sort?: "createdAt" | "paidAt";
+  order?: "asc" | "desc";
+};
+
+export type EventPaymentsListResponse = {
+  data: EventPaymentListItem[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+};

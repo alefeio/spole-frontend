@@ -30,22 +30,23 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 | Eventos               | Catálogo, detalhe, eventos privados, participação gratuita           |
 | Bookings / checkout   | Reserva temporária, checkout mock, pagamento de evento pago          |
 | Conta                 | Perfil, inscrições, bookings, pagamentos, notificações               |
-| Arenas                | Hub por ID, detalhe, espaços, slots, reserva SINGLE                  |
+| Arenas                | Catálogo `GET /arenas`, detalhe, espaços, slots, reserva SINGLE      |
 | Reserva + pagamento   | Lista/detalhe, cancelamento, checkout mock de reserva                |
 | Hardening (10)        | Request id, 429, idempotência, polling centralizado, cache terminal  |
-| Organizador (11)      | CRUD mínimo de eventos, listagem `GET /users/me/events`              |
+| Organizador (11–16)   | CRUD eventos, listagem `GET /users/me/events`, operação por evento   |
 | Admin (12A)           | Hub `/admin`, listagens operacionais, ações de status com motivo     |
 | Dono de arena (13–14) | Hub `/owner`, listagem, espaços, slots, reservas, agenda operacional |
 | QA / MVP (15)         | Checklist de homologação, copy/guards/erros, docs de prontidão       |
+| Read models (16)      | Catálogo público de arenas; summary/bookings/payments do organizador |
 
 ## 5. Perfis e áreas da UI
 
-| Perfil        | Áreas no frontend atual                                                           |
-| ------------- | --------------------------------------------------------------------------------- |
-| Participante  | Eventos, inscrição, checkout pago, conta, arenas por ID, reservas                 |
-| Organizador   | `/account/events` — criar, editar, publicar, cancelar, evento a partir de reserva |
-| Dono de arena | `/owner/*` — hub, minhas arenas, espaços, slots, reservas recebidas, agenda       |
-| Admin         | `/admin/*` — operação da plataforma (separado do painel dono)                     |
+| Perfil        | Áreas no frontend atual                                                     |
+| ------------- | --------------------------------------------------------------------------- |
+| Participante  | Eventos, inscrição, checkout pago, conta, catálogo de arenas, reservas      |
+| Organizador   | `/account/events` — CRUD, publicar, operação (summary/bookings/payments)    |
+| Dono de arena | `/owner/*` — hub, minhas arenas, espaços, slots, reservas recebidas, agenda |
+| Admin         | `/admin/*` — operação da plataforma (separado do painel dono)               |
 
 Homologação manual: [`../03-qa/mvp-operational-checklist.md`](../03-qa/mvp-operational-checklist.md).
 
@@ -61,10 +62,10 @@ Homologação manual: [`../03-qa/mvp-operational-checklist.md`](../03-qa/mvp-ope
 - **Recorrência** — sem wizard operacional; dados podem aparecer somente leitura.
 - **Gateway real** — pagamentos mock (`mock-provider`); confirmação via backend/webhook de teste em dev.
 - **Webhook no browser** — não implementado.
-- **Arenas** — sem catálogo global (`GET /arenas`); hub por ID em `/arenas`.
+- **Arenas** — catálogo em `GET /arenas`; abertura por código/link como suporte secundário.
 - **Dono** — reservas da arena com filtros **no cliente**; sem cancelar/confirmar reserva pelo dono.
 - **Slots** — criação unitária; sem PATCH/DELETE/bloqueio.
-- **Organizador** — sem gestão de lista de bookings pagos do evento.
+- **Organizador** — operação por evento via read models; sem ações financeiras no front.
 - **Perfil** — sem `PATCH /users/me`.
 - **Busca** — apenas `GET /events?q=...` (sem `/search`).
 

@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { EventOriginBadge } from "@/features/events/components/event-origin-badge";
 import { EventParticipantsPanel } from "@/features/events/components/event-participants-panel";
+import { OrganizerEventOperations } from "@/features/events/components/organizer-event-operations";
 import { EventPrivateLinkCard } from "@/features/events/components/event-private-link-card";
 import { EventStatusBadge } from "@/features/events/components/event-status-badge";
 import { EventVisibilityBadge } from "@/features/events/components/event-visibility-badge";
@@ -254,13 +255,9 @@ function OrganizerEventDetailContent({ event }: { event: EventDetails }) {
         </div>
       ) : null}
 
-      {event.type === "PAID" ? (
-        <p className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm">
-          A gestão de bookings pagos deste evento será adicionada em uma etapa futura.
-        </p>
-      ) : (
-        <EventParticipantsPanel eventId={event.id} />
-      )}
+      <OrganizerEventOperations eventId={event.id} eventType={event.type} />
+
+      {event.type === "FREE" ? <EventParticipantsPanel eventId={event.id} /> : null}
 
       {organizerDetail?.locationReadOnly ? (
         <p className="border-primary/30 bg-primary/5 rounded-lg border p-3 text-sm">
