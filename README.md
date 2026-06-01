@@ -82,7 +82,7 @@ docs/            # Documentação do frontend
 1. **Não** chamar `fetch` em páginas ou componentes — usar `src/lib/api/client.ts` via `src/features/*/api.ts`.
 2. Contrato HTTP: [`docs/02-features/api-contract-map.md`](./docs/02-features/api-contract-map.md).
 3. Sprints **00–15**: MVP web (participante, organizador, admin, dono de arena, hardening e QA operacional).
-4. Fora de escopo imediato: recorrência operacional, gateway real, webhook no browser, `/search`, `PATCH /users/me`.
+4. Fora de escopo imediato: recorrência operacional, webhook no browser, `/search`, `PATCH /users/me`.
 
 ## Troubleshooting
 
@@ -136,7 +136,9 @@ O front exibe QR e copia-e-cola do campo `checkout` e faz polling em `GET /payme
 
 O navegador **não** confirma pagamentos nem chama webhook. Em **desenvolvimento** com `mock`, use `NEXT_PUBLIC_PAYMENTS_PROVIDER=mock` e dispare o webhook de teste no servidor (Sprint 09 / README da API).
 
-Homologação ponta a ponta (Sprint 19): [`docs/01-sprints/sprint-19-real-integration-homologation.md`](./docs/01-sprints/sprint-19-real-integration-homologation.md).
+Homologação ponta a ponta (H-19): checklist [`docs/03-qa/mvp-operational-checklist.md`](./docs/03-qa/mvp-operational-checklist.md#5-homologação-pix-real-h-19) (roteiros A/B/C) · contexto [`docs/01-sprints/sprint-19-real-integration-homologation.md`](./docs/01-sprints/sprint-19-real-integration-homologation.md).
+
+Webhooks no túnel (exemplos): `https://<túnel>/payments/webhook` (booking) e `https://<túnel>/reservation-payments/webhook` (reserva).
 
 ### Rate limit (HTTP 429)
 

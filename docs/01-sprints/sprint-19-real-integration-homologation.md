@@ -16,12 +16,30 @@ Validar o frontend contra o backend com **Pix/Asaas real**, polling, webhook no 
 
 ## Pré-requisitos
 
-1. API e front rodando; CORS com origem do front.
-2. Body do POST de pagamento: `{ "method": "PIX", "provider": "mock-provider" }` (único valor aceito pela API; gateway real via env do servidor).
-3. Participante com evento **PAID** publicado e arena com pagamento > 0 no seed.
-4. Dois browsers ou abas para testar organizador/dono enquanto participante paga (atualização cross-sessão depende de refetch ao focar aba).
+Checklist operacional com tabelas **B-01…B-09** (backend) e **F-01…F-05** (frontend):  
+[`docs/03-qa/mvp-operational-checklist.md`](../03-qa/mvp-operational-checklist.md#pré-requisitos).
 
-## Fluxos testados (roteiro)
+Resumo:
+
+1. API e front rodando; CORS com origem do front.
+2. Body do POST de pagamento: `{ "method": "PIX", "provider": "mock-provider" }` (único valor aceito pela API; gateway real via `PAYMENTS_PROVIDER=asaas` no servidor).
+3. Webhooks públicos: `POST /payments/webhook` (booking) e `POST /reservation-payments/webhook` (reserva).
+4. Seed com evento **PAID** e arena com pagamento > 0.
+5. Dois browsers/abas para organizador/dono (atualização cross-sessão: refetch ao focar aba).
+
+## Execução manual H-19 (roteiros)
+
+Use a seção **5. Homologação Pix real (H-19)** do checklist:
+
+| Roteiro                                                                                        | Conteúdo                                          |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| [5.1 Matriz](../03-qa/mvp-operational-checklist.md#51-matriz-de-cenários)                      | H-19-1 … H-19-16                                  |
+| [5.2 Fluxo A](../03-qa/mvp-operational-checklist.md#52-fluxo-a--evento-pago-roteiro)           | Evento pago + organizador                         |
+| [5.3 Fluxo B](../03-qa/mvp-operational-checklist.md#53-fluxo-b--reserva-de-arena-paga-roteiro) | Reserva + dono                                    |
+| [5.4 Fluxo C](../03-qa/mvp-operational-checklist.md#54-fluxo-c--falha--cancelamento-roteiro)   | FAILED / CANCELLED / expirado                     |
+| [Achados](../03-qa/mvp-operational-checklist.md#registro-de-achados-h-19)                      | Tabela de registro (não preencher antes do teste) |
+
+## Fluxos testados (referência)
 
 ### 1. Catálogo público (`/arenas`)
 
@@ -107,7 +125,7 @@ Validar o frontend contra o backend com **Pix/Asaas real**, polling, webhook no 
 - [x] `pnpm lint` / `pnpm build` / `format:write`
 - [x] Nenhum arquivo em `/api` alterado
 - [x] Checklist QA com seção H-19 e pré-requisitos Pix real
-- [ ] Homologação manual Pix real executada no ambiente Asaas (registrar na tabela “Registro de execução” do checklist)
+- [ ] Homologação manual H-19 executada (registrar em “Registro de execução” e “Registro de achados” do checklist)
 
 ## Próximos passos
 
