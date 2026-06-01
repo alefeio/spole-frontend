@@ -450,21 +450,33 @@ Apenas `status: PAID` é aceito para concluir fluxo.
 }
 ```
 
-Únicos valores aceitos hoje (`payments/shared.ts`).
+A validação atual da API aceita somente `"mock-provider"` no body (`payments/shared.ts`). A **cobrança Pix real** depende de `PAYMENTS_PROVIDER=asaas` no servidor. O frontend sempre envia `mock-provider` no POST (Sprint 18); `NEXT_PUBLIC_PAYMENTS_PROVIDER` controla apenas aviso de ambiente simulado na UI (`mock` vs `asaas`).
 
-**Resposta 201 (booking) — `data` exemplo:**
+**Resposta 201 — campos aditivos (Sprint 17 backend / Sprint 18 front):**
 
 ```json
 {
   "id", "bookingId", "status": "PENDING",
   "method", "provider", "providerReference",
-  "grossAmount", "feeAmount", "netAmount"
+  "grossAmount", "feeAmount", "netAmount",
+  "contextExpiresAt": "ISO",
+  "checkout": {
+    "pixCopyPaste": "string",
+    "pixQrCode": "data:image/png;base64,... ou URL",
+    "paymentExpiresAt": "ISO"
+  }
 }
 ```
 
 `Payment` é polimórfico: exatamente um entre `bookingId`, `reservationId`, `reservationOccurrenceId`.
 
-**Erros:** `BOOKING_NOT_PAYABLE`, `BOOKING_EXPIRED`, `RESERVATION_NOT_PAYABLE`, `RESERVATION_EXPIRED`, `PAYMENT_ALREADY_EXISTS`, `INVALID_PAYMENT_METHOD`, `INVALID_PAYMENT_PROVIDER`.
+#### `GET /payments/:id`
+
+Enquanto `status === "PENDING"`, `data.checkout` repete os campos Pix. Em status terminal, `checkout` é `null`.
+
+**Frontend:** exibir QR + copia-e-cola; polling até `PAID` | `FAILED` | `CANCELLED`; **não** chamar webhook no browser.
+
+**Erros:** `BOOKING_NOT_PAYABLE`, `BOOKING_EXPIRED`, `RESERVATION_NOT_PAYABLE`, `RESERVATION_EXPIRED`, `PAYMENT_ALREADY_EXISTS`, `INVALID_PAYMENT_METHOD`, `INVALID_PAYMENT_PROVIDER`, `PAYMENT_PROVIDER_ERROR`, `PAYMENT_CREATE_FAILED`.
 
 ---
 
@@ -645,21 +657,21 @@ Mapeamento sugerido (App Router) — rotas de UI a definir na implementação.
 
 ## 8. Pontos pendentes ou instáveis
 
-| Item                                        | Situação                                                                   | Impacto no frontend                                                          |
-| ------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Pagamento de reserva de arena               | API mock + UI checkout (Sprints 09–10)                                     | Confirmação via webhook **no backend**; polling `GET /payments/:id` no front |
-| Recorrência semanal                         | API parcial (`RECURRING`, ocorrências)                                     | UI operacional de recorrência **fora** do MVP web                            |
-| Webhooks de pagamento                       | Somente backend                                                            | Front **não** chama webhooks                                                 |
-| `GET /arenas` (lista global)                | **Implementado** (Sprint 16) — apenas arenas ACTIVE                        | Filtros: q, city, state, district, sort, order, page, limit                  |
-| `GET /arenas/:arenaId/reservations` filtros | Lista completa; sem `dateFrom`/`status` no servidor                        | Filtros **client-side** no painel dono (Sprint 14)                           |
-| Ações do dono sobre reserva                 | Sem rotas de cancelar/confirmar/consumir pelo dono                         | Detalhe de reserva owner **somente leitura**                                 |
-| Edição / exclusão de slot                   | Sem `PATCH`/`DELETE` em slots                                              | Dono: POST unitário apenas                                                   |
-| Operação do organizador por evento          | `GET /events/:eventId/summary`, `.../bookings`, `.../payments` (Sprint 16) | Não usar `/admin/bookings` nem `/admin/payments` para o organizador          |
-| `PATCH /users/me`                           | Não existe                                                                 | Sem edição de perfil                                                         |
-| Search dedicado                             | Futuro; hoje `GET /events?q=...`                                           | Não usar `/search`                                                           |
-| Gateway real / split / antifraude           | Fora do MVP                                                                | Não modelar na UI                                                            |
-| Admin UI                                    | **Implementado** (`/admin/*`, Sprint 12A)                                  | Separado de `/owner/*`; não misturar papéis                                  |
-| Painel dono                                 | **Implementado** (`/owner/*`, Sprints 13–14)                               | `arena_owner` only; admin usa `/admin`                                       |
+| Item                                        | Situação                                                                   | Impacto no frontend                                                            |
+| ------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Pagamento de reserva de arena               | `POST /reservations/:id/payments` + checkout Pix (Sprint 18)               | Confirmação via webhook **no backend** ou gateway; polling `GET /payments/:id` |
+| Recorrência semanal                         | API parcial (`RECURRING`, ocorrências)                                     | UI operacional de recorrência **fora** do MVP web                              |
+| Webhooks de pagamento                       | Somente backend                                                            | Front **não** chama webhooks                                                   |
+| `GET /arenas` (lista global)                | **Implementado** (Sprint 16) — apenas arenas ACTIVE                        | Filtros: q, city, state, district, sort, order, page, limit                    |
+| `GET /arenas/:arenaId/reservations` filtros | Lista completa; sem `dateFrom`/`status` no servidor                        | Filtros **client-side** no painel dono (Sprint 14)                             |
+| Ações do dono sobre reserva                 | Sem rotas de cancelar/confirmar/consumir pelo dono                         | Detalhe de reserva owner **somente leitura**                                   |
+| Edição / exclusão de slot                   | Sem `PATCH`/`DELETE` em slots                                              | Dono: POST unitário apenas                                                     |
+| Operação do organizador por evento          | `GET /events/:eventId/summary`, `.../bookings`, `.../payments` (Sprint 16) | Não usar `/admin/bookings` nem `/admin/payments` para o organizador            |
+| `PATCH /users/me`                           | Não existe                                                                 | Sem edição de perfil                                                           |
+| Search dedicado                             | Futuro; hoje `GET /events?q=...`                                           | Não usar `/search`                                                             |
+| Gateway real / split / antifraude           | Fora do MVP                                                                | Não modelar na UI                                                              |
+| Admin UI                                    | **Implementado** (`/admin/*`, Sprint 12A)                                  | Separado de `/owner/*`; não misturar papéis                                    |
+| Painel dono                                 | **Implementado** (`/owner/*`, Sprints 13–14)                               | `arena_owner` only; admin usa `/admin`                                         |
 
 ---
 

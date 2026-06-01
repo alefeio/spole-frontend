@@ -83,7 +83,7 @@ export default function CheckoutPage({ params }: CheckoutPageProps) {
             <h2 className="font-semibold">Pagamento indisponível</h2>
             <p className="text-muted-foreground text-sm">
               Esta reserva está com status <strong>{booking.status}</strong>. Só reservas{" "}
-              <strong>RESERVED</strong> permitem criar pagamento mock.
+              <strong>RESERVED</strong> permitem gerar pagamento com Pix.
             </p>
             <Button asChild variant="outline" className="min-h-11 w-full sm:min-h-9 sm:w-auto">
               <Link href="/account/bookings">Ver minhas inscrições</Link>
@@ -102,10 +102,10 @@ function CheckoutHeader() {
         <Link href="/account/bookings">← Voltar para minhas inscrições</Link>
       </Button>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Checkout mock</h1>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Pagamento da inscrição</h1>
         <p className="text-muted-foreground text-sm">
-          Crie e acompanhe um pagamento pendente para sua reserva de evento pago. A confirmação
-          depende do processamento no backend.
+          Pague com Pix para concluir sua reserva de evento. A confirmação depende do processamento
+          do pagamento.
         </p>
       </div>
     </header>

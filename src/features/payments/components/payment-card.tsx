@@ -77,7 +77,8 @@ export function PaymentCard({ payment }: { payment: Payment }) {
 
       {isPendingPaymentStatus(payment.status) ? (
         <p className="bg-muted rounded-lg border p-3 text-sm">
-          Pagamento pendente. A confirmação depende do processamento mock no backend.
+          Aguardando pagamento. Conclua o Pix no app do seu banco; a confirmação depende do
+          processamento do pagamento.
         </p>
       ) : null}
 

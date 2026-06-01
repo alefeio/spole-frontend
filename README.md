@@ -120,9 +120,11 @@ Contas úteis:
 
 Na pasta `/api`: `npm run db:seed:dev` (não use em produção).
 
-### Pagamento mock permanece `PENDING`
+### Pagamento Pix (checkout real)
 
-O navegador **não** confirma pagamentos. Em desenvolvimento, dispare o webhook de teste do backend (instruções na Sprint 09 em `docs/01-sprints/sprint-09-reservation-payment-mock.md` e no README da API). O front faz polling em `GET /payments/:id` por até 5 minutos enquanto o status for `PENDING`.
+Configure `NEXT_PUBLIC_PAYMENTS_PROVIDER=asaas` no `.env.local` (padrão em `.env.example`) e `PAYMENTS_PROVIDER=asaas` no backend para homologação real. O front exibe QR e copia-e-cola do campo `checkout` e faz polling em `GET /payments/:id` por até 5 minutos enquanto o status for `PENDING`.
+
+O navegador **não** confirma pagamentos nem chama webhook. Em **desenvolvimento** com `mock`, dispare o webhook de teste no servidor (Sprint 09 / README da API).
 
 ### Rate limit (HTTP 429)
 

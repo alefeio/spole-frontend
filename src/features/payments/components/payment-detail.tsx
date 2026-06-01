@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PaymentStatusBadge } from "@/features/payments/components/payment-status-badge";
+import { PixCheckoutPanel } from "@/features/payments/components/pix-checkout-panel";
 import { PAYMENT_POLL_TIMEOUT_MESSAGE } from "@/features/payments/polling-config";
 import { isPendingPaymentStatus } from "@/features/payments/payment-status";
 import type { Payment } from "@/features/payments/types";
@@ -40,10 +41,9 @@ export function PaymentDetail({
   variant = "account"
 }: PaymentDetailProps) {
   const isAdmin = variant === "admin";
-  const showBookingCheckoutLink =
-    !isAdmin && isPendingPaymentStatus(payment.status) && Boolean(payment.bookingId);
-  const showReservationCheckoutLink =
-    !isAdmin && isPendingPaymentStatus(payment.status) && Boolean(payment.reservationId);
+  const pending = isPendingPaymentStatus(payment.status);
+  const showBookingCheckoutLink = !isAdmin && pending && Boolean(payment.bookingId);
+  const showReservationCheckoutLink = !isAdmin && pending && Boolean(payment.reservationId);
   const contextLabel = payment.reservationId
     ? "Pagamento — reserva de arena"
     : payment.bookingId
@@ -60,23 +60,11 @@ export function PaymentDetail({
         <PaymentStatusBadge status={payment.status} />
       </div>
 
-      {isPolling ? (
-        <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
-          Atualizando status do pagamento… A confirmação depende do processamento no backend, não
-          deste navegador.
-        </p>
-      ) : null}
+      <PixCheckoutPanel payment={payment} isPolling={isPolling} showProviderReference />
 
-      {pollTimedOut && isPendingPaymentStatus(payment.status) ? (
+      {pollTimedOut && pending ? (
         <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
           {PAYMENT_POLL_TIMEOUT_MESSAGE}
-        </p>
-      ) : null}
-
-      {isPendingPaymentStatus(payment.status) ? (
-        <p className="bg-muted rounded-lg border p-3 text-sm">
-          Pagamento pendente. Quando o backend confirmar o pagamento, o status será atualizado nesta
-          tela.
         </p>
       ) : null}
 
@@ -97,13 +85,9 @@ export function PaymentDetail({
           <dt className="text-muted-foreground">Método</dt>
           <dd className="font-medium">{payment.method || "Não informado"}</dd>
         </div>
-        <div>
-          <dt className="text-muted-foreground">Provedor</dt>
-          <dd className="font-medium break-words">{payment.provider || "Não informado"}</dd>
-        </div>
         {payment.providerReference ? (
           <div className="sm:col-span-2">
-            <dt className="text-muted-foreground">Referência do provedor</dt>
+            <dt className="text-muted-foreground">Referência do pagamento</dt>
             <dd className="font-mono text-xs break-all">{payment.providerReference}</dd>
           </div>
         ) : null}
@@ -115,7 +99,7 @@ export function PaymentDetail({
         ) : null}
         {payment.bookingId ? (
           <div className="sm:col-span-2">
-            <dt className="text-muted-foreground">Reserva (booking)</dt>
+            <dt className="text-muted-foreground">Inscrição (booking)</dt>
             <dd className="font-mono text-xs break-all">{payment.bookingId}</dd>
           </div>
         ) : null}

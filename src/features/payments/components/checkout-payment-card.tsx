@@ -3,15 +3,17 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { isMockPaymentsDevMode } from "@/lib/payments/payment-provider";
 import { getApiErrorMessage } from "@/lib/api/error-messages";
 import { createIdempotencyKey } from "@/lib/api/idempotency";
-import { PaymentCard } from "@/features/payments/components/payment-card";
+import { PixCheckoutPanel } from "@/features/payments/components/pix-checkout-panel";
 import { useCreatePaymentForBooking, usePayment } from "@/features/payments/hooks";
 import { PAYMENT_POLL_TIMEOUT_MESSAGE } from "@/features/payments/polling-config";
 import {
   isPendingPaymentStatus,
   isTerminalPaymentStatus
 } from "@/features/payments/payment-status";
+import { getPaymentTerminalMessage } from "@/features/payments/payment-status-labels";
 
 type CheckoutPaymentCardProps = {
   bookingId: string;
@@ -35,12 +37,8 @@ export function CheckoutPaymentCard({ bookingId }: CheckoutPaymentCardProps) {
 
   const terminalMessage =
     payment && isTerminalPaymentStatus(payment.status)
-      ? payment.status === "PAID"
-        ? "Pagamento confirmado."
-        : `Status atualizado: ${payment.status}.`
+      ? getPaymentTerminalMessage(payment.status)
       : null;
-
-  const statusMessage = actionMessage ?? terminalMessage;
 
   function handleCreatePayment() {
     setActionMessage(null);
@@ -50,7 +48,7 @@ export function CheckoutPaymentCard({ bookingId }: CheckoutPaymentCardProps) {
         onSuccess: (createdPayment) => {
           setCreatedPaymentId(createdPayment.id);
           setActionMessage(
-            "Pagamento mock criado. Acompanhamos o status automaticamente enquanto estiver pendente."
+            "Pagamento Pix gerado. Conclua o pagamento no app do seu banco e aguarde a confirmação."
           );
         },
         onError: (error) => setActionMessage(getApiErrorMessage(error))
@@ -60,26 +58,33 @@ export function CheckoutPaymentCard({ bookingId }: CheckoutPaymentCardProps) {
 
   const hasPayment = Boolean(payment);
   const canCreate = !hasPayment && !createPaymentMutation.isPending;
+  const devMock = isMockPaymentsDevMode();
 
   return (
     <section className="space-y-4 rounded-xl border p-4">
       <div>
-        <h2 className="text-lg font-semibold">Pagamento mock</h2>
+        <h2 className="text-lg font-semibold">Pagar com Pix</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Crie um pagamento pendente com PIX e mock-provider. A confirmação final depende do
-          processamento no backend — não há simulação de aprovação neste navegador.
+          Gere o código Pix para concluir sua inscrição. A confirmação depende do processamento do
+          pagamento — não há aprovação manual nesta tela.
         </p>
+        {devMock ? (
+          <p className="text-muted-foreground mt-2 text-xs">
+            Ambiente de desenvolvimento: o backend pode usar provedor simulado. Em homologação real,
+            configure o servidor com Asaas.
+          </p>
+        ) : null}
       </div>
 
-      {statusMessage ? (
+      {actionMessage ? (
         <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
-          {statusMessage}
+          {actionMessage}
         </p>
       ) : null}
 
-      {isPolling ? (
-        <p className="text-muted-foreground text-sm" role="status">
-          Atualizando status a cada poucos segundos…
+      {terminalMessage && !actionMessage ? (
+        <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
+          {terminalMessage}
         </p>
       ) : null}
 
@@ -89,7 +94,7 @@ export function CheckoutPaymentCard({ bookingId }: CheckoutPaymentCardProps) {
         </p>
       ) : null}
 
-      {payment ? <PaymentCard payment={payment} /> : null}
+      {payment ? <PixCheckoutPanel payment={payment} isPolling={isPolling} /> : null}
 
       {canCreate ? (
         <Button
@@ -98,7 +103,7 @@ export function CheckoutPaymentCard({ bookingId }: CheckoutPaymentCardProps) {
           disabled={createPaymentMutation.isPending}
           onClick={handleCreatePayment}
         >
-          {createPaymentMutation.isPending ? "Criando pagamento…" : "Iniciar pagamento mock"}
+          {createPaymentMutation.isPending ? "Gerando pagamento…" : "Pagar com Pix"}
         </Button>
       ) : null}
 

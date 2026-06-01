@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { isMockPaymentsDevMode } from "@/lib/payments/payment-provider";
 import { getApiErrorMessage, isPaymentAlreadyExistsError } from "@/lib/api/error-messages";
 import { createIdempotencyKey } from "@/lib/api/idempotency";
 import { findPaymentByReservationId } from "@/features/payments/api";
-import { PaymentCard } from "@/features/payments/components/payment-card";
+import { PixCheckoutPanel } from "@/features/payments/components/pix-checkout-panel";
 import {
   useCreatePaymentForReservation,
   useReservationPaymentSync
@@ -16,6 +17,7 @@ import {
   isPendingPaymentStatus,
   isTerminalPaymentStatus
 } from "@/features/payments/payment-status";
+import { getPaymentTerminalMessage } from "@/features/payments/payment-status-labels";
 import { canCreateReservationPayment } from "@/features/reservations/reservation-payability";
 import type { ReservationDetail } from "@/features/reservations/types";
 
@@ -47,15 +49,13 @@ export function ReservationCheckoutPaymentCard({
 
   const terminalMessage =
     payment && isTerminalPaymentStatus(payment.status)
-      ? payment.status === "PAID"
-        ? "Pagamento confirmado. A reserva será atualizada quando o backend refletir o status."
-        : `Status do pagamento atualizado: ${payment.status}.`
+      ? getPaymentTerminalMessage(payment.status)
       : null;
 
-  const statusMessage = actionMessage ?? terminalMessage;
   const canPay = canCreateReservationPayment(reservation);
   const hasPayment = Boolean(payment);
   const canCreate = canPay && !hasPayment && !createPaymentMutation.isPending;
+  const devMock = isMockPaymentsDevMode();
 
   async function handlePaymentAlreadyExists() {
     try {
@@ -63,7 +63,7 @@ export function ReservationCheckoutPaymentCard({
       if (existing) {
         setExistingPaymentId(existing.id);
         setActionMessage(
-          "Encontramos o pagamento existente desta reserva. Você pode acompanhar o status abaixo."
+          "Encontramos o pagamento existente desta reserva. Conclua o Pix abaixo ou acompanhe o status."
         );
         return;
       }
@@ -83,7 +83,7 @@ export function ReservationCheckoutPaymentCard({
         onSuccess: (createdPayment) => {
           setCreatedPaymentId(createdPayment.id);
           setActionMessage(
-            "Pagamento mock criado. A confirmação final depende do processamento no backend — o frontend não aprova pagamentos."
+            "Pagamento Pix gerado. Conclua o pagamento no app do seu banco e aguarde a confirmação."
           );
         },
         onError: async (error) => {
@@ -120,23 +120,33 @@ export function ReservationCheckoutPaymentCard({
   return (
     <section className="space-y-4 rounded-xl border p-4">
       <div>
-        <h2 className="text-lg font-semibold">Pagamento mock da reserva</h2>
+        <h2 className="text-lg font-semibold">Pagar reserva com Pix</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Pagamento com PIX e mock-provider. A confirmação final depende do processamento no backend
-          — o frontend não aprova nem simula pagamento. Em desenvolvimento, o status pode permanecer
-          pendente até o backend receber a confirmação de teste.
+          Gere o código Pix para confirmar sua reserva de arena. A confirmação depende do
+          processamento do pagamento.
         </p>
+        {devMock ? (
+          <p className="text-muted-foreground mt-2 text-xs">
+            Ambiente de desenvolvimento: o backend pode usar provedor simulado.
+          </p>
+        ) : null}
       </div>
 
-      {statusMessage ? (
+      {actionMessage ? (
         <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
-          {statusMessage}
+          {actionMessage}
+        </p>
+      ) : null}
+
+      {terminalMessage && !actionMessage ? (
+        <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
+          {terminalMessage}
         </p>
       ) : null}
 
       {isPolling ? (
         <p className="text-muted-foreground text-sm" role="status">
-          Atualizando pagamento e reserva a cada poucos segundos…
+          Atualizando pagamento e reserva…
         </p>
       ) : null}
 
@@ -146,7 +156,7 @@ export function ReservationCheckoutPaymentCard({
         </p>
       ) : null}
 
-      {payment ? <PaymentCard payment={payment} /> : null}
+      {payment ? <PixCheckoutPanel payment={payment} isPolling={isPolling} /> : null}
 
       {canCreate ? (
         <Button
@@ -155,7 +165,7 @@ export function ReservationCheckoutPaymentCard({
           disabled={createPaymentMutation.isPending}
           onClick={handleCreatePayment}
         >
-          {createPaymentMutation.isPending ? "Criando pagamento…" : "Iniciar pagamento mock"}
+          {createPaymentMutation.isPending ? "Gerando pagamento…" : "Pagar com Pix"}
         </Button>
       ) : null}
 

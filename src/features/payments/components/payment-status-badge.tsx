@@ -2,11 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import type { PaymentStatus } from "@/features/payments/types";
 
 const STATUS_LABELS: Record<PaymentStatus, string> = {
-  PENDING: "Pendente",
-  PAID: "Pago",
-  FAILED: "Falhou",
+  PENDING: "Aguardando pagamento",
+  PAID: "Pagamento confirmado",
+  FAILED: "Pagamento não aprovado",
   REFUNDED: "Reembolsado",
-  CANCELLED: "Cancelado"
+  CANCELLED: "Pagamento cancelado"
 };
 
 const STATUS_VARIANT: Record<

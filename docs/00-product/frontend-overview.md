@@ -21,7 +21,7 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 3. **Contrato explícito** — tipos e endpoints alinhados a [`../02-features/api-contract-map.md`](../02-features/api-contract-map.md).
 4. **Sem antecipar backend** — não construir telas para rotas inexistentes.
 
-## 4. Escopo entregue (Sprints 00–17)
+## 4. Escopo entregue (Sprints 00–18)
 
 | Área                  | Entregas                                                             |
 | --------------------- | -------------------------------------------------------------------- |
@@ -37,7 +37,8 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 | Admin (12A)           | Hub `/admin`, listagens operacionais, ações de status com motivo     |
 | Dono de arena (13–14) | Hub `/owner`, listagem, espaços, slots, reservas, agenda operacional |
 | QA / MVP (15)         | Checklist de homologação, copy/guards/erros, docs de prontidão       |
-| Read models (16)      | Catálogo público de arenas; summary/bookings/payments do organizador |
+| Read models (16–17)   | Catálogo público de arenas; summary/bookings/payments do organizador |
+| Pagamento Pix (18)    | Checkout real (QR + copia-e-cola); polling `GET /payments/:id`       |
 | Pós-homologação (17)  | Cache da operação do evento, filtros estáveis de `/arenas`, copy PT  |
 
 ## 5. Perfis e áreas da UI
@@ -61,7 +62,7 @@ Homologação manual: [`../03-qa/mvp-operational-checklist.md`](../03-qa/mvp-ope
 ## 7. Limitações conscientes do MVP web
 
 - **Recorrência** — sem wizard operacional; dados podem aparecer somente leitura.
-- **Gateway real** — pagamentos mock (`mock-provider`); confirmação via backend/webhook de teste em dev.
+- **Pagamento** — checkout Pix via API (`checkout` + polling); mock só em dev (`NEXT_PUBLIC_PAYMENTS_PROVIDER=mock`). Confirmação **nunca** no browser (webhook no servidor/gateway).
 - **Webhook no browser** — não implementado.
 - **Arenas** — catálogo em `GET /arenas`; abertura por código/link como suporte secundário.
 - **Dono** — reservas da arena com filtros **no cliente**; sem cancelar/confirmar reserva pelo dono.

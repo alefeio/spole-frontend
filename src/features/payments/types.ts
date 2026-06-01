@@ -1,5 +1,11 @@
 export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED" | "CANCELLED";
 
+export type PaymentCheckout = {
+  pixCopyPaste?: string | null;
+  pixQrCode?: string | null;
+  paymentExpiresAt?: string | null;
+};
+
 export type Payment = {
   id: string;
   userId?: string;
@@ -9,7 +15,9 @@ export type Payment = {
   status: PaymentStatus | string;
   method: string;
   provider: string;
-  providerReference?: string;
+  providerReference?: string | null;
+  contextExpiresAt?: string | null;
+  checkout?: PaymentCheckout | null;
   grossAmount: number;
   feeAmount: number;
   netAmount: number;
@@ -34,24 +42,19 @@ export type PaymentListResponse = {
   meta: PaginationMeta;
 };
 
-export type CreatePaymentForBookingPayload = {
+export type CreatePaymentPayload = {
   method: "PIX";
-  provider: "mock-provider";
+  provider: string;
 };
 
 export type CreatePaymentForBookingParams = {
   bookingId: string;
-  payload?: CreatePaymentForBookingPayload;
+  payload?: CreatePaymentPayload;
   idempotencyKey?: string;
-};
-
-export type CreatePaymentForReservationPayload = {
-  method: "PIX";
-  provider: "mock-provider";
 };
 
 export type CreatePaymentForReservationParams = {
   reservationId: string;
-  payload?: CreatePaymentForReservationPayload;
+  payload?: CreatePaymentPayload;
   idempotencyKey?: string;
 };

@@ -29,8 +29,8 @@ export default function ReservationPaymentPage({ params }: ReservationPaymentPag
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Pagamento da reserva</h1>
           <p className="text-muted-foreground text-sm">
-            Checkout mock para reserva de arena. A confirmação depende do processamento no backend,
-            não deste navegador.
+            Pague com Pix para confirmar sua reserva de arena. A confirmação depende do
+            processamento do pagamento.
           </p>
         </div>
       </header>

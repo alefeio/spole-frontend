@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api/client";
 import { endpoints } from "@/lib/api/endpoints";
+import { buildCreatePaymentPayload } from "@/lib/payments/payment-provider";
 import type {
   CreatePaymentForBookingParams,
   CreatePaymentForReservationParams,
@@ -7,11 +8,6 @@ import type {
   PaymentListParams,
   PaymentListResponse
 } from "@/features/payments/types";
-
-const MOCK_PAYMENT_PAYLOAD = {
-  method: "PIX" as const,
-  provider: "mock-provider" as const
-};
 
 const PAYMENT_LOOKUP_LIMIT = 100;
 
@@ -40,12 +36,12 @@ export async function getPaymentById(paymentId: string): Promise<Payment> {
 
 export async function createPaymentForBooking({
   bookingId,
-  payload = MOCK_PAYMENT_PAYLOAD,
+  payload,
   idempotencyKey
 }: CreatePaymentForBookingParams): Promise<Payment> {
   const { data } = await apiClient<Payment>(endpoints.payments.forBooking(bookingId), {
     method: "POST",
-    body: payload,
+    body: payload ?? buildCreatePaymentPayload(),
     idempotencyKey
   });
 
@@ -54,12 +50,12 @@ export async function createPaymentForBooking({
 
 export async function createPaymentForReservation({
   reservationId,
-  payload = MOCK_PAYMENT_PAYLOAD,
+  payload,
   idempotencyKey
 }: CreatePaymentForReservationParams): Promise<Payment> {
   const { data } = await apiClient<Payment>(endpoints.payments.forReservation(reservationId), {
     method: "POST",
-    body: payload,
+    body: payload ?? buildCreatePaymentPayload(),
     idempotencyKey
   });
 

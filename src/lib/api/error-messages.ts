@@ -43,6 +43,14 @@ const CODE_MESSAGES: Record<string, string> = {
   RESERVATION_EXPIRED: "Esta reserva de arena expirou. Faça uma nova reserva de horário.",
   RESERVATION_NO_PAYMENT_REQUIRED: "Esta reserva não exige pagamento.",
   PAYMENT_STATE_CONFLICT: "O pagamento não pode ser confirmado no estado atual.",
+  PAYMENT_NOT_PENDING: "Este pagamento não está mais pendente.",
+  PAYMENT_EXPIRED: "O prazo para pagamento expirou.",
+  PAYMENT_PROVIDER_ERROR:
+    "Não foi possível gerar o Pix no momento. Tente novamente em alguns instantes.",
+  PAYMENT_CHECKOUT_UNAVAILABLE:
+    "Os dados do Pix ainda não estão disponíveis. Atualize a página ou tente novamente.",
+  PAYMENT_AMOUNT_MISMATCH:
+    "O valor pago não confere com o esperado. Entre em contato com o suporte.",
   RATE_LIMIT_EXCEEDED: "Muitas tentativas em pouco tempo. Aguarde um momento e tente novamente.",
   IDEMPOTENCY_KEY_REUSED: "Essa tentativa já foi processada. Atualize a página ou tente novamente.",
   IDEMPOTENCY_IN_PROGRESS: "Essa ação já está em processamento. Aguarde alguns instantes.",

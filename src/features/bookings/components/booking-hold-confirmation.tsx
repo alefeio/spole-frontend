@@ -23,7 +23,7 @@ export function BookingHoldConfirmation({ booking }: BookingHoldConfirmationProp
       <p className="text-primary font-medium">Reserva temporária criada.</p>
       <p className="text-muted-foreground mt-1">
         Status: <span className="font-medium">{booking.status}</span>. A reserva expira em{" "}
-        {formatExpiration(booking.expiresAt)}. O pagamento mock será tratado em uma próxima etapa.
+        {formatExpiration(booking.expiresAt)}. Conclua o pagamento com Pix para garantir sua vaga.
       </p>
       <Button asChild className="mt-3 min-h-11 w-full sm:min-h-9">
         <Link href={`/checkout/${booking.id}`}>Continuar pagamento</Link>
