@@ -1,8 +1,10 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { bookingsKeys } from "@/features/bookings/hooks";
 import { eventsKeys, invalidateEventOperations } from "@/features/events/hooks";
+import { ownerArenasKeys } from "@/features/owner-arenas/hooks";
 import { paymentsKeys } from "@/features/payments/hooks";
 import { reservationsKeys } from "@/features/reservations/hooks";
+import { slotsKeys } from "@/features/slots/hooks";
 import type { Payment } from "@/features/payments/types";
 
 export function invalidatePaymentTerminalCaches(queryClient: QueryClient, payment: Payment): void {
@@ -19,5 +21,7 @@ export function invalidatePaymentTerminalCaches(queryClient: QueryClient, paymen
 
   if (payment.reservationId) {
     void queryClient.invalidateQueries({ queryKey: reservationsKeys.all });
+    void queryClient.invalidateQueries({ queryKey: slotsKeys.all });
+    void queryClient.invalidateQueries({ queryKey: ownerArenasKeys.all });
   }
 }

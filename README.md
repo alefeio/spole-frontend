@@ -122,9 +122,21 @@ Na pasta `/api`: `npm run db:seed:dev` (não use em produção).
 
 ### Pagamento Pix (checkout real)
 
-Configure `NEXT_PUBLIC_PAYMENTS_PROVIDER=asaas` no `.env.local` (padrão em `.env.example`) e `PAYMENTS_PROVIDER=asaas` no backend para homologação real. O front exibe QR e copia-e-cola do campo `checkout` e faz polling em `GET /payments/:id` por até 5 minutos enquanto o status for `PENDING`.
+Configure no **frontend** (`web/.env.local`):
 
-O navegador **não** confirma pagamentos nem chama webhook. Em **desenvolvimento** com `mock`, dispare o webhook de teste no servidor (Sprint 09 / README da API).
+- `NEXT_PUBLIC_API_URL` — URL que o navegador alcança (ex.: túnel ngrok da API em homologação).
+- `NEXT_PUBLIC_PAYMENTS_PROVIDER=asaas` (padrão em `.env.example`).
+
+Configure no **backend** (`api/.env`):
+
+- `PAYMENTS_PROVIDER=asaas` e credenciais Asaas.
+- Webhook Asaas apontando para a URL pública da API (ex.: `https://<túnel>/payments/webhook`).
+
+O front exibe QR e copia-e-cola do campo `checkout` e faz polling em `GET /payments/:id` por até 5 minutos enquanto o status for `PENDING`.
+
+O navegador **não** confirma pagamentos nem chama webhook. Em **desenvolvimento** com `mock`, use `NEXT_PUBLIC_PAYMENTS_PROVIDER=mock` e dispare o webhook de teste no servidor (Sprint 09 / README da API).
+
+Homologação ponta a ponta (Sprint 19): [`docs/01-sprints/sprint-19-real-integration-homologation.md`](./docs/01-sprints/sprint-19-real-integration-homologation.md).
 
 ### Rate limit (HTTP 429)
 
@@ -155,3 +167,5 @@ Checklist operacional do MVP: [`docs/03-qa/mvp-operational-checklist.md`](./docs
 - [Sprint 14 — Horários e agenda do dono](./docs/01-sprints/sprint-14-owner-slots-agenda.md)
 - [Sprint 15 — QA e hardening do MVP](./docs/01-sprints/sprint-15-mvp-qa-hardening.md)
 - [Sprint 16 — Arenas públicas e operação do evento](./docs/01-sprints/sprint-16-read-models-discovery-operations.md)
+- [Sprint 18 — Pagamento Pix real](./docs/01-sprints/sprint-18-real-pix-integration.md)
+- [Sprint 19 — Homologação Pix real](./docs/01-sprints/sprint-19-real-integration-homologation.md)

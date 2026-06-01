@@ -9,7 +9,8 @@
 2. Frontend rodando (`pnpm dev -- -p 3001` em `/web`, se necessário).
 3. `NEXT_PUBLIC_API_URL=http://localhost:3000` em `web/.env.local`.
 4. Seed aplicado: `npm run db:seed:dev` na pasta `/api`.
-5. Para pagamentos mock: disparar **webhook de teste no backend** (não no navegador) — ver Sprint 09.
+5. **Pix real (homologação):** `PAYMENTS_PROVIDER=asaas` no backend, credenciais Asaas, webhook público (ngrok/túnel), `NEXT_PUBLIC_PAYMENTS_PROVIDER=asaas` no front — ver [Sprint 19](../01-sprints/sprint-19-real-integration-homologation.md).
+6. **Pix mock (dev):** `PAYMENTS_PROVIDER=mock` no backend, `NEXT_PUBLIC_PAYMENTS_PROVIDER=mock` no front; disparar **webhook de teste no servidor** (não no navegador) — Sprint 09.
 
 ## Como usar
 
@@ -40,7 +41,7 @@ Conta padrão: **`user1@spole.dev`** (role `user`).
 | P-03   | Participante | `user1@spole.dev` | `/events/[eventId]`                    | Em evento **FREE** publicado, clicar participar                                               | Mensagem de sucesso; inscrição registrada                                                           | `EVENT_FULL`, `ALREADY_REGISTERED`          | Evento gratuito com vagas                   |                                                          |
 | P-04   | Participante | `user1@spole.dev` | `/events/[eventId]`                    | Em evento **PAID** publicado, reservar vaga                                                   | Redireciona para `/checkout/[bookingId]`                                                            | `EVENT_NOT_OPEN_FOR_BOOKING`                | Evento pago com vagas                       |                                                          |
 | P-05   | Participante | `user1@spole.dev` | `/checkout/[bookingId]`                | Clicar **Pagar com Pix**; ver QR e/ou copia-e-cola; copiar código                             | POST retorna `checkout`; polling `PENDING`; UI sem label “mock”                                     | `BOOKING_NOT_PAYABLE`, `BOOKING_EXPIRED`    | Booking `RESERVED`; Sprint 18               |                                                          |
-| P-06   | Participante | `user1@spole.dev` | checkout + backend                     | **Dev:** webhook mock no servidor. **Real:** aguardar confirmação Asaas                       | Pagamento → `PAID`; booking completa; UI mostra confirmado                                          | Timeout após 5 min sem confirmação          | Não chamar webhook no browser               |                                                          |
+| P-06   | Participante | `user1@spole.dev` | checkout + backend                     | **Real:** pagar Pix no banco; webhook Asaas no servidor. **Dev:** webhook mock no servidor    | Pagamento → `PAID`; booking completa; UI mostra confirmado                                          | Timeout após 5 min sem confirmação          | Não chamar webhook no browser               | Sprint 19                                                |
 | P-18   | Participante | `user1@spole.dev` | `/account/reservations/[id]/payment`   | **Pagar com Pix**; QR/copia-e-cola; polling                                                   | Mesmo padrão do checkout de evento                                                                  | `RESERVATION_NOT_PAYABLE`                   | Arena com pagamento > 0                     | Sprint 18                                                |
 | P-19   | Participante | `user1@spole.dev` | `/account/payments/[id]`               | Abrir pagamento `PENDING`                                                                     | `PixCheckoutPanel` visível; some após `PAID`                                                        | —                                           | —                                           | Sprint 18                                                |
 | P-07   | Participante | `user1@spole.dev` | `/account/payments/[paymentId]`        | Abrir pagamento após confirmação                                                              | Status terminal exibido conforme API                                                                | —                                           | —                                           |                                                          |
@@ -61,20 +62,20 @@ Conta padrão: **`user1@spole.dev`** (role `user`).
 
 Conta padrão: **`org1@spole.dev`**.
 
-| Código | Papel       | Conta               | Rota inicial                 | Passos                                                                            | Resultado esperado                                                    | Erro esperado                  | Seed / dados                                 | Obs. |
-| ------ | ----------- | ------------------- | ---------------------------- | --------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------ | -------------------------------------------- | ---- |
-| O-01   | Organizador | `org1@spole.dev`    | `/account/events`            | Abrir listagem                                                                    | Eventos do organizador com filtros/paginação                          | —                              | —                                            |      |
-| O-02   | Organizador | `org1@spole.dev`    | `/account/events/new`        | Criar `FREE_LOCATION` como **DRAFT**                                              | Evento criado; aparece na lista                                       | `VALIDATION_ERROR`             | —                                            |      |
-| O-03   | Organizador | `org1@spole.dev`    | detalhe evento               | Publicar rascunho                                                                 | Status `PUBLISHED`                                                    | —                              | —                                            |      |
-| O-04   | Organizador | `org1@spole.dev`    | `/account/events/new`        | Criar evento **PRIVATE** com código                                               | `privateCode` no detalhe                                              | —                              | —                                            |      |
-| O-05   | Organizador | detalhe             | Copiar link privado          | URL contém `privateCode`                                                          | —                                                                     | —                              | Só no detalhe                                |
-| O-06   | Organizador | detalhe             | Editar campos permitidos     | Salvar                                                                            | Dados atualizados                                                     | `EVENT_CANCELLED` se cancelado | —                                            |      |
-| O-07   | Organizador | detalhe             | Cancelar com confirmação     | Status `CANCELLED`                                                                | —                                                                     | —                              |                                              |
-| O-08   | Organizador | `org1@spole.dev`    | `/account/reservations/[id]` | Reserva **CONFIRMED** → criar evento arena                                        | Form com local somente leitura                                        | `RESERVATION_INVALID_STATE`    | Reserva confirmada seed                      |      |
-| O-09   | Organizador | editar evento arena | Tentar alterar endereço/data | Campos bloqueados                                                                 | `locationReadOnly` respeitado                                         | —                              | —                                            |      |
-| O-10   | Organizador | detalhe FREE        | Abrir painel participantes   | Lista de inscritos                                                                | —                                                                     | Evento gratuito                |                                              |
-| O-11   | Organizador | `org1@spole.dev`    | detalhe evento PAID          | Ver resumo, bookings e pagamentos                                                 | Painéis carregam via API do evento                                    | 403 se não for dono            | Não usar rotas `/admin/*`                    |
-| O-12   | Organizador | `org1@spole.dev`    | detalhe evento PAID          | Após pagamento mock confirmado pelo webhook (P-06), reabrir/permanecer no detalhe | Summary, bookings e pagamentos refletem o pagamento **sem F5 manual** | —                              | Invalidação de cache da operação (Sprint 17) |
+| Código | Papel       | Conta               | Rota inicial                 | Passos                                                                  | Resultado esperado                                                         | Erro esperado                  | Seed / dados                            | Obs. |
+| ------ | ----------- | ------------------- | ---------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------ | --------------------------------------- | ---- |
+| O-01   | Organizador | `org1@spole.dev`    | `/account/events`            | Abrir listagem                                                          | Eventos do organizador com filtros/paginação                               | —                              | —                                       |      |
+| O-02   | Organizador | `org1@spole.dev`    | `/account/events/new`        | Criar `FREE_LOCATION` como **DRAFT**                                    | Evento criado; aparece na lista                                            | `VALIDATION_ERROR`             | —                                       |      |
+| O-03   | Organizador | `org1@spole.dev`    | detalhe evento               | Publicar rascunho                                                       | Status `PUBLISHED`                                                         | —                              | —                                       |      |
+| O-04   | Organizador | `org1@spole.dev`    | `/account/events/new`        | Criar evento **PRIVATE** com código                                     | `privateCode` no detalhe                                                   | —                              | —                                       |      |
+| O-05   | Organizador | detalhe             | Copiar link privado          | URL contém `privateCode`                                                | —                                                                          | —                              | Só no detalhe                           |
+| O-06   | Organizador | detalhe             | Editar campos permitidos     | Salvar                                                                  | Dados atualizados                                                          | `EVENT_CANCELLED` se cancelado | —                                       |      |
+| O-07   | Organizador | detalhe             | Cancelar com confirmação     | Status `CANCELLED`                                                      | —                                                                          | —                              |                                         |
+| O-08   | Organizador | `org1@spole.dev`    | `/account/reservations/[id]` | Reserva **CONFIRMED** → criar evento arena                              | Form com local somente leitura                                             | `RESERVATION_INVALID_STATE`    | Reserva confirmada seed                 |      |
+| O-09   | Organizador | editar evento arena | Tentar alterar endereço/data | Campos bloqueados                                                       | `locationReadOnly` respeitado                                              | —                              | —                                       |      |
+| O-10   | Organizador | detalhe FREE        | Abrir painel participantes   | Lista de inscritos                                                      | —                                                                          | Evento gratuito                |                                         |
+| O-11   | Organizador | `org1@spole.dev`    | detalhe evento PAID          | Ver resumo, bookings e pagamentos                                       | Painéis carregam via API do evento                                         | 403 se não for dono            | Não usar rotas `/admin/*`               |
+| O-12   | Organizador | `org1@spole.dev`    | detalhe evento PAID          | Após P-06 (Pix real ou mock), voltar à aba do detalhe ou reabrir evento | Summary, bookings e pagamentos refletem o pagamento (refetch ao focar aba) | —                              | Sprint 17 + 19 (`refetchOnWindowFocus`) |
 
 ---
 
@@ -104,24 +105,42 @@ Conta negativa: **`user1@spole.dev`** para testes de bloqueio.
 Conta: **`arena1@spole.dev`**.  
 Conta negativa: **`user1@spole.dev`**.
 
-| Código | Papel | Conta              | Rota inicial              | Passos                            | Resultado esperado                        | Erro esperado          | Seed / dados | Obs.      |
-| ------ | ----- | ------------------ | ------------------------- | --------------------------------- | ----------------------------------------- | ---------------------- | ------------ | --------- |
-| D-01   | User  | `user1@spole.dev`  | `/owner`                  | Tentar acessar                    | `AccessDenied`                            | —                      | —            |           |
-| D-02   | Dono  | `arena1@spole.dev` | `/owner`                  | Abrir hub                         | Links para minhas arenas                  | —                      | —            |           |
-| D-03   | Dono  | `arena1@spole.dev` | `/owner/arenas`           | Listar; filtrar; paginar          | `GET /users/me/arenas`                    | —                      | —            |           |
-| D-04   | Dono  | `arena1@spole.dev` | `/owner/arenas/new`       | Criar arena                       | Lista revalida                            | `ARENA_SLUG_CONFLICT`  | —            |           |
-| D-05   | Dono  | `arena1@spole.dev` | `…/edit`                  | Editar arena                      | Detalhe e lista atualizam                 | —                      | —            |           |
-| D-06   | Dono  | `arena1@spole.dev` | `…/spaces`                | Criar espaço                      | Lista de espaços atualiza                 | —                      | —            |           |
-| D-07   | Dono  | `arena1@spole.dev` | `…/spaces/[id]/slots`     | Criar slot unitário               | Lista do dia atualiza; sucesso            | `SLOT_OVERLAP` + ajuda | —            |           |
-| D-08   | Dono  | `arena1@spole.dev` | slots                     | Criar slot que cruza existente    | Erro claro em PT                          | `SLOT_OVERLAP`         | —            |           |
-| D-09   | Dono  | `arena1@spole.dev` | `…/reservations`          | Filtrar data/status               | Filtro **client-side**; aviso visível     | —                      | —            |           |
-| D-10   | Dono  | `arena1@spole.dev` | `…/reservations/[id]`     | Abrir detalhe somente leitura     | Sem ações de cancelar/consumir            | —                      | —            |           |
-| D-11   | Dono  | `arena1@spole.dev` | `…/agenda?date=`          | Navegar dias; ver reservas do dia | Só reservas; copy vs horários disponíveis | —                      | —            |           |
-| D-12   | Dono  | `arena1@spole.dev` | slots / agenda / reservas | Seguir links cruzados             | Navegação coerente entre módulos          | —                      | —            | Sprint 14 |
+| Código | Papel | Conta              | Rota inicial              | Passos                             | Resultado esperado                                | Erro esperado          | Seed / dados                  | Obs.      |
+| ------ | ----- | ------------------ | ------------------------- | ---------------------------------- | ------------------------------------------------- | ---------------------- | ----------------------------- | --------- |
+| D-01   | User  | `user1@spole.dev`  | `/owner`                  | Tentar acessar                     | `AccessDenied`                                    | —                      | —                             |           |
+| D-02   | Dono  | `arena1@spole.dev` | `/owner`                  | Abrir hub                          | Links para minhas arenas                          | —                      | —                             |           |
+| D-03   | Dono  | `arena1@spole.dev` | `/owner/arenas`           | Listar; filtrar; paginar           | `GET /users/me/arenas`                            | —                      | —                             |           |
+| D-04   | Dono  | `arena1@spole.dev` | `/owner/arenas/new`       | Criar arena                        | Lista revalida                                    | `ARENA_SLUG_CONFLICT`  | —                             |           |
+| D-05   | Dono  | `arena1@spole.dev` | `…/edit`                  | Editar arena                       | Detalhe e lista atualizam                         | —                      | —                             |           |
+| D-06   | Dono  | `arena1@spole.dev` | `…/spaces`                | Criar espaço                       | Lista de espaços atualiza                         | —                      | —                             |           |
+| D-07   | Dono  | `arena1@spole.dev` | `…/spaces/[id]/slots`     | Criar slot unitário                | Lista do dia atualiza; sucesso                    | `SLOT_OVERLAP` + ajuda | —                             |           |
+| D-08   | Dono  | `arena1@spole.dev` | slots                     | Criar slot que cruza existente     | Erro claro em PT                                  | `SLOT_OVERLAP`         | —                             |           |
+| D-09   | Dono  | `arena1@spole.dev` | `…/reservations`          | Filtrar data/status                | Filtro **client-side**; aviso visível             | —                      | —                             |           |
+| D-10   | Dono  | `arena1@spole.dev` | `…/reservations/[id]`     | Abrir detalhe somente leitura      | Sem ações de cancelar/consumir                    | —                      | —                             |           |
+| D-11   | Dono  | `arena1@spole.dev` | `…/agenda?date=`          | Navegar dias; ver reservas do dia  | Só reservas; copy vs horários disponíveis         | —                      | —                             |           |
+| D-12   | Dono  | `arena1@spole.dev` | slots / agenda / reservas | Seguir links cruzados              | Navegação coerente entre módulos                  | —                      | —                             | Sprint 14 |
+| D-13   | Dono  | `arena1@spole.dev` | `…/reservations`          | Após P-18/P-06 em reserva da arena | Reserva paga aparece ao focar aba / reabrir lista | —                      | Participante em outro browser | Sprint 19 |
 
 ---
 
-## 5. Cross-cutting (todos os papéis)
+## 5. Homologação Pix real (Sprint 19)
+
+Executar com backend Asaas + webhook público. Marque após P-05/P-06/P-18.
+
+| Código | Fluxo             | Passos                                   | Resultado esperado                                     |
+| ------ | ----------------- | ---------------------------------------- | ------------------------------------------------------ |
+| H-19-1 | Evento pago       | P-04 → P-05 → P-06 (Pix real)            | QR e copia-e-cola; polling até `PAID`; sem copy “mock” |
+| H-19-2 | Reserva arena     | P-12 → P-13 → P-18 → pagar Pix           | Mesmo padrão; reserva e pagamentos atualizam           |
+| H-19-3 | Detalhe pagamento | P-19 + P-07                              | Pix só em `PENDING`; terminal sem copiar Pix           |
+| H-19-4 | Organizador       | O-11 + O-12 após P-06                    | Summary/bookings/payments da API                       |
+| H-19-5 | Dono              | D-13 após reserva paga                   | Reservas recebidas refletem status                     |
+| H-19-6 | Catálogo          | P-11                                     | `GET /arenas`; filtros com Aplicar                     |
+| H-19-7 | Terminal negativo | Simular `FAILED`/`CANCELLED` se possível | Mensagem PT; polling para                              |
+| H-19-8 | Mock dev          | `NEXT_PUBLIC_PAYMENTS_PROVIDER=mock`     | Aviso discreto de dev; não é fluxo principal           |
+
+---
+
+## 6. Cross-cutting (todos os papéis)
 
 | Código | Verificação                                        | Resultado esperado                |
 | ------ | -------------------------------------------------- | --------------------------------- |

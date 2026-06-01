@@ -183,11 +183,20 @@ export function useEventParticipants(eventId: string) {
   });
 }
 
+const DEFAULT_OPS_LIMIT = 10;
+
+/** Read models operacionais do organizador — revalidam ao voltar à aba após homologação/pagamento. */
+const organizerOperationsQueryOptions = {
+  staleTime: 30 * 1000,
+  refetchOnWindowFocus: true
+} as const;
+
 export function useEventSummary(eventId: string) {
   return useQuery({
     queryKey: eventsKeys.summary(eventId),
     queryFn: () => getEventSummary(eventId),
     enabled: Boolean(eventId),
+    ...organizerOperationsQueryOptions,
     retry: (failureCount, error) => {
       if (error instanceof Error && "status" in error) {
         const status = (error as { status?: number }).status;
@@ -197,8 +206,6 @@ export function useEventSummary(eventId: string) {
     }
   });
 }
-
-const DEFAULT_OPS_LIMIT = 10;
 
 export function useEventBookings(eventId: string, params: EventBookingsListParams = {}) {
   const resolved = {
@@ -214,6 +221,7 @@ export function useEventBookings(eventId: string, params: EventBookingsListParam
     queryFn: () => listEventBookings(eventId, resolved),
     enabled: Boolean(eventId),
     placeholderData: (prev) => prev,
+    ...organizerOperationsQueryOptions,
     retry: (failureCount, error) => {
       if (error instanceof Error && "status" in error) {
         const status = (error as { status?: number }).status;
@@ -238,6 +246,7 @@ export function useEventPayments(eventId: string, params: EventPaymentsListParam
     queryFn: () => listEventPayments(eventId, resolved),
     enabled: Boolean(eventId),
     placeholderData: (prev) => prev,
+    ...organizerOperationsQueryOptions,
     retry: (failureCount, error) => {
       if (error instanceof Error && "status" in error) {
         const status = (error as { status?: number }).status;

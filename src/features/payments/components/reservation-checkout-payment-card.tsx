@@ -12,7 +12,7 @@ import {
   useCreatePaymentForReservation,
   useReservationPaymentSync
 } from "@/features/payments/hooks";
-import { PAYMENT_POLL_TIMEOUT_MESSAGE } from "@/features/payments/polling-config";
+import { getPaymentPollTimeoutMessage } from "@/features/payments/polling-messages";
 import {
   isPendingPaymentStatus,
   isTerminalPaymentStatus
@@ -152,7 +152,7 @@ export function ReservationCheckoutPaymentCard({
 
       {paymentQuery.pollTimedOut && payment && isPendingPaymentStatus(payment.status) ? (
         <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
-          {PAYMENT_POLL_TIMEOUT_MESSAGE}
+          {getPaymentPollTimeoutMessage()}
         </p>
       ) : null}
 

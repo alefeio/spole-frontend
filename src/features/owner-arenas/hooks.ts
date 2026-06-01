@@ -95,7 +95,9 @@ export function useOwnerArenaReservations(arenaId: string) {
   return useQuery({
     queryKey: ownerArenasKeys.reservations(arenaId),
     queryFn: () => listOwnerArenaReservations(arenaId),
-    enabled: Boolean(arenaId)
+    enabled: Boolean(arenaId),
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: true
   });
 }
 

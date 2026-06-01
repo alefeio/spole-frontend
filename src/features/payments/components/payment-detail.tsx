@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PaymentStatusBadge } from "@/features/payments/components/payment-status-badge";
 import { PixCheckoutPanel } from "@/features/payments/components/pix-checkout-panel";
-import { PAYMENT_POLL_TIMEOUT_MESSAGE } from "@/features/payments/polling-config";
+import { getPaymentPollTimeoutMessage } from "@/features/payments/polling-messages";
 import { isPendingPaymentStatus } from "@/features/payments/payment-status";
 import type { Payment } from "@/features/payments/types";
 
@@ -60,11 +60,16 @@ export function PaymentDetail({
         <PaymentStatusBadge status={payment.status} />
       </div>
 
-      <PixCheckoutPanel payment={payment} isPolling={isPolling} showProviderReference />
+      <PixCheckoutPanel
+        payment={payment}
+        isPolling={isPolling}
+        showProviderReference
+        showHeader={false}
+      />
 
       {pollTimedOut && pending ? (
         <p className="bg-muted rounded-lg border p-3 text-sm" role="status">
-          {PAYMENT_POLL_TIMEOUT_MESSAGE}
+          {getPaymentPollTimeoutMessage()}
         </p>
       ) : null}
 

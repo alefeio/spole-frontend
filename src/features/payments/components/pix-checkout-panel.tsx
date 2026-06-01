@@ -65,12 +65,15 @@ type PixCheckoutPanelProps = {
   payment: Payment;
   isPolling?: boolean;
   showProviderReference?: boolean;
+  /** Oculta título/badge duplicados quando o pai já exibe o status (ex.: detalhe do pagamento). */
+  showHeader?: boolean;
 };
 
 export function PixCheckoutPanel({
   payment,
   isPolling,
-  showProviderReference = false
+  showProviderReference = false,
+  showHeader = true
 }: PixCheckoutPanelProps) {
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
@@ -98,10 +101,12 @@ export function PixCheckoutPanel({
 
   return (
     <section className="space-y-4 rounded-xl border p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-base font-semibold">Pagamento com Pix</h3>
-        <PaymentStatusBadge status={payment.status} />
-      </div>
+      {showHeader ? (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-base font-semibold">Pagamento com Pix</h3>
+          <PaymentStatusBadge status={payment.status} />
+        </div>
+      ) : null}
 
       {isPolling ? (
         <p className="text-muted-foreground text-sm" role="status">
