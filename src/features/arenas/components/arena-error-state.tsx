@@ -19,7 +19,7 @@ export function ArenaErrorState({ error, onRetry }: ArenaErrorStateProps) {
           </Button>
         ) : null}
         <Button asChild variant="outline" className="min-h-11 sm:min-h-9">
-          <Link href="/arenas">Voltar ao hub de arenas</Link>
+          <Link href="/arenas">Voltar para arenas</Link>
         </Button>
       </div>
     </div>

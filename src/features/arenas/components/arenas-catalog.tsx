@@ -91,6 +91,7 @@ export function ArenasCatalog() {
       </header>
 
       <ArenasFilters
+        key={`${params.q ?? ""}|${params.city ?? ""}|${params.state ?? ""}|${params.district ?? ""}`}
         params={params}
         hasFilters={hasFilters}
         onChange={updateUrl}

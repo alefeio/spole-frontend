@@ -11,7 +11,7 @@ import {
 import { invalidatePaymentTerminalCaches } from "@/features/payments/invalidate-payment-caches";
 import { PAYMENT_POLL_INTERVAL_MS, PAYMENT_POLL_MAX_MS } from "@/features/payments/polling-config";
 import { bookingsKeys } from "@/features/bookings/hooks";
-import { eventsKeys } from "@/features/events/hooks";
+import { eventsKeys, invalidateEventOperations } from "@/features/events/hooks";
 import { reservationsKeys } from "@/features/reservations/hooks";
 import { createIdempotencyKey } from "@/lib/api/idempotency";
 import {
@@ -117,6 +117,7 @@ export function useCreatePaymentForBooking() {
       void queryClient.invalidateQueries({ queryKey: paymentsKeys.all });
       void queryClient.invalidateQueries({ queryKey: bookingsKeys.all });
       void queryClient.invalidateQueries({ queryKey: eventsKeys.details() });
+      invalidateEventOperations(queryClient);
       if (payment.id) {
         queryClient.setQueryData(paymentsKeys.detail(payment.id), payment);
       }

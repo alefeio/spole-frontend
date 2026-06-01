@@ -18,6 +18,17 @@ function formatDateTime(value: string) {
   }).format(date);
 }
 
+const BOOKING_STATUS_LABELS: Record<string, string> = {
+  RESERVED: "Reservado",
+  COMPLETED: "Concluído",
+  EXPIRED: "Expirado",
+  CANCELLED: "Cancelado"
+};
+
+function bookingStatusLabel(status: string) {
+  return BOOKING_STATUS_LABELS[status] ?? status;
+}
+
 type EventBookingsPanelProps = {
   eventId: string;
 };
@@ -31,7 +42,7 @@ export function EventBookingsPanel({ eventId }: EventBookingsPanelProps) {
   return (
     <section className="space-y-4 rounded-xl border p-4 sm:p-6">
       <header className="space-y-1">
-        <h2 className="text-lg font-semibold">Bookings do evento</h2>
+        <h2 className="text-lg font-semibold">Reservas/compras do evento</h2>
         <p className="text-muted-foreground text-sm">
           Reservas temporárias de vagas pagas — somente leitura.
         </p>
@@ -60,7 +71,7 @@ export function EventBookingsPanel({ eventId }: EventBookingsPanelProps) {
 
       {query.isError ? (
         <ErrorState
-          title="Erro ao carregar bookings"
+          title="Erro ao carregar as reservas de vaga"
           error={query.error}
           onRetry={() => void query.refetch()}
         />
@@ -68,7 +79,7 @@ export function EventBookingsPanel({ eventId }: EventBookingsPanelProps) {
 
       {query.isSuccess && query.data.data.length === 0 ? (
         <EmptyState
-          title="Nenhum booking"
+          title="Nenhuma reserva de vaga"
           description="Não há reservas de vaga para os filtros selecionados."
         />
       ) : null}
@@ -79,7 +90,7 @@ export function EventBookingsPanel({ eventId }: EventBookingsPanelProps) {
             {query.data.data.map((booking) => (
               <li key={booking.id} className="space-y-2 p-4 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-medium">{booking.status}</span>
+                  <span className="font-medium">{bookingStatusLabel(booking.status)}</span>
                   <span className="text-muted-foreground text-xs">
                     Reservado {formatDateTime(booking.reservedAt)}
                   </span>

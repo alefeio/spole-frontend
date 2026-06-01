@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cancelBooking, createBooking, getMyBookings } from "@/features/bookings/api";
 import type { BookingListParams, CreateBookingParams } from "@/features/bookings/types";
 import { createIdempotencyKey } from "@/lib/api/idempotency";
-import { eventsKeys } from "@/features/events/hooks";
+import { eventsKeys, invalidateEventOperations } from "@/features/events/hooks";
 import { notificationsKeys } from "@/features/notifications/hooks";
 
 export const bookingsKeys = {
@@ -29,11 +29,12 @@ export function useCreateBooking() {
         ...params,
         idempotencyKey: params.idempotencyKey ?? createIdempotencyKey()
       }),
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: bookingsKeys.all });
       void queryClient.invalidateQueries({ queryKey: eventsKeys.details() });
       void queryClient.invalidateQueries({ queryKey: eventsKeys.lists() });
       void queryClient.invalidateQueries({ queryKey: notificationsKeys.all });
+      invalidateEventOperations(queryClient, variables.eventId);
     }
   });
 }
@@ -47,6 +48,7 @@ export function useCancelBooking() {
       void queryClient.invalidateQueries({ queryKey: bookingsKeys.all });
       void queryClient.invalidateQueries({ queryKey: eventsKeys.details() });
       void queryClient.invalidateQueries({ queryKey: eventsKeys.lists() });
+      invalidateEventOperations(queryClient);
     }
   });
 }

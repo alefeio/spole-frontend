@@ -13,12 +13,32 @@ type ArenasFiltersProps = {
   onClear: () => void;
 };
 
+/**
+ * Os campos usam estado local (draft). A sincronização com a URL (limpar
+ * filtros / navegação direta) é feita pelo `key` no componente pai, que
+ * remonta este formulário e reinicializa os drafts a partir de `params`.
+ */
 export function ArenasFilters({ params, hasFilters, onChange, onClear }: ArenasFiltersProps) {
   const [qDraft, setQDraft] = useState(params.q ?? "");
+  const [cityDraft, setCityDraft] = useState(params.city ?? "");
+  const [stateDraft, setStateDraft] = useState(params.state ?? "");
+  const [districtDraft, setDistrictDraft] = useState(params.district ?? "");
 
-  function applySearch() {
-    const v = qDraft.trim();
-    if (v !== (params.q ?? "")) onChange({ q: v || undefined, page: 1 });
+  function applyFilters() {
+    onChange({
+      q: qDraft.trim() || undefined,
+      city: cityDraft.trim() || undefined,
+      state: stateDraft.trim().toUpperCase() || undefined,
+      district: districtDraft.trim() || undefined,
+      page: 1
+    });
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      applyFilters();
+    }
   }
 
   return (
@@ -34,29 +54,23 @@ export function ArenasFilters({ params, hasFilters, onChange, onClear }: ArenasF
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-2 sm:col-span-2 lg:col-span-4">
           <Label htmlFor="arenas-q">Nome, cidade ou endereço</Label>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Input
-              id="arenas-q"
-              className="min-h-11"
-              value={qDraft}
-              placeholder="Ex.: futebol, São Paulo, centro"
-              onChange={(e) => setQDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") applySearch();
-              }}
-            />
-            <Button type="button" className="min-h-11 shrink-0" onClick={applySearch}>
-              Buscar
-            </Button>
-          </div>
+          <Input
+            id="arenas-q"
+            className="min-h-11"
+            value={qDraft}
+            placeholder="Ex.: futebol, São Paulo, centro"
+            onChange={(e) => setQDraft(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="arenas-city">Cidade</Label>
           <Input
             id="arenas-city"
             className="min-h-11"
-            value={params.city ?? ""}
-            onChange={(e) => onChange({ city: e.target.value.trim() || undefined, page: 1 })}
+            value={cityDraft}
+            onChange={(e) => setCityDraft(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
         </div>
         <div className="space-y-2">
@@ -65,10 +79,9 @@ export function ArenasFilters({ params, hasFilters, onChange, onClear }: ArenasF
             id="arenas-state"
             className="min-h-11 uppercase"
             maxLength={2}
-            value={params.state ?? ""}
-            onChange={(e) =>
-              onChange({ state: e.target.value.trim().toUpperCase() || undefined, page: 1 })
-            }
+            value={stateDraft}
+            onChange={(e) => setStateDraft(e.target.value.toUpperCase())}
+            onKeyDown={handleKeyDown}
           />
         </div>
         <div className="space-y-2">
@@ -76,8 +89,9 @@ export function ArenasFilters({ params, hasFilters, onChange, onClear }: ArenasF
           <Input
             id="arenas-district"
             className="min-h-11"
-            value={params.district ?? ""}
-            onChange={(e) => onChange({ district: e.target.value.trim() || undefined, page: 1 })}
+            value={districtDraft}
+            onChange={(e) => setDistrictDraft(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
         </div>
         <div className="space-y-2">
@@ -101,6 +115,11 @@ export function ArenasFilters({ params, hasFilters, onChange, onClear }: ArenasF
             <option value="createdAt:desc">Cadastro recente</option>
           </select>
         </div>
+      </div>
+      <div className="flex justify-end">
+        <Button type="button" className="min-h-11 w-full sm:w-auto" onClick={applyFilters}>
+          Aplicar filtros
+        </Button>
       </div>
     </section>
   );

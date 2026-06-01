@@ -23,6 +23,18 @@ function formatDateTime(value: string | null) {
   }).format(date);
 }
 
+const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pendente",
+  PAID: "Pago",
+  FAILED: "Falhou",
+  CANCELLED: "Cancelado",
+  REFUNDED: "Reembolsado"
+};
+
+function paymentStatusLabel(status: string) {
+  return PAYMENT_STATUS_LABELS[status] ?? status;
+}
+
 type EventPaymentsPanelProps = {
   eventId: string;
 };
@@ -84,7 +96,7 @@ export function EventPaymentsPanel({ eventId }: EventPaymentsPanelProps) {
             {query.data.data.map((payment) => (
               <li key={payment.id} className="space-y-2 p-4 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-medium">{payment.status}</span>
+                  <span className="font-medium">{paymentStatusLabel(payment.status)}</span>
                   <span className="font-semibold">{formatMoney(payment.grossAmount)}</span>
                 </div>
                 <dl className="grid gap-2 sm:grid-cols-2">

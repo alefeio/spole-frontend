@@ -37,14 +37,39 @@ export const eventsKeys = {
     [...eventsKeys.details(), eventId, params] as const,
   categories: () => [...eventsKeys.all, "categories"] as const,
   participants: (eventId: string) => [...eventsKeys.all, "participants", eventId] as const,
-  summary: (eventId: string) => [...eventsKeys.all, "summary", eventId] as const,
+  summaries: () => [...eventsKeys.all, "summary"] as const,
+  summary: (eventId: string) => [...eventsKeys.summaries(), eventId] as const,
+  bookingsAll: () => [...eventsKeys.all, "bookings"] as const,
+  bookingsByEvent: (eventId: string) => [...eventsKeys.bookingsAll(), eventId] as const,
   bookings: (eventId: string, params: EventBookingsListParams) =>
-    [...eventsKeys.all, "bookings", eventId, params] as const,
+    [...eventsKeys.bookingsByEvent(eventId), params] as const,
+  paymentsAll: () => [...eventsKeys.all, "payments"] as const,
+  paymentsByEvent: (eventId: string) => [...eventsKeys.paymentsAll(), eventId] as const,
   payments: (eventId: string, params: EventPaymentsListParams) =>
-    [...eventsKeys.all, "payments", eventId, params] as const,
+    [...eventsKeys.paymentsByEvent(eventId), params] as const,
   mine: () => [...eventsKeys.all, "mine"] as const,
   mineList: (params: OrganizerEventsListParams) => [...eventsKeys.mine(), params] as const
 };
+
+/**
+ * Invalida as read models operacionais do evento (summary, bookings, payments).
+ * Com `eventId`, restringe ao evento; sem ele, invalida os prefixos operacionais
+ * (usado quando só temos `bookingId` e não há eventId disponível sem novo request).
+ */
+export function invalidateEventOperations(
+  queryClient: ReturnType<typeof useQueryClient>,
+  eventId?: string
+) {
+  if (eventId) {
+    void queryClient.invalidateQueries({ queryKey: eventsKeys.summary(eventId) });
+    void queryClient.invalidateQueries({ queryKey: eventsKeys.bookingsByEvent(eventId) });
+    void queryClient.invalidateQueries({ queryKey: eventsKeys.paymentsByEvent(eventId) });
+    return;
+  }
+  void queryClient.invalidateQueries({ queryKey: eventsKeys.summaries() });
+  void queryClient.invalidateQueries({ queryKey: eventsKeys.bookingsAll() });
+  void queryClient.invalidateQueries({ queryKey: eventsKeys.paymentsAll() });
+}
 
 export function useEvents(params: EventListParams) {
   return useQuery({
@@ -105,6 +130,7 @@ function invalidateEventCaches(queryClient: ReturnType<typeof useQueryClient>, e
   if (eventId) {
     void queryClient.invalidateQueries({ queryKey: eventsKeys.participants(eventId) });
   }
+  invalidateEventOperations(queryClient, eventId);
 }
 
 export function useCreateEvent() {

@@ -21,20 +21,21 @@ export function ArenasDirectOpen() {
   return (
     <details className="rounded-xl border p-4">
       <summary className="cursor-pointer text-sm font-medium">
-        Tenho um link ou código de arena
+        Tenho um link ou identificador direto da arena
       </summary>
       <form className="mt-4 space-y-4" onSubmit={handleSubmit}>
         <p className="text-muted-foreground text-sm">
-          Cole o identificador que você recebeu no convite ou no link compartilhado.
+          Use esta opção apenas se você já recebeu um link ou identificador direto da arena. Para
+          descobrir arenas, use a busca acima.
         </p>
         <div className="space-y-2">
-          <Label htmlFor="arena-direct-code">Código da arena</Label>
+          <Label htmlFor="arena-direct-code">Link ou identificador da arena</Label>
           <Input
             id="arena-direct-code"
             name="arenaCode"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Código recebido no link"
+            placeholder="Identificador recebido no link"
             className="min-h-11 text-sm break-all"
             autoComplete="off"
           />

@@ -69,7 +69,7 @@ export default function ArenaDetailPage({ params }: ArenaDetailPageProps) {
 function ArenaNavBack() {
   return (
     <Button asChild variant="ghost" className="min-h-11 px-0 sm:min-h-9">
-      <Link href="/arenas">← Hub de arenas</Link>
+      <Link href="/arenas">← Arenas</Link>
     </Button>
   );
 }

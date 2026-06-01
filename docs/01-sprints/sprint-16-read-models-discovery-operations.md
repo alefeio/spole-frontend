@@ -50,9 +50,12 @@ Geolocalização, mapa, ranking, BI, relatórios avançados, recorrência, check
 
 ## Critérios de aceite
 
-- [ ] `/arenas` usa `GET /arenas` com `q`, filtros e paginação
-- [ ] Organizador usa summary/bookings/payments do evento (não admin)
-- [ ] `pnpm lint` e `pnpm build` passam
+- [x] `/arenas` usa `GET /arenas` com `q`, filtros e paginação
+- [x] Organizador usa summary/bookings/payments do evento (não admin)
+- [x] `pnpm lint` e `pnpm build` passam
+
+> Hardening pós-homologação (cache da operação, copy e filtros) tratado na
+> [Sprint 17](./sprint-17-post-homologation-read-models.md).
 
 ## Pendências backend
 

@@ -22,6 +22,9 @@ export function ArenaCatalogCard({ arena }: ArenaCatalogCardProps) {
             {arena.name}
           </Link>
         </h2>
+        {arena.addressName ? (
+          <p className="text-sm font-medium break-words">{arena.addressName}</p>
+        ) : null}
         <p className="text-muted-foreground text-sm">{formatLocation(arena)}</p>
       </div>
       <div className="mt-auto flex flex-wrap items-center justify-between gap-2">

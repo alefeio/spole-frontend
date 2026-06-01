@@ -21,7 +21,7 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 3. **Contrato explícito** — tipos e endpoints alinhados a [`../02-features/api-contract-map.md`](../02-features/api-contract-map.md).
 4. **Sem antecipar backend** — não construir telas para rotas inexistentes.
 
-## 4. Escopo entregue (Sprints 00–15)
+## 4. Escopo entregue (Sprints 00–17)
 
 | Área                  | Entregas                                                             |
 | --------------------- | -------------------------------------------------------------------- |
@@ -38,6 +38,7 @@ Cliente web do Spolê, consumindo a API REST em `/api`. O frontend é **feature-
 | Dono de arena (13–14) | Hub `/owner`, listagem, espaços, slots, reservas, agenda operacional |
 | QA / MVP (15)         | Checklist de homologação, copy/guards/erros, docs de prontidão       |
 | Read models (16)      | Catálogo público de arenas; summary/bookings/payments do organizador |
+| Pós-homologação (17)  | Cache da operação do evento, filtros estáveis de `/arenas`, copy PT  |
 
 ## 5. Perfis e áreas da UI
 
